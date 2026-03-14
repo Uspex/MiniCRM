@@ -1,112 +1,296 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# MiniCRM
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Система учёта производственной деятельности для небольших предприятий. Позволяет фиксировать проделанную работу каждого сотрудника, отслеживать затраченное время, контролировать выполнение задач и получать полную картину загруженности производства.
 
+Предназначена для небольших производств, где важно понимать: кто, что и сколько времени делал — без лишней бюрократии.
 
-## About Laravel
+## Возможности
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- Учёт выполненных работ по каждому сотруднику
+- Привязка задачи к типу работ (вид деятельности)
+- Учёт количества обработанных товаров/единиц продукции
+- Отслеживание времени выполнения (запланированное и фактическое)
+- Контроль статуса задачи (выполнено / не выполнено)
+- Администратор видит работу всех сотрудников с фильтрацией
+- Каждый сотрудник ведёт только свой учёт
+- Гибкая система ролей и прав доступа (RBAC)
+- Интерфейс на русском языке
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Разделы
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### Задачи
+Основной рабочий раздел. Сотрудник фиксирует выполненную работу: тип работы, количество товаров, время начала и окончания, статус (выполнено / не выполнено). Поддерживает фильтрацию по сотруднику, типу работ и статусу.
 
-## Learning Laravel
+### Типы работ
+Справочник видов деятельности (Activity). Каждый тип имеет название и slug. Используется при создании задач.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### Пользователи
+Управление учётными записями сотрудников. Доступно только администратору (root). Поддерживает назначение ролей и установку языка интерфейса для каждого пользователя.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### Роли
+Управление ролями пользователей. При создании роли назначаются права доступа из списка. Доступно только администратору.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Права доступа
+Управление правами, сгруппированными по модулям (activity, task). Доступно только администратору.
 
-## Laravel Sponsors
+## Роли пользователей
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+| Роль | Возможности |
+|------|-------------|
+| **root** | Полный доступ: пользователи, роли, права, все задачи |
+| **Обычный пользователь** | Доступ определяется назначенными правами; видит только свои задачи |
 
-### Premium Partners
+## Стек технологий
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development/)**
-- **[Active Logic](https://activelogic.com)**
+- **Backend**: Laravel 12, PHP 8.2+
+- **Frontend**: Blade + Tailwind CSS 4 + DaisyUI 5
+- **БД**: MySQL
+- **Аутентификация**: сессии (web) + Laravel Passport OAuth 2.0 (API, зарезервировано)
+- **RBAC**: Spatie Laravel Permission
+- **Очереди/Кеш/Сессии**: хранятся в БД
 
-## Contributing
+---
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
-
-## Frontend
-
-This project includes a modern frontend built with Vue 3 and TypeScript for the template editor functionality.
-
-### Frontend Stack
-
-- **Vue 3** - Progressive JavaScript framework with Composition API
-- **TypeScript** - Type-safe JavaScript development
-- **Vite** - Fast build tool and development server
-- **Tailwind CSS** - Utility-first CSS framework
-
-### Template Editor
-
-The template editor is a Vue 3 application that provides:
-
-- **Drag & Drop Interface** - Intuitive element placement and positioning
-- **Real-time Preview** - Live template editing with instant feedback
-- **Element Library** - Text elements, barcodes, and image components
-- **Responsive Design** - Works across different screen sizes
-- **Type Safety** - Full TypeScript support for better development experience
-
-### Development
-
-To work with the frontend:
+## Локальная установка
 
 ```bash
-# Install dependencies
+# 1. Клонировать репозиторий
+git clone <repo-url>
+cd mini-crm.local
+
+# 2. Установить зависимости
+composer install
 npm install
 
-# Start development server
-npm run dev
+# 3. Настроить окружение
+cp .env.example .env
+php artisan key:generate
+```
 
-# Build for production
+Настроить `.env`:
+
+```env
+APP_URL=http://mini-crm.local
+
+DB_HOST=127.0.0.1
+DB_DATABASE=mini_crm
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+```bash
+# 4. Создать базу данных и запустить миграции
+php artisan migrate
+php artisan db:seed
+php artisan passport:install
+
+# 5. Собрать фронтенд
 npm run build
 ```
 
-### Project Structure
+Данные администратора задаются в `config/add_user.php` перед запуском `db:seed`.
 
-```
-resources/js/
-├── components/
-│   └── template-editor/
-│       ├── controls/          # UI controls and toolbars
-│       ├── elements/          # Template elements (text, barcode, etc.)
-│       └── TemplateEditor.vue # Main editor component
-├── types/                     # TypeScript type definitions
-└── app.ts                     # Main application entry point
+### Запуск для разработки
+
+```bash
+composer run dev   # Laravel + очередь + Vite одновременно
 ```
 
+---
+
+## Деплой на VPS
+
+### Требования к серверу
+
+- Ubuntu 22.04+
+- PHP 8.2+ с расширениями: `mbstring`, `xml`, `curl`, `zip`, `bcmath`, `pdo_mysql`, `intl`
+- Composer
+- Node.js 18+ и npm
+- MySQL 8+
+- Nginx
+- Supervisor (для воркера очереди)
+
+### 1. Установка зависимостей (Ubuntu)
+
+```bash
+# PHP 8.2
+sudo apt update
+sudo apt install -y software-properties-common
+sudo add-apt-repository ppa:ondrej/php
+sudo apt install -y php8.2 php8.2-fpm php8.2-mysql php8.2-mbstring php8.2-xml \
+    php8.2-curl php8.2-zip php8.2-bcmath php8.2-intl php8.2-tokenizer
+
+# Composer
+curl -sS https://getcomposer.org/installer | php
+sudo mv composer.phar /usr/local/bin/composer
+
+# Node.js
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt install -y nodejs
+
+# MySQL
+sudo apt install -y mysql-server
+
+# Nginx
+sudo apt install -y nginx
+
+# Supervisor
+sudo apt install -y supervisor
+```
+
+### 2. База данных
+
+```bash
+sudo mysql -u root -p
+```
+
+```sql
+CREATE DATABASE mini_crm CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER 'crm_user'@'localhost' IDENTIFIED BY 'strong_password';
+GRANT ALL PRIVILEGES ON mini_crm.* TO 'crm_user'@'localhost';
+FLUSH PRIVILEGES;
+EXIT;
+```
+
+### 3. Код приложения
+
+```bash
+cd /var/www
+git clone <repo-url> minicrm
+cd minicrm
+
+composer install --no-dev --optimize-autoloader
+npm install
+npm run build
+
+cp .env.example .env
+php artisan key:generate
+```
+
+Настроить `/var/www/minicrm/.env`:
+
+```env
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://your-domain.com
+
+DB_HOST=127.0.0.1
+DB_DATABASE=mini_crm
+DB_USERNAME=crm_user
+DB_PASSWORD=strong_password
+
+QUEUE_CONNECTION=database
+SESSION_DRIVER=database
+CACHE_STORE=database
+```
+
+```bash
+php artisan migrate --force
+php artisan db:seed --force
+php artisan passport:install
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+
+# Права на директории
+sudo chown -R www-data:www-data /var/www/minicrm
+sudo chmod -R 755 /var/www/minicrm/storage
+sudo chmod -R 755 /var/www/minicrm/bootstrap/cache
+```
+
+### 4. Nginx
+
+Создать файл `/etc/nginx/sites-available/minicrm`:
+
+```nginx
+server {
+    listen 80;
+    server_name your-domain.com;
+    root /var/www/minicrm/public;
+
+    index index.php;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location ~ \.php$ {
+        fastcgi_pass unix:/var/run/php/php8.2-fpm.sock;
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
+
+    location ~ /\.ht {
+        deny all;
+    }
+}
+```
+
+```bash
+sudo ln -s /etc/nginx/sites-available/minicrm /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl restart nginx
+```
+
+### 5. Supervisor (воркер очереди)
+
+Создать файл `/etc/supervisor/conf.d/minicrm-worker.conf`:
+
+```ini
+[program:minicrm-worker]
+process_name=%(program_name)s_%(process_num)02d
+command=php /var/www/minicrm/artisan queue:work --sleep=3 --tries=3 --max-time=3600
+autostart=true
+autorestart=true
+stopasgroup=true
+killasgroup=true
+user=www-data
+numprocs=1
+redirect_stderr=true
+stdout_logfile=/var/www/minicrm/storage/logs/worker.log
+stopwaitsecs=3600
+```
+
+```bash
+sudo supervisorctl reread
+sudo supervisorctl update
+sudo supervisorctl start minicrm-worker:*
+```
+
+### 6. Обновление на сервере
+
+```bash
+cd /var/www/minicrm
+
+git pull origin master
+composer install --no-dev --optimize-autoloader
+npm run build
+
+php artisan migrate --force
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+
+sudo supervisorctl restart minicrm-worker:*
+```
+
+---
+
+## Полезные команды
+
+```bash
+# Тесты
+composer run test
+
+# Линтинг PHP
+php artisan pint
+
+# Линтинг JS/TS
+npm run lint
+npm run lint:fix
+
+# Сброс кеша
+php artisan cache:clear
+php artisan config:clear
+php artisan view:clear
+```
