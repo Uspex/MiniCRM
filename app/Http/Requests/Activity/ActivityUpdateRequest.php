@@ -15,7 +15,6 @@ class ActivityUpdateRequest extends FormRequest
     {
         return [
             'name' => ['required', 'min:2', 'max:191'],
-            'slug' => ['required', 'min:2', 'max:191', 'unique:activities,slug,' . $this->route('activity')],
         ];
     }
 }

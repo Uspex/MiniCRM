@@ -10,6 +10,7 @@ use App\Models\Permission;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class ActivityController extends Controller
@@ -55,7 +56,10 @@ class ActivityController extends Controller
      */
     public function store(ActivityCreateRequest $request): RedirectResponse
     {
-        Activity::create($request->all());
+        Activity::create([
+            'name' => $request->input('name'),
+            'slug' => $this->generateUniqueSlug($request->input('name')),
+        ]);
 
         return redirect()
             ->route('admin.activity.index')
@@ -78,11 +82,31 @@ class ActivityController extends Controller
     public function update(ActivityUpdateRequest $request, int $id): RedirectResponse
     {
         $activity = Activity::findOrFail($id);
-        $activity->update($request->all());
+
+        $data = ['name' => $request->input('name')];
+
+        if ($activity->name !== $request->input('name')) {
+            $data['slug'] = $this->generateUniqueSlug($request->input('name'), $id);
+        }
+
+        $activity->update($data);
 
         return redirect()
             ->route('admin.activity.edit', $activity->id)
             ->with(['success' => trans('common.update.success')]);
+    }
+
+    private function generateUniqueSlug(string $name, ?int $excludeId = null): string
+    {
+        $slug = Str::slug($name);
+        $original = $slug;
+        $i = 1;
+
+        while (Activity::where('slug', $slug)->when($excludeId, fn($q) => $q->where('id', '!=', $excludeId))->exists()) {
+            $slug = $original . '-' . $i++;
+        }
+
+        return $slug;
     }
 
     /**

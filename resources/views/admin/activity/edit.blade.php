@@ -43,16 +43,6 @@
                                                                            required>
                                                                 </div>
                                                             </div>
-                                                            <div class="col-lg-3">
-                                                                <div class="form-group">
-                                                                    <label class="form-label" for="slug">{{ __('activity.form.fields.slug') }}</label>
-                                                                    <input name="slug" value="{{ $activity->slug }}"
-                                                                           id="slug"
-                                                                           type="text"
-                                                                           class="form-control"
-                                                                           required>
-                                                                </div>
-                                                            </div>
                                                         </div>
                                                     </div><!-- .nk-block -->
                                                 </div><!-- .card-inner -->
