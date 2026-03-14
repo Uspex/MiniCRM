@@ -1,0 +1,124 @@
+/*!
+ * Theme Name: Default
+ * Package : DashLite
+ * Author: Softnio
+ * Author URI: http://themeforest.net/user/softnio
+ * Version	 :	1.0.0
+ * Updated	 :	07.23.2020
+**/
+
+/* planogram */
+.planogram .planogram-item {
+    display: flex;
+}
+.planogram .planogram-content {
+    width: 100%;
+    padding: 10px;
+}
+.planogram .planogram-select {
+    padding: 10px;
+}
+.planogram .planogram-button-down {
+    margin-top: 10px;
+    text-align: center;
+}
+.planogram .planogram-button-left {
+    padding-top: 20px;
+    margin-left: 10px;
+}
+
+
+/* js-response-error */
+#js-response-error {
+    display: none;
+}
+#js-response-success {
+    display: none;
+}
+
+@keyframes spinner {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.spinner {
+    animation: spinner 1s linear infinite;
+    opacity: 1 !important;
+}
+
+.js-ajax-request:disabled, .js-ajax-request.disabled {
+    opacity: 0.65;
+    pointer-events: none;
+}
+
+.custom-switch .custom-control-label::before {
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.custom-switch .custom-control-label::after {
+    top: 50% !important;
+    transform: translateY(-50%);
+}
+
+.custom-switch .custom-control-input:checked ~ .custom-control-label::after {
+    transform: translateY(-50%) translateX(1.5rem);
+}
+
+/* table column width by content */
+.table-auto {
+    width: auto;
+}
+
+/* Select2 sizes — по аналогии с form-control-{sm,lg,xl} */
+
+/* sm */
+.form-control-sm ~ .select2-container--default .select2-selection--single {
+    height: calc(1.75rem + 2px);
+    font-size: 0.75rem;
+    border-radius: 3px;
+}
+.form-control-sm ~ .select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: 1.25rem;
+    padding: 0.25rem calc(1.75rem + 2px) 0.25rem 1rem;
+}
+.form-control-sm ~ .select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: calc(1.75rem + 2px);
+    width: calc(1.75rem + 2px);
+}
+
+/* lg */
+.form-control-lg ~ .select2-container--default .select2-selection--single {
+    height: calc(2.625rem + 2px);
+    font-size: 0.9375rem;
+    border-radius: 5px;
+}
+.form-control-lg ~ .select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: 1.25rem;
+    padding: 0.6875rem calc(2.625rem + 2px) 0.6875rem 1rem;
+}
+.form-control-lg ~ .select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: calc(2.625rem + 2px);
+    width: calc(2.625rem + 2px);
+}
+
+/* xl */
+.form-control-xl ~ .select2-container--default .select2-selection--single {
+    height: calc(3.25rem + 2px);
+    font-size: 15px;
+    border-radius: 5px;
+}
+.form-control-xl ~ .select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: 2rem;
+    padding: 0.625rem calc(3.25rem + 2px) 0.625rem 1.25rem;
+}
+.form-control-xl ~ .select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: calc(3.25rem + 2px);
+    width: calc(3.25rem + 2px);
+}
+
+input[type="time"].no-picker::-webkit-calendar-picker-indicator { display: none; }

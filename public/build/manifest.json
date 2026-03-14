@@ -1,0 +1,79 @@
+{
+  "__vite-browser-external": {
+    "file": "assets/__vite-browser-external-waBZbjg1.js",
+    "name": "__vite-browser-external",
+    "src": "__vite-browser-external",
+    "isDynamicEntry": true,
+    "imports": [
+      "_chunk-DuvvmVW1.js"
+    ]
+  },
+  "_chunk-DuvvmVW1.js": {
+    "file": "assets/chunk-DuvvmVW1.js",
+    "name": "chunk"
+  },
+  "_style-DDWZ90P8.css": {
+    "file": "assets/style-DDWZ90P8.css",
+    "src": "_style-DDWZ90P8.css"
+  },
+  "_vue-i18n-DxIY-bLi.js": {
+    "file": "assets/vue-i18n-DxIY-bLi.js",
+    "name": "vue-i18n",
+    "imports": [
+      "_chunk-DuvvmVW1.js"
+    ]
+  },
+  "node_modules/canvas/browser.js": {
+    "file": "assets/browser-B5lkhD7d.js",
+    "name": "browser",
+    "src": "node_modules/canvas/browser.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/editor/src/editor.ts"
+    ]
+  },
+  "resources/css/app.css": {
+    "file": "assets/app-xmySYXbH.css",
+    "names": [
+      "app.css"
+    ],
+    "src": "resources/css/app.css",
+    "isEntry": true
+  },
+  "resources/editor/src/editor.ts": {
+    "file": "assets/editor-bhAWpc_I.js",
+    "name": "editor",
+    "src": "resources/editor/src/editor.ts",
+    "isEntry": true,
+    "imports": [
+      "_vue-i18n-DxIY-bLi.js",
+      "_chunk-DuvvmVW1.js"
+    ],
+    "dynamicImports": [
+      "resources/editor/src/editor.ts",
+      "__vite-browser-external"
+    ],
+    "css": [
+      "assets/editor-BjpRXm7u.css",
+      "assets/style-DDWZ90P8.css"
+    ]
+  },
+  "resources/editor/src/style.css": {
+    "file": "assets/style-B127jBek.js",
+    "name": "style",
+    "src": "resources/editor/src/style.css",
+    "isEntry": true,
+    "css": [
+      "assets/style-DDWZ90P8.css"
+    ]
+  },
+  "resources/js/app.ts": {
+    "file": "assets/app-BjfZDsqb.js",
+    "name": "app",
+    "src": "resources/js/app.ts",
+    "isEntry": true,
+    "imports": [
+      "_vue-i18n-DxIY-bLi.js"
+    ]
+  }
+}

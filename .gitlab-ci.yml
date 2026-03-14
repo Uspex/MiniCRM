@@ -1,0 +1,66 @@
+stages:
+  - deploy 
+
+workflow:
+  rules:
+    - if: $CI_MERGE_REQUEST_ID
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "dev"'
+      variables:
+        RUNNER_TAG: "dev"
+        ENV_NAME: "dev"
+      when: always
+    - if: '$CI_COMMIT_BRANCH == "production"'
+      variables:
+        RUNNER_TAG: "prod"
+        ENV_NAME: "prod"
+      when: always
+    - if: '$CI_COMMIT_BRANCH == "CV-3055-atb"'
+      variables:
+        RUNNER_TAG: "atb"
+        ENV_NAME: "atb"
+      when: always
+
+
+deploy:
+  stage: deploy
+  tags:
+    - admin
+    - price
+    - $RUNNER_TAG
+  environment:
+    name: $ENV_NAME
+  script:
+    - echo "📦 Обновление кода..."
+    - cd /var/www/tag.neuroshop.tech
+    - git pull
+
+    - echo "📝 Установка .env из GitLab переменной..."
+    - cp "$ENV_FILE" .env
+    - chmod 600 .env
+
+    - echo "📦 Установка зависимостей Laravel от www-data..."
+    - sudo -u www-data composer install --no-dev --optimize-autoloader
+
+    - sudo yarn
+    - sudo yarn server
+    - echo "🔧 Установка прав на storage и bootstrap/cache..."
+    - sudo chown -R www-data:www-data /var/www/tag.neuroshop.tech
+    - sudo -u www-data find storage bootstrap/cache -type d -exec chmod 775 {} \;
+    - sudo -u www-data find storage bootstrap/cache -type f -exec chmod 664 {} \;
+
+    - echo "🔐 Обновление ключей от www-data..."
+    - sudo -u www-data php artisan config:clear
+    - sudo -u www-data php artisan cache:clear
+    - sudo -u www-data php artisan config:cache
+    - sudo -u www-data php artisan route:cache
+    - sudo -u www-data php artisan view:cache
+
+    - echo "🗃️ Применение миграций от www-data..."
+    - sudo -u www-data php artisan migrate --force
+    - sudo -u www-data php artisan db:seed --force
+    - sudo chmod 660 /var/www/tag.neuroshop.tech/storage/oauth-*.key
+    - sudo chown www-data:www-data /var/www/tag.neuroshop.tech/storage/oauth-*.key
+    - sudo supervisorctl restart laravel-queue:*
+
+    - echo "✅ Деплой завершен"
