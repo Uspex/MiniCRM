@@ -17,17 +17,28 @@
             <div class="nk-sidebar-menu" data-simplebar>
                 <ul class="nk-menu">
 
-                    @if(auth()->user()->hasAnyPermission([\App\Models\Permission::PERMISSION_ACTIVITY_LIST]))
+                    @if(auth()->user()->hasAnyPermission([\App\Models\Permission::PERMISSION_TASK_LIST, \App\Models\Permission::PERMISSION_ACTIVITY_LIST]))
                         <li class="nk-menu-heading">
                             <h6 class="overline-title text-primary-alt">{{ __('common.menu.tasks') }}</h6>
                         </li><!-- .nk-menu-heading -->
 
-                        <li class="nk-menu-item">
-                            <a href="{{ route('admin.activity.index') }}" class="nk-menu-link">
-                                <span class="nk-menu-icon"><em class="icon ni ni-setting"></em></span>
-                                <span class="nk-menu-text">{{ __('common.menu.activity') }}</span>
-                            </a>
-                        </li><!-- .nk-menu-item -->
+                        @if(auth()->user()->hasPermissionTo(\App\Models\Permission::PERMISSION_TASK_LIST))
+                            <li class="nk-menu-item {{ request()->routeIs('admin.task.*') ? 'active' : '' }}">
+                                <a href="{{ route('admin.task.index') }}" class="nk-menu-link">
+                                    <span class="nk-menu-icon"><em class="icon ni ni-todo"></em></span>
+                                    <span class="nk-menu-text">{{ __('common.menu.task') }}</span>
+                                </a>
+                            </li><!-- .nk-menu-item -->
+                        @endif
+
+                        @if(auth()->user()->hasPermissionTo(\App\Models\Permission::PERMISSION_ACTIVITY_LIST))
+                            <li class="nk-menu-item {{ request()->routeIs('admin.activity.*') ? 'active' : '' }}">
+                                <a href="{{ route('admin.activity.index') }}" class="nk-menu-link">
+                                    <span class="nk-menu-icon"><em class="icon ni ni-setting"></em></span>
+                                    <span class="nk-menu-text">{{ __('common.menu.activity') }}</span>
+                                </a>
+                            </li><!-- .nk-menu-item -->
+                        @endif
                     @endif
 
                     @if(auth()->user()->hasRole(\App\Models\Role::ROLE_ROOT))

@@ -1,9 +1,12 @@
 @if ($paginator->hasPages())
+    @php
+        $query = collect(request()->query())->except('page')->toArray();
+    @endphp
     <div class="d-flex flex-wrap justify-content-end">
         <ul class="pagination justify-content-center justify-content-md-start">
             {{-- <li class="page-item"><a class="page-link" href="#">Назад</a></li> --}}
             @if (!$paginator->onFirstPage())
-                <li class="page-item"><a class="page-link" href="{{ $paginator->previousPageUrl() }}" rel="prev"><em class="icon ni ni-chevrons-left"></em></a></li>
+                <li class="page-item"><a class="page-link" href="{{ $paginator->previousPageUrl() . ($query ? '&' . http_build_query($query) : '') }}" rel="prev"><em class="icon ni ni-chevrons-left"></em></a></li>
             @endif
 
             @foreach ($elements as $element)
@@ -18,7 +21,7 @@
                         @if ($page == $paginator->currentPage())
                             <li class="page-item active" aria-current="page"><span class="page-link">{{ $page }}</span></li>
                         @else
-                            <li class="page-item"><a class="page-link" href="{{ $url }}">{{ $page }}</a></li>
+                            <li class="page-item"><a class="page-link" href="{{ $url . ($query ? '&' . http_build_query($query) : '') }}">{{ $page }}</a></li>
                         @endif
                     @endforeach
                 @endif
@@ -26,7 +29,7 @@
 
 
             @if ($paginator->hasMorePages())
-                <li class="page-item"><a class="page-link" href="{{ $paginator->nextPageUrl() }}" rel="next"><em class="icon ni ni-chevrons-right"></em></a></li>
+                <li class="page-item"><a class="page-link" href="{{ $paginator->nextPageUrl() . ($query ? '&' . http_build_query($query) : '') }}" rel="next"><em class="icon ni ni-chevrons-right"></em></a></li>
             @endif
         </ul><!-- .pagination -->
     </div>

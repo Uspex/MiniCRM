@@ -25,6 +25,7 @@ return [
         'role' => 'Роли',
         'permission' => 'Права',
         'tasks' => 'Задачи',
+        'task' => 'Задачи',
         'activity' => 'Типы работ',
     ],
 

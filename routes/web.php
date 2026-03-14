@@ -43,6 +43,11 @@ Route::middleware(['auth', 'setUserLanguage'])->group(function () {
         Route::group(['namespace' => 'Activity'], function() {
             Route::resource('activity', '\App\Http\Controllers\Admin\Activity\ActivityController')->except(['show'])->names('admin.activity');
         });
+
+        //Задачи
+        Route::group(['namespace' => 'Task'], function() {
+            Route::resource('task', '\App\Http\Controllers\Admin\Task\TaskController')->except(['show'])->names('admin.task');
+        });
     });
 });
 

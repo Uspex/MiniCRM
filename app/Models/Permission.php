@@ -14,6 +14,7 @@ class Permission extends BasePermission
 
 
     //----------------------------------------------------------
+    const PERMISSION_ACTIVITY_SELECT = 'activity_select';
     const PERMISSION_ACTIVITY_LIST = 'activity_list';
     const PERMISSION_ACTIVITY_INFO = 'activity_info';
     const PERMISSION_ACTIVITY_CREATE = 'activity_create';
@@ -47,6 +48,7 @@ class Permission extends BasePermission
     {
         return [
             self::GROUP_ACTIVITY => [
+                self::PERMISSION_ACTIVITY_SELECT,
                 self::PERMISSION_ACTIVITY_LIST,
                 self::PERMISSION_ACTIVITY_INFO,
                 self::PERMISSION_ACTIVITY_CREATE,
