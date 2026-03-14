@@ -20,7 +20,7 @@ Route::middleware(['auth', 'setUserLanguage'])->group(function () {
 
     Route::group(['prefix' => 'admin'], function () {
 
-        Route::get('/', [DashboardController::class, 'admin.dashboard']);
+        Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('admin.dashboard');
 
         //Пользователи
         Route::group(['namespace' => 'User'], function() {

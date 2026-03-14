@@ -11,7 +11,6 @@ return [
     'next' => 'Далі',
     'save' => 'Зберегти',
     'removed' => 'Видалено',
-    'import' => 'Імпорт',
 
     'btn_search_reset' => 'Скинути пошук',
     'btn_search_apply' => 'Пошук',
@@ -22,14 +21,6 @@ return [
     'tab_setting' => 'Налаштування',
 
     'menu' => [
-        'base_station' => 'Базові станції',
-        'esl' => 'Цінники',
-
-        'shop' => 'Магазини',
-        'showcase' => 'Вітрина',
-        'product' => 'Товари',
-        'template' => 'Шаблони',
-        'import' => 'Імпорт',
         'user' => 'Користувачі',
         'role' => 'Ролі',
         'permission' => 'Дозволи',
