@@ -63,7 +63,6 @@ cd mini-crm.local
 
 # 2. Установить зависимости
 composer install
-npm install
 
 # 3. Настроить окружение
 cp .env.example .env
@@ -86,9 +85,6 @@ DB_PASSWORD=
 php artisan migrate
 php artisan db:seed
 php artisan passport:install
-
-# 5. Собрать фронтенд
-npm run build
 ```
 
 Данные администратора задаются в `config/add_user.php` перед запуском `db:seed`.
@@ -96,7 +92,7 @@ npm run build
 ### Запуск для разработки
 
 ```bash
-composer run dev   # Laravel + очередь + Vite одновременно
+composer run dev   # Laravel + воркер очереди
 ```
 
 ---
@@ -108,7 +104,6 @@ composer run dev   # Laravel + очередь + Vite одновременно
 - Ubuntu 22.04+
 - PHP 8.2+ с расширениями: `mbstring`, `xml`, `curl`, `zip`, `bcmath`, `pdo_mysql`, `intl`
 - Composer
-- Node.js 18+ и npm
 - MySQL 8+
 - Nginx
 - Supervisor (для воркера очереди)
@@ -126,10 +121,6 @@ sudo apt install -y php8.2 php8.2-fpm php8.2-mysql php8.2-mbstring php8.2-xml \
 # Composer
 curl -sS https://getcomposer.org/installer | php
 sudo mv composer.phar /usr/local/bin/composer
-
-# Node.js
-curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-sudo apt install -y nodejs
 
 # MySQL
 sudo apt install -y mysql-server
@@ -163,8 +154,6 @@ git clone <repo-url> minicrm
 cd minicrm
 
 composer install --no-dev --optimize-autoloader
-npm install
-npm run build
 
 cp .env.example .env
 php artisan key:generate
@@ -267,7 +256,6 @@ cd /var/www/minicrm
 
 git pull origin master
 composer install --no-dev --optimize-autoloader
-npm run build
 
 php artisan migrate --force
 php artisan config:cache
@@ -287,10 +275,6 @@ composer run test
 
 # Линтинг PHP
 php artisan pint
-
-# Линтинг JS/TS
-npm run lint
-npm run lint:fix
 
 # Сброс кеша
 php artisan cache:clear
