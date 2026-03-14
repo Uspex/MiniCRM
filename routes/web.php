@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Admin\Activity\ActivityController;
 use App\Http\Controllers\Admin\User\UserController;
 use App\Http\Controllers\Admin\DashboardController;
 
@@ -36,6 +37,11 @@ Route::middleware(['auth', 'setUserLanguage'])->group(function () {
         //Permission
         Route::group(['namespace' => 'Permission'], function() {
             Route::resource('permission', '\App\Http\Controllers\Admin\Permission\PermissionController')->except(['show'])->names('admin.permission');
+        });
+
+        //Активности
+        Route::group(['namespace' => 'Activity'], function() {
+            Route::resource('activity', '\App\Http\Controllers\Admin\Activity\ActivityController')->except(['show'])->names('admin.activity');
         });
     });
 });

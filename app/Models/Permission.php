@@ -18,6 +18,7 @@ class Permission extends BasePermission
     const PERMISSION_ACTIVITY_INFO = 'activity_info';
     const PERMISSION_ACTIVITY_CREATE = 'activity_create';
     const PERMISSION_ACTIVITY_UPDATE = 'activity_update';
+    const PERMISSION_ACTIVITY_DESTROY = 'activity_destroy';
 
        //----------------------------------------------------------
     const PERMISSION_TASK_LIST = 'task_list';
@@ -50,6 +51,7 @@ class Permission extends BasePermission
                 self::PERMISSION_ACTIVITY_INFO,
                 self::PERMISSION_ACTIVITY_CREATE,
                 self::PERMISSION_ACTIVITY_UPDATE,
+                self::PERMISSION_ACTIVITY_DESTROY,
             ],
             self::GROUP_TASK => [
                 self::PERMISSION_TASK_LIST,

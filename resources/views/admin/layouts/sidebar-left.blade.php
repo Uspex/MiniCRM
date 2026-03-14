@@ -17,6 +17,19 @@
             <div class="nk-sidebar-menu" data-simplebar>
                 <ul class="nk-menu">
 
+                    @if(auth()->user()->hasAnyPermission([\App\Models\Permission::PERMISSION_ACTIVITY_LIST]))
+                        <li class="nk-menu-heading">
+                            <h6 class="overline-title text-primary-alt">{{ __('common.menu.tasks') }}</h6>
+                        </li><!-- .nk-menu-heading -->
+
+                        <li class="nk-menu-item">
+                            <a href="{{ route('admin.activity.index') }}" class="nk-menu-link">
+                                <span class="nk-menu-icon"><em class="icon ni ni-setting"></em></span>
+                                <span class="nk-menu-text">{{ __('common.menu.activity') }}</span>
+                            </a>
+                        </li><!-- .nk-menu-item -->
+                    @endif
+
                     @if(auth()->user()->hasRole(\App\Models\Role::ROLE_ROOT))
                         <li class="nk-menu-heading">
                             <h6 class="overline-title text-primary-alt">{{ __('common.menu.user') }}</h6>

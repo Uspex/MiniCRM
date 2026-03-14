@@ -32,11 +32,10 @@
                         </a>
                         <div class="dropdown-menu dropdown-menu-end dropdown-menu-s1">
                             <ul class="language-list">
-
                                 <li>
-                                    <a href="{{ route('admin.user.set_setting', ['lang' => 'uk']) }}" class="language-item">
-                                        <img src="{{ asset('images/flags/uk.png') }}" alt="" class="language-flag">
-                                        <span class="language-name">Ukraine</span>
+                                    <a href="{{ route('admin.user.set_setting', ['lang' => 'ru']) }}" class="language-item">
+                                        <img src="{{ asset('images/flags/ru.png') }}" alt="" class="language-flag">
+                                        <span class="language-name">Русский</span>
                                     </a>
                                 </li>
                                 <li>

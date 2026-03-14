@@ -9,7 +9,13 @@ class Task extends Model
     protected $fillable = [
         'user_id',
         'activity_id',
-        'message'
+        'message',
+        'product_count',
+        'scheduled_runtime',
+        'runtime',
+        'work_start',
+        'work_finish',
+        'status',
     ];
 
     public function user()
