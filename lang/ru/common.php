@@ -21,6 +21,7 @@ return [
     'tab_setting' => 'Настройки',
 
     'menu' => [
+        'dashboard' => 'Аналитика',
         'user' => 'Пользователи',
         'role' => 'Роли',
         'permission' => 'Права',

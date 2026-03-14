@@ -16,6 +16,12 @@
         <div class="nk-sidebar-content">
             <div class="nk-sidebar-menu" data-simplebar>
                 <ul class="nk-menu">
+                    <li class="nk-menu-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                        <a href="{{ route('admin.dashboard') }}" class="nk-menu-link">
+                            <span class="nk-menu-icon"><em class="icon ni ni-growth-fill"></em></span>
+                            <span class="nk-menu-text">{{ __('common.menu.dashboard') }}</span>
+                        </a>
+                    </li><!-- .nk-menu-item -->
 
                     @if(auth()->user()->hasAnyPermission([\App\Models\Permission::PERMISSION_TASK_LIST, \App\Models\Permission::PERMISSION_ACTIVITY_LIST]))
                         <li class="nk-menu-heading">
