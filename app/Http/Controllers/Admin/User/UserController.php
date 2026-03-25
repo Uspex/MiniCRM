@@ -34,6 +34,9 @@ class UserController extends Controller
             ->when($request->get('name'), function ($query) use ($request) {
                 $query->where('name', 'like', '%' . $request->input('name') . '%');
             })
+            ->when($request->get('username'), function ($query) use ($request) {
+                $query->where('username', 'like', '%' . $request->input('username') . '%');
+            })
             ->when($request->get('email'), function ($query) use ($request) {
                 $query->where('email', 'like', '%' . $request->input('email') . '%');
             })

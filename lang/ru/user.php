@@ -6,25 +6,28 @@ return [
 
     'list' => [
         'head'    => [
-            'name' => 'Имя',
-            'email' => 'Email',
-            'role' => 'Роль',
+            'name'     => 'Имя',
+            'username' => 'Логин',
+            'email'    => 'Email',
+            'role'     => 'Роль',
         ],
     ],
 
     'form' => [
         'create_title' => 'Добавить пользователя',
-        'edit_title' => 'Редактировать пользователя',
+        'edit_title'   => 'Редактировать пользователя',
         'fields' => [
-            'name' => 'Имя',
-            'email' => 'Email',
-            'role' => 'Роль',
+            'name'     => 'Имя',
+            'username' => 'Логин',
+            'email'    => 'Email',
+            'role'     => 'Роль',
             'password' => 'Пароль',
         ],
     ],
 
     'search' => [
-        'name' => 'Имя',
-        'email' => 'Email',
+        'name'     => 'Имя',
+        'username' => 'Логин',
+        'email'    => 'Email',
     ],
 ];

@@ -42,10 +42,10 @@
                                     {{ csrf_field() }}
                                     <div class="form-group">
                                         <div class="form-label-group">
-                                            <label class="form-label" for="default-01">{{ __("auth.form.email") }}</label>
+                                            <label class="form-label" for="default-01">{{ __("auth.form.username") }}</label>
                                         </div>
                                         <div class="form-control-wrap">
-                                            <input type="text" name="email" class="form-control form-control-lg" id="default-01" placeholder="{{ __("auth.form.email_placeholder") }}">
+                                            <input type="text" name="username" class="form-control form-control-lg" id="default-01" placeholder="{{ __("auth.form.username_placeholder") }}">
                                         </div>
                                     </div>
                                     <div class="form-group">

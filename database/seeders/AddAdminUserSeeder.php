@@ -16,20 +16,22 @@ class AddAdminUserSeeder extends Seeder
     public function run(): void
     {
 
-        $name = config('add_user.admin.name');
-        $email = config('add_user.admin.email');
+        $name     = config('add_user.admin.name');
+        $username = config('add_user.admin.username');
+        $email    = config('add_user.admin.email');
         $password = config('add_user.admin.password');
 
-        if(User::where('email', $email)->exists()) {
-            echo '    ---- User with email ' . $email . ' already exists'.PHP_EOL;
+        if (User::where('username', $username)->exists()) {
+            echo '    ---- User with username ' . $username . ' already exists'.PHP_EOL;
             return;
         }
 
         $user = User::create([
-            'name' => $name,
-            'email' => $email,
-            'password' => Hash::make($password),
-            'email_verified_at' => Carbon::now(),
+            'name'               => $name,
+            'username'           => $username,
+            'email'              => $email ?: null,
+            'password'           => Hash::make($password),
+            'email_verified_at'  => Carbon::now(),
         ]);
 
         $user->syncRoles(Role::ROLE_ROOT);

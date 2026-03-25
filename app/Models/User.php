@@ -25,6 +25,7 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'username',
         'email',
         'password',
         'lang',
@@ -65,6 +66,29 @@ class User extends Authenticatable
      * @param  string  $value
      * @return string
      */
+    protected static function booted(): void
+    {
+        static::creating(function (User $user) {
+            if (empty($user->username)) {
+                $user->username = static::generateUsername($user->name);
+            }
+        });
+    }
+
+    private static function generateUsername(string $name): string
+    {
+        $base = Str::slug($name, '_') ?: 'user';
+        $username = $base;
+        $i = 1;
+
+        while (static::where('username', $username)->exists()) {
+            $username = $base . '_' . $i;
+            $i++;
+        }
+
+        return $username;
+    }
+
     public function getNameLogoAttribute()
     {
         return Str::limit($this->name, 2, '');

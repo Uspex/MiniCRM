@@ -44,12 +44,21 @@
                                                             </div>
                                                             <div class="col-lg-3">
                                                                 <div class="form-group">
+                                                                    <label class="form-label" for="username">{{ __('user.form.fields.username') }}</label>
+                                                                    <input name="username" value="{{ old('username') }}"
+                                                                           id="username"
+                                                                           type="text"
+                                                                           class="form-control"
+                                                                           required>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-lg-3">
+                                                                <div class="form-group">
                                                                     <label class="form-label" for="email">{{ __('user.form.fields.email') }}</label>
                                                                     <input name="email" value="{{ old('email') }}"
                                                                            id="email"
                                                                            type="text"
-                                                                           class="form-control"
-                                                                           required>
+                                                                           class="form-control">
                                                                 </div>
                                                             </div>
                                                             <div class="col-lg-3">

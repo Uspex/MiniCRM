@@ -21,9 +21,12 @@ return [
     'tab_setting' => 'Settings',
 
     'menu' => [
-        'user' => 'Users',
-        'role' => 'Roles',
+        'user'       => 'Users',
+        'role'       => 'Roles',
         'permission' => 'Permissions',
+        'tasks'      => 'Tasks',
+        'task'       => 'Tasks',
+        'activity'   => 'Work Types',
     ],
 
     'create' => [

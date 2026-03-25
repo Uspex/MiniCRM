@@ -32,6 +32,11 @@
                                             </div>
                                             <div class="col-3">
                                                 <div class="input-group">
+                                                    <input class="form-control pull-right" placeholder="{{ __('user.search.username') }}" name="username" type="text" value="{{ request()->get('username') }}">
+                                                </div>
+                                            </div>
+                                            <div class="col-3">
+                                                <div class="input-group">
                                                     <input class="form-control pull-right" placeholder="{{ __('user.search.email') }}" name="email" type="text" value="{{ request()->get('email') }}">
                                                 </div>
                                             </div>
@@ -62,6 +67,7 @@
                             <div class="nk-tb-item nk-tb-head">
                                 <div class="nk-tb-col"><span>#</span></div>
                                 <div class="nk-tb-col"><span>{{ __('user.list.head.name') }}</span></div>
+                                <div class="nk-tb-col"><span>{{ __('user.list.head.username') }}</span></div>
                                 <div class="nk-tb-col"><span>{{ __('user.list.head.email') }}</span></div>
                                 <div class="nk-tb-col"><span>{{ __('user.list.head.role') }}</span></div>
                                 <div class="nk-tb-col text-end"><em class="icon ni ni-setting"></em></div>
@@ -74,6 +80,9 @@
                                     </div>
                                     <div class="nk-tb-col tb-col-sm">
                                         <a href="{{ route('admin.user.edit', $item->id) }}"><span>{{ $item->name  }}</span></a>
+                                    </div>
+                                    <div class="nk-tb-col">
+                                        <span>{{ $item->username }}</span>
                                     </div>
                                     <div class="nk-tb-col">
                                         <span>{{ $item->email }}</span>

@@ -24,9 +24,9 @@ class UserUpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            'name'  => ['required', 'min:2', 'max:191'],
-            'email' => ['required', 'min:2', 'max:191', 'unique:users,email,'. $this->route('user')],
-
+            'name'     => ['required', 'min:2', 'max:191'],
+            'username' => ['required', 'min:2', 'max:191', 'unique:users,username,' . $this->route('user')],
+            'email'    => ['nullable', 'string', 'email', 'max:191', 'unique:users,email,' . $this->route('user')],
         ];
     }
 }
