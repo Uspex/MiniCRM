@@ -5,16 +5,17 @@ namespace App\Services;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class UserService
 {
    public static function generateUsername(string $name): string
    {
-       $base = strtolower(preg_replace('/\s+/', '.', trim($name)));
+       $base = Str::slug($name, '_');
        $username = $base;
        $i = 1;
        while (User::where('username', $username)->exists()) {
-           $username = $base . $i++;
+           $username = $base . '_' . $i++;
        }
        return $username;
    }
