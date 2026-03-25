@@ -48,8 +48,7 @@
                                                                     <input name="username" value="{{ old('username') }}"
                                                                            id="username"
                                                                            type="text"
-                                                                           class="form-control"
-                                                                           required>
+                                                                           class="form-control">
                                                                 </div>
                                                             </div>
                                                             <div class="col-lg-3">
