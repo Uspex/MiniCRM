@@ -69,6 +69,7 @@ class TaskController extends Controller
     {
         $data = $request->validated();
         $data['user_id'] ??= auth()->id();
+        $data['shift'] = Task::resolveShift(now());
 
         Task::create($data);
 

@@ -46,7 +46,18 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <div class="{{ $isRoot ? 'col-md-4' : 'col-md-5' }}">
+                            <div class="{{ $isRoot ? 'col-md-2' : 'col-md-3' }}">
+                                <label class="form-label">{{ __('dashboard.filter.shifts') }}</label>
+                                <select class="form-select" name="shift[]" multiple size="1" id="filterShifts">
+                                    @foreach($allShifts as $shift)
+                                        <option value="{{ $shift['id'] }}"
+                                            @if(in_array($shift['id'], $selectedShifts)) selected @endif>
+                                            {{ $shift['name'] }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="{{ $isRoot ? 'col-md-3' : 'col-md-3' }}">
                                 <label class="form-label">{{ __('dashboard.filter.period') }}</label>
                                 <div class="input-group">
                                     <input type="text" class="form-control" id="dateRangePicker" autocomplete="off"
@@ -56,7 +67,7 @@
                                     <span class="input-group-text"><em class="icon ni ni-calendar"></em></span>
                                 </div>
                             </div>
-                            <div class="{{ $isRoot ? 'col-md-2' : 'col-md-3' }}">
+                            <div class="col-md-1">
                                 <div class="d-flex">
                                     <button type="submit" class="btn btn-icon btn-primary me-2" title="{{ __('common.btn_search_apply') }}"><em class="icon ni ni-search"></em></button>
                                     <a href="{{ route('admin.dashboard') }}" class="btn btn-icon btn-warning" title="{{ __('common.btn_search_reset') }}"><em class="icon ni ni-reload"></em></a>
@@ -128,17 +139,23 @@
     if (typeof $.fn.select2 !== 'undefined') {
         $('#filterUsers').select2({
             placeholder: '{{ __('dashboard.filter.users') }}',
-            allowClear: true,
+            allowClear: false,
             width: '100%',
         });
         $('#filterActivities').select2({
             placeholder: '{{ __('dashboard.filter.activities') }}',
-            allowClear: true,
+            allowClear: false,
+            width: '100%',
+        });
+        $('#filterShifts').select2({
+            placeholder: '{{ __('dashboard.filter.shifts') }}',
+            allowClear: false,
             width: '100%',
         });
     } else {
         $('#filterUsers').attr('size', 1).css('height', 'auto');
         $('#filterActivities').attr('size', 1).css('height', 'auto');
+        $('#filterShifts').attr('size', 1).css('height', 'auto');
     }
 
     // Chart.js
@@ -146,15 +163,23 @@
 
     if (!chartData.datasets || chartData.datasets.length === 0) return;
 
-    var colors = ['#798bff','#e85347','#1ee0ac','#f4bd0e','#09c2de','#6576ff','#ff63a5','#364a63'];
+    var total = chartData.datasets.length;
+
+    function generateColor(i) {
+        var hue = Math.round((i * 360) / total) % 360;
+        return {
+            border: 'hsl(' + hue + ', 75%, 62%)',
+            bg:     'hsla(' + hue + ', 75%, 62%, 0.2)',
+        };
+    }
 
     var datasets = chartData.datasets.map(function (ds, i) {
-        var color = ds.color || colors[i % colors.length];
+        var color = generateColor(i);
         return {
             label: ds.label,
             data: ds.data,
-            borderColor: color,
-            backgroundColor: color + '33',
+            borderColor: color.border,
+            backgroundColor: color.bg,
             borderWidth: 2,
             tension: 0.3,
             fill: false,
@@ -176,8 +201,8 @@
             responsive: true,
             maintainAspectRatio: false,
             interaction: {
-                mode: 'index',
-                intersect: false,
+                mode: 'nearest',
+                intersect: true,
             },
             plugins: {
                 legend: {

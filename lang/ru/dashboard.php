@@ -8,6 +8,7 @@ return [
     'filter' => [
         'users'      => 'Все сотрудники',
         'activities' => 'Все типы работ',
+        'shifts'     => 'Все смены',
         'date_from'  => 'Дата от',
         'date_to'    => 'Дата до',
         'period'     => 'Период',

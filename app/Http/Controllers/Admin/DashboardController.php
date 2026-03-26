@@ -50,13 +50,21 @@ class DashboardController extends Controller
             : [auth()->id()];
 
         $selectedActivityIds = array_filter((array) $request->input('activity_id', []));
+        $selectedShifts      = array_filter((array) $request->input('shift', []));
+
+        // Граница рабочего дня берётся из первой смены в конфиге
+        $dayStartHour = (int) explode(':', config('task.shifts.0.start', '00:00'))[0];
+
+        // Сдвигаем диапазон фильтра, чтобы «день» начинался со старта первой смены
+        $filterFrom = $dateFrom->copy()->addHours($dayStartHour);
+        $filterTo   = $dateTo->copy()->addHours($dayStartHour);
 
         $query = Task::select(
             'activity_id',
-            DB::raw('DATE(created_at) as date'),
+            DB::raw('DATE(created_at - INTERVAL ' . $dayStartHour . ' HOUR) as date'),
             DB::raw('SUM(product_count) as total')
         )
-            ->whereBetween('created_at', [$dateFrom, $dateTo])
+            ->whereBetween('created_at', [$filterFrom, $filterTo])
             ->groupBy('activity_id', 'date');
 
         if (!empty($selectedUserIds)) {
@@ -65,6 +73,10 @@ class DashboardController extends Controller
 
         if (!empty($selectedActivityIds)) {
             $query->whereIn('activity_id', $selectedActivityIds);
+        }
+
+        if (!empty($selectedShifts)) {
+            $query->whereIn('shift', $selectedShifts);
         }
 
         $rows = $query->get();
@@ -79,14 +91,8 @@ class DashboardController extends Controller
         $activityIds = $rows->pluck('activity_id')->unique();
         $activities = Activity::whereIn('id', $activityIds)->get()->keyBy('id');
 
-        $colors = ['#798bff', '#e85347', '#1ee0ac', '#f4bd0e', '#09c2de', '#6576ff', '#ff63a5', '#364a63'];
-
         $datasets = [];
-        $colorIndex = 0;
         foreach ($activities as $activity) {
-            $color = $colors[$colorIndex % count($colors)];
-            $colorIndex++;
-
             $data = $dates->map(function ($date) use ($rows, $activity) {
                 $row = $rows->where('activity_id', $activity->id)->where('date', $date)->first();
                 return $row ? (int) $row->total : 0;
@@ -94,7 +100,6 @@ class DashboardController extends Controller
 
             $datasets[] = [
                 'label' => $activity->name,
-                'color' => $color,
                 'data'  => $data,
             ];
         }
@@ -104,9 +109,15 @@ class DashboardController extends Controller
             'datasets' => $datasets,
         ];
 
+        $allShifts = collect(config('task.shifts'))->map(fn($s, $i) => [
+            'id'   => $i + 1,
+            'name' => $s['name'],
+        ]);
+
         return view('admin.dashboard', compact(
             'chartData', 'allUsers', 'selectedUserIds',
             'allActivities', 'selectedActivityIds',
+            'allShifts', 'selectedShifts',
             'dateFrom', 'dateTo', 'isRoot'
         ));
     }
