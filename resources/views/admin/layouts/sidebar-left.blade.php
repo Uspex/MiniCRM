@@ -5,7 +5,7 @@
             <a href="#" class="nk-nav-compact nk-quick-nav-icon d-none d-xl-inline-flex" data-target="sidebarMenu"><em class="icon ni ni-menu"></em></a>
         </div>
         <div class="nk-sidebar-brand">
-            <a href="{{ route('admin.dashboard') }}" class="logo-link nk-sidebar-logo">
+            <a href="{{ route('admin.task.edit') }}" class="logo-link nk-sidebar-logo">
                 <img class="logo-light logo-img" src="{{ asset('images/logo.png') }}" srcset="{{ asset('images/logo2x.png 2x') }}" alt="logo">
             </a>
         </div>
@@ -16,12 +16,15 @@
         <div class="nk-sidebar-content">
             <div class="nk-sidebar-menu" data-simplebar>
                 <ul class="nk-menu">
-                    <li class="nk-menu-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                        <a href="{{ route('admin.dashboard') }}" class="nk-menu-link">
-                            <span class="nk-menu-icon"><em class="icon ni ni-growth-fill"></em></span>
-                            <span class="nk-menu-text">{{ __('common.menu.dashboard') }}</span>
-                        </a>
-                    </li><!-- .nk-menu-item -->
+                    @if(auth()->user()->hasPermissionTo(\App\Models\Permission::PERMISSION_ANALYTICS_DASHBOARD))
+                        <li class="nk-menu-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                            <a href="{{ route('admin.dashboard') }}" class="nk-menu-link">
+                                <span class="nk-menu-icon"><em class="icon ni ni-growth-fill"></em></span>
+                                <span class="nk-menu-text">{{ __('common.menu.dashboard') }}</span>
+                            </a>
+                        </li><!-- .nk-menu-item -->
+                    @endif
+
 
                     @if(auth()->user()->hasAnyPermission([\App\Models\Permission::PERMISSION_TASK_LIST, \App\Models\Permission::PERMISSION_ACTIVITY_LIST]))
                         <li class="nk-menu-heading">

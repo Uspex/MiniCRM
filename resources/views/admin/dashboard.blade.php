@@ -23,7 +23,7 @@
                     <form method="GET" action="{{ route('admin.dashboard') }}" class="mb-4">
                         <div class="row gx-3 gy-2 align-items-end">
                             @if($isRoot)
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <label class="form-label">{{ __('dashboard.filter.users') }}</label>
                                 <select class="form-select" name="user_id[]" multiple size="1" id="filterUsers">
                                     @foreach($allUsers as $user)
@@ -35,7 +35,18 @@
                                 </select>
                             </div>
                             @endif
-                            <div class="{{ $isRoot ? 'col-md-4' : 'col-md-6' }}">
+                            <div class="{{ $isRoot ? 'col-md-3' : 'col-md-4' }}">
+                                <label class="form-label">{{ __('dashboard.filter.activities') }}</label>
+                                <select class="form-select" name="activity_id[]" multiple size="1" id="filterActivities">
+                                    @foreach($allActivities as $activity)
+                                        <option value="{{ $activity->id }}"
+                                            @if(in_array($activity->id, $selectedActivityIds)) selected @endif>
+                                            {{ $activity->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="{{ $isRoot ? 'col-md-4' : 'col-md-5' }}">
                                 <label class="form-label">{{ __('dashboard.filter.period') }}</label>
                                 <div class="input-group">
                                     <input type="text" class="form-control" id="dateRangePicker" autocomplete="off"
@@ -45,7 +56,7 @@
                                     <span class="input-group-text"><em class="icon ni ni-calendar"></em></span>
                                 </div>
                             </div>
-                            <div class="{{ $isRoot ? 'col-md-4' : 'col-md-6' }}">
+                            <div class="{{ $isRoot ? 'col-md-2' : 'col-md-3' }}">
                                 <div class="d-flex">
                                     <button type="submit" class="btn btn-icon btn-primary me-2" title="{{ __('common.btn_search_apply') }}"><em class="icon ni ni-search"></em></button>
                                     <a href="{{ route('admin.dashboard') }}" class="btn btn-icon btn-warning" title="{{ __('common.btn_search_reset') }}"><em class="icon ni ni-reload"></em></a>
@@ -113,16 +124,21 @@
         $('#inputDateTo').val(end.format('DD.MM.YYYY'));
     });
 
-    // Select2 для множественного выбора сотрудников
+    // Select2 для множественного выбора сотрудников и типов работ
     if (typeof $.fn.select2 !== 'undefined') {
         $('#filterUsers').select2({
             placeholder: '{{ __('dashboard.filter.users') }}',
             allowClear: true,
             width: '100%',
         });
+        $('#filterActivities').select2({
+            placeholder: '{{ __('dashboard.filter.activities') }}',
+            allowClear: true,
+            width: '100%',
+        });
     } else {
-        // Fallback: обычный multiple select
         $('#filterUsers').attr('size', 1).css('height', 'auto');
+        $('#filterActivities').attr('size', 1).css('height', 'auto');
     }
 
     // Chart.js

@@ -3,14 +3,24 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Activity;
+use App\Models\Permission;
 use App\Models\Task;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('permission:'.Permission::PERMISSION_ANALYTICS_DASHBOARD, only: ['dashboard']),
+        ];
+    }
+
     /**
      * Show the application dashboard.
      *
@@ -39,16 +49,22 @@ class DashboardController extends Controller
             ? array_filter((array) $request->input('user_id', []))
             : [auth()->id()];
 
+        $selectedActivityIds = array_filter((array) $request->input('activity_id', []));
+
         $query = Task::select(
-            'user_id',
+            'activity_id',
             DB::raw('DATE(created_at) as date'),
             DB::raw('SUM(product_count) as total')
         )
             ->whereBetween('created_at', [$dateFrom, $dateTo])
-            ->groupBy('user_id', 'date');
+            ->groupBy('activity_id', 'date');
 
         if (!empty($selectedUserIds)) {
             $query->whereIn('user_id', $selectedUserIds);
+        }
+
+        if (!empty($selectedActivityIds)) {
+            $query->whereIn('activity_id', $selectedActivityIds);
         }
 
         $rows = $query->get();
@@ -56,23 +72,28 @@ class DashboardController extends Controller
         // Пользователи для фильтра (только для root)
         $allUsers = $isRoot ? User::orderBy('name')->get() : collect();
 
-        // Пользователи, у которых есть задачи за период
-        $userIds = $rows->pluck('user_id')->unique();
-        $users = User::whereIn('id', $userIds)->get()->keyBy('id');
+        // Все типы работ для фильтра
+        $allActivities = Activity::orderBy('name')->get();
+
+        // Типы работ, по которым есть задачи за период
+        $activityIds = $rows->pluck('activity_id')->unique();
+        $activities = Activity::whereIn('id', $activityIds)->get()->keyBy('id');
 
         $colors = ['#798bff', '#e85347', '#1ee0ac', '#f4bd0e', '#09c2de', '#6576ff', '#ff63a5', '#364a63'];
 
         $datasets = [];
-        foreach ($users as $user) {
-            $color = $colors[($user->id - 1) % count($colors)];
+        $colorIndex = 0;
+        foreach ($activities as $activity) {
+            $color = $colors[$colorIndex % count($colors)];
+            $colorIndex++;
 
-            $data = $dates->map(function ($date) use ($rows, $user) {
-                $row = $rows->where('user_id', $user->id)->where('date', $date)->first();
+            $data = $dates->map(function ($date) use ($rows, $activity) {
+                $row = $rows->where('activity_id', $activity->id)->where('date', $date)->first();
                 return $row ? (int) $row->total : 0;
             })->values()->toArray();
 
             $datasets[] = [
-                'label' => $user->name,
+                'label' => $activity->name,
                 'color' => $color,
                 'data'  => $data,
             ];
@@ -83,6 +104,10 @@ class DashboardController extends Controller
             'datasets' => $datasets,
         ];
 
-        return view('admin.dashboard', compact('chartData', 'allUsers', 'selectedUserIds', 'dateFrom', 'dateTo', 'isRoot'));
+        return view('admin.dashboard', compact(
+            'chartData', 'allUsers', 'selectedUserIds',
+            'allActivities', 'selectedActivityIds',
+            'dateFrom', 'dateTo', 'isRoot'
+        ));
     }
 }

@@ -5,7 +5,7 @@
                 <a href="#" class="nk-nav-toggle nk-quick-nav-icon" data-target="sidebarMenu"><em class="icon ni ni-menu"></em></a>
             </div>
             <div class="nk-header-brand d-xl-none">
-                <a href="{{ route('admin.dashboard') }}" class="logo-link">
+                <a href="{{ route('admin.task.edit') }}" class="logo-link">
                     <img class="logo-light logo-img" src="{{ asset('images/logo.png') }}" srcset="{{ asset('images/logo2x.png 2x') }}" alt="logo">
                 </a>
             </div><!-- .nk-header-brand -->
@@ -73,7 +73,7 @@
                             <div class="dropdown-inner">
                                 <ul class="link-list">
                                     <li>
-                                        <a href="{{ route('admin.dashboard') }}"><em class="icon ni ni-home"></em><span>{{ __('common.home') }}</span></a>
+                                        <a href="{{ route('admin.task.edit') }}"><em class="icon ni ni-home"></em><span>{{ __('common.home') }}</span></a>
                                     </li>
                                     <li>
                                         <a href="{{ route('logout') }}" onclick="event.preventDefault();document.getElementById('logout-form').submit();"><em class="icon ni ni-signout"></em><span>{{ __('common.logout') }}</span></a>

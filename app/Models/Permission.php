@@ -9,8 +9,9 @@ class Permission extends BasePermission
     protected $fillable = ['name', 'guard_name', 'group'];
 
 
-    const GROUP_ACTIVITY = 'activity';
-    const GROUP_TASK = 'task';
+    const GROUP_ACTIVITY  = 'activity';
+    const GROUP_TASK      = 'task';
+    const GROUP_ANALYTICS = 'analytics';
 
 
     //----------------------------------------------------------
@@ -20,6 +21,9 @@ class Permission extends BasePermission
     const PERMISSION_ACTIVITY_CREATE = 'activity_create';
     const PERMISSION_ACTIVITY_UPDATE = 'activity_update';
     const PERMISSION_ACTIVITY_DESTROY = 'activity_destroy';
+
+    //----------------------------------------------------------
+    const PERMISSION_ANALYTICS_DASHBOARD = 'analytics_dashboard';
 
        //----------------------------------------------------------
     const PERMISSION_TASK_LIST = 'task_list';
@@ -37,6 +41,7 @@ class Permission extends BasePermission
         return [
             self::GROUP_ACTIVITY,
             self::GROUP_TASK,
+            self::GROUP_ANALYTICS,
         ];
     }
 
@@ -61,6 +66,9 @@ class Permission extends BasePermission
                 self::PERMISSION_TASK_UPDATE,
                 self::PERMISSION_TASK_INFO,
                 self::PERMISSION_TASK_DESTROY,
+            ],
+            self::GROUP_ANALYTICS => [
+                self::PERMISSION_ANALYTICS_DASHBOARD,
             ],
         ];
     }
