@@ -109,8 +109,8 @@ class DashboardController extends Controller
             'datasets' => $datasets,
         ];
 
-        $allShifts = collect(config('task.shifts'))->map(fn($s, $i) => [
-            'id'   => $i + 1,
+        $allShifts = collect(config('task.shifts'))->map(fn($s) => [
+            'id'   => (int) $s['shift'],
             'name' => $s['name'],
         ]);
 

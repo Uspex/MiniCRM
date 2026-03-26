@@ -29,7 +29,7 @@ class Task extends Model
         $shifts = config('task.shifts', []);
         $timeMinutes = $time->hour * 60 + $time->minute;
 
-        foreach ($shifts as $index => $shift) {
+        foreach ($shifts as $shift) {
             [$startH, $startM] = explode(':', $shift['start']);
             [$endH,   $endM]   = explode(':', $shift['end']);
             $start = (int) $startH * 60 + (int) $startM;
@@ -40,11 +40,11 @@ class Task extends Model
                 : $timeMinutes >= $start || $timeMinutes < $end;         // смена через полночь
 
             if ($inShift) {
-                return $index + 1;
+                return (int) $shift['shift'];
             }
         }
 
-        return 1;
+        return (int) ($shifts[0]['shift'] ?? 1);
     }
 
     public function user()
