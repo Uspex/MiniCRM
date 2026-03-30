@@ -23,27 +23,17 @@
                         <div class="card-tools w-100">
                             <form method="GET" action="{{ route(request()->route()->getName(), [request()->get('page')]) }}">
                                 <div class="row gx-6 gy-3">
-                                    <div class="col-9">
-                                        <div class="row">
-                                            <div class="col-3">
-                                                <div class="input-group">
-                                                    <input class="form-control pull-right" placeholder="{{ __('activity.search.name') }}" name="name" type="text" value="{{ request()->get('name') }}">
-                                                </div>
-                                            </div>
-                                        </div>
+                                    <div class="col-12 col-sm-6 col-md-3">
+                                        <input class="form-control" placeholder="{{ __('activity.search.name') }}" name="name" type="text" value="{{ request()->get('name') }}">
                                     </div>
-                                    <div class="col-3">
-                                        <div class="row g-2 justify-content-end">
-                                            <div class="col-auto">
-                                                <div class="form-group">
-                                                    <a href="{{ route(request()->route()->getName()) }}" class="btn btn-sm btn-warning">{{ __('common.btn_search_reset') }}</a>
-                                                </div>
-                                            </div>
-                                            <div class="col-auto">
-                                                <div class="form-group">
-                                                    <button type="submit" class="btn btn-sm btn-primary">{{ __('common.btn_search_apply') }}</button>
-                                                </div>
-                                            </div>
+                                    <div class="col-12 col-sm-6 col-md-3">
+                                        <div class="d-flex g-2 justify-content-sm-end">
+                                            <a href="{{ route(request()->route()->getName()) }}" class="btn btn-sm btn-warning me-2" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ __('common.btn_search_reset') }}">
+                                                <em class="icon ni ni-reload-alt"></em>
+                                            </a>
+                                            <button type="submit" class="btn btn-sm btn-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ __('common.btn_search_apply') }}">
+                                                <em class="icon ni ni-search"></em>
+                                            </button>
                                         </div>
                                     </div>
                                 </div>

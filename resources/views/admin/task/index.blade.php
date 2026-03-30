@@ -10,7 +10,8 @@
                 </div>
                 <div class="nk-block-head-content">
                     <div class="nk-block-head-content">
-                        <a href="{{ route('admin.task.create') }}" class="btn btn-primary"><em class="icon ni ni-plus"></em><span>{{ __('task.add') }}</span></a>
+                        <a href="{{ route('admin.task.create') }}" class="btn btn-primary btn-icon d-sm-none"><em class="icon ni ni-plus"></em></a>
+                        <a href="{{ route('admin.task.create') }}" class="btn btn-primary d-none d-sm-inline-flex"><em class="icon ni ni-plus"></em><span>{{ __('task.add') }}</span></a>
                     </div>
                 </div>
             </div>
@@ -19,71 +20,68 @@
         <div class="nk-block">
             <div class="card card-bordered">
                 <div class="card-inner position-relative card-tools-toggle">
-                    <div class="card-title-group">
-                        <div class="card-tools w-100">
+                    <div class="d-sm-none text-end">
+                        <a href="#" class="btn btn-sm btn-icon btn-trigger" data-bs-toggle="collapse" data-bs-target="#taskFilters" id="taskFiltersToggle">
+                            <em class="icon ni ni-search"></em>
+                        </a>
+                    </div>
+                    <div class="collapse d-sm-block{{ request()->hasAny(['user_id', 'activity_id', 'status']) ? ' show' : '' }}" id="taskFilters">
+                        <div class="card-tools w-100 pt-3 pt-sm-0">
                             <form method="GET" action="{{ route(request()->route()->getName(), [request()->get('page')]) }}">
                                 <div class="row gx-6 gy-3">
-                                    <div class="col-9">
-                                        <div class="row">
-                                            @if(auth()->user()->hasRole(\App\Models\Role::ROLE_ROOT))
-                                            <div class="col-3">
-                                                <select class="form-select" name="user_id">
-                                                    <option value="">{{ __('task.search.user') }}</option>
-                                                    @foreach($users as $user)
-                                                        <option value="{{ $user->id }}" @selected(request('user_id') == $user->id)>{{ $user->name }}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                            @endif
-                                            <div class="col-3">
-                                                <select class="form-select" name="activity_id">
-                                                    <option value="">{{ __('task.search.activity') }}</option>
-                                                    @foreach($activities as $activity)
-                                                        <option value="{{ $activity->id }}" @selected(request('activity_id') == $activity->id)>{{ $activity->name }}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                            <div class="col-3">
-                                                <select class="form-select" name="status">
-                                                    <option value="">{{ __('task.search.status') }}</option>
-                                                    <option value="1" @selected(request('status') === '1')>{{ __('task.status.active') }}</option>
-                                                    <option value="0" @selected(request('status') === '0')>{{ __('task.status.inactive') }}</option>
-                                                </select>
-                                            </div>
-                                        </div>
+                                    @if(auth()->user()->hasRole(\App\Models\Role::ROLE_ROOT))
+                                    <div class="col-12 col-sm-6 col-md-3">
+                                        <select class="form-select" name="user_id">
+                                            <option value="">{{ __('task.search.user') }}</option>
+                                            @foreach($users as $user)
+                                                <option value="{{ $user->id }}" @selected(request('user_id') == $user->id)>{{ $user->name }}</option>
+                                            @endforeach
+                                        </select>
                                     </div>
-                                    <div class="col-3">
-                                        <div class="row g-2 justify-content-end">
-                                            <div class="col-auto">
-                                                <div class="form-group">
-                                                    <a href="{{ route(request()->route()->getName()) }}" class="btn btn-sm btn-warning">{{ __('common.btn_search_reset') }}</a>
-                                                </div>
-                                            </div>
-                                            <div class="col-auto">
-                                                <div class="form-group">
-                                                    <button type="submit" class="btn btn-sm btn-primary">{{ __('common.btn_search_apply') }}</button>
-                                                </div>
-                                            </div>
+                                    @endif
+                                    <div class="col-12 col-sm-6 col-md-3">
+                                        <select class="form-select" name="activity_id">
+                                            <option value="">{{ __('task.search.activity') }}</option>
+                                            @foreach($activities as $activity)
+                                                <option value="{{ $activity->id }}" @selected(request('activity_id') == $activity->id)>{{ $activity->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-12 col-sm-6 col-md-3">
+                                        <select class="form-select" name="status">
+                                            <option value="">{{ __('task.search.status') }}</option>
+                                            <option value="1" @selected(request('status') === '1')>{{ __('task.status.active') }}</option>
+                                            <option value="0" @selected(request('status') === '0')>{{ __('task.status.inactive') }}</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12 col-sm-6 col-md-3">
+                                        <div class="d-flex g-2 justify-content-sm-end">
+                                            <a href="{{ route(request()->route()->getName()) }}" class="btn btn-sm btn-warning me-2" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ __('common.btn_search_reset') }}">
+                                                <em class="icon ni ni-reload-alt"></em>
+                                            </a>
+                                            <button type="submit" class="btn btn-sm btn-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ __('common.btn_search_apply') }}">
+                                                <em class="icon ni ni-search"></em>
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
                             </form>
                         </div><!-- .card-tools -->
-                    </div><!-- .card-title-group -->
+                    </div>
                 </div><!-- .card-inner -->
                 <div class="card-inner-group">
                     <div class="card-inner p-0">
                         <div class="nk-tb-list nk-tb-ulist">
                             <div class="nk-tb-item nk-tb-head">
-                                <div class="nk-tb-col"><span>#</span></div>
+                                <div class="nk-tb-col tb-col-sm"><span>#</span></div>
                                 @if(auth()->user()->hasRole(\App\Models\Role::ROLE_ROOT))
-                                <div class="nk-tb-col"><span>{{ __('task.list.head.user') }}</span></div>
+                                <div class="nk-tb-col tb-col-md"><span>{{ __('task.list.head.user') }}</span></div>
                                 @endif
                                 <div class="nk-tb-col"><span>{{ __('task.list.head.activity') }}</span></div>
                                 <div class="nk-tb-col"><span>{{ __('task.list.head.product_count') }}</span></div>
-                                <div class="nk-tb-col"><span>{{ __('task.list.head.runtime') }}</span></div>
+                                <div class="nk-tb-col tb-col-sm"><span>{{ __('task.list.head.runtime') }}</span></div>
                                 <div class="nk-tb-col"><span>{{ __('task.list.head.status') }}</span></div>
-                                <div class="nk-tb-col"><span>{{ __('task.list.head.created_at') }}</span></div>
+                                <div class="nk-tb-col tb-col-md"><span>{{ __('task.list.head.created_at') }}</span></div>
                                 <div class="nk-tb-col text-end"><em class="icon ni ni-setting"></em></div>
                             </div>
 
@@ -93,7 +91,7 @@
                                         <span>{{ $loop->iteration }}</span>
                                     </div>
                                     @if(auth()->user()->hasRole(\App\Models\Role::ROLE_ROOT))
-                                    <div class="nk-tb-col tb-col-sm">
+                                    <div class="nk-tb-col tb-col-md">
                                         <a href="{{ route('admin.task.edit', $item->id) }}"><span>{{ $item->user->name ?? '—' }}</span></a>
                                     </div>
                                     @endif
@@ -103,7 +101,7 @@
                                     <div class="nk-tb-col">
                                         <span>{{ $item->product_count }}</span>
                                     </div>
-                                    <div class="nk-tb-col">
+                                    <div class="nk-tb-col tb-col-sm">
                                         <span>{{ $item->runtime }}</span>
                                     </div>
                                     <div class="nk-tb-col">
@@ -113,7 +111,7 @@
                                             <span class="badge bg-secondary">{{ __('task.status.inactive') }}</span>
                                         @endif
                                     </div>
-                                    <div class="nk-tb-col">
+                                    <div class="nk-tb-col tb-col-md">
                                         <span>{{ $item->created_at->format('d.m.Y H:i') }}</span>
                                     </div>
                                     <div class="nk-tb-col nk-tb-col-tools">
@@ -155,3 +153,21 @@
     </div>
 
 @endsection
+
+@push('scripts')
+<script>
+$(function () {
+    var $filters = $('#taskFilters');
+    var $icon = $('#taskFiltersToggle .icon');
+    $filters.on('show.bs.collapse', function () {
+        $icon.removeClass('ni-search').addClass('ni-cross');
+    });
+    $filters.on('hide.bs.collapse', function () {
+        $icon.removeClass('ni-cross').addClass('ni-search');
+    });
+    if ($filters.hasClass('show')) {
+        $icon.removeClass('ni-search').addClass('ni-cross');
+    }
+});
+</script>
+@endpush

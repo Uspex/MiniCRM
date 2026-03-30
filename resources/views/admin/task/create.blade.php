@@ -11,7 +11,7 @@
                                 <h3 class="nk-block-title page-title">{{ __('task.form.create_title') }}</h3>
                             </div>
                             <div class="nk-block-head-content">
-                                <a href="{{ route('admin.task.index') }}" class="btn btn-outline-light bg-white d-none d-sm-inline-flex"><em class="icon ni ni-arrow-left"></em><span>{{ __('common.back') }}</span></a>
+                                <a href="{{ route('admin.task.index') }}" class="btn btn-outline-light bg-white"><em class="icon ni ni-arrow-left"></em><span>{{ __('common.back') }}</span></a>
                             </div>
                         </div>
                     </div><!-- .nk-block-head -->
@@ -33,7 +33,7 @@
                                                     <div class="nk-block">
                                                         <div class="row g-4">
                                                             @if(auth()->user()->hasRole(\App\Models\Role::ROLE_ROOT))
-                                                            <div class="col-lg-3">
+                                                            <div class="col-md-6 col-lg-3">
                                                                 <div class="form-group">
                                                                     <label class="form-label" for="user_id">{{ __('task.form.fields.user_id') }}</label>
                                                                     <select name="user_id" id="user_id" class="form-select">
@@ -45,7 +45,7 @@
                                                                 </div>
                                                             </div>
                                                             @endif
-                                                            <div class="col-lg-3">
+                                                            <div class="col-md-6 col-lg-3">
                                                                 <div class="form-group">
                                                                     <label class="form-label" for="activity_id">{{ __('task.form.fields.activity_id') }}</label>
                                                                     <select name="activity_id" id="activity_id" class="form-select js-select2" data-search="on" required>
@@ -56,7 +56,7 @@
                                                                     </select>
                                                                 </div>
                                                             </div>
-                                                            <div class="col-lg-3">
+                                                            <div class="col-md-6 col-lg-3">
                                                                 <div class="form-group">
                                                                     <label class="form-label" for="product_count">{{ __('task.form.fields.product_count') }}</label>
                                                                     <input name="product_count" value="{{ old('product_count', 0) }}"
@@ -66,7 +66,7 @@
                                                                            class="form-control">
                                                                 </div>
                                                             </div>
-                                                            <div class="col-lg-3">
+                                                            <div class="col-md-6 col-lg-3">
                                                                 <div class="form-group">
                                                                     <label class="form-label" for="runtime">{{ __('task.form.fields.runtime') }}</label>
                                                                     <input name="runtime" value="{{ old('runtime', 0) }}"
