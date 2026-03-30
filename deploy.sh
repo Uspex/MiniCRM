@@ -10,8 +10,28 @@ BACKUP_DIR="storage/backups"
 BACKUP_FILE="${BACKUP_DIR}/backup_$(date +%Y%m%d_%H%M%S).sql.gz"
 
 echo "=== Database backup ==="
-mysqldump --default-character-set=utf8mb4 -h"${DB_HOST}" -P"${DB_PORT}" -u"${DB_USERNAME}" -p"${DB_PASSWORD}" "${DB_DATABASE}" | gzip > "${BACKUP_FILE}"
-echo "Backup saved: ${BACKUP_FILE}"
+echo "  Host: ${DB_HOST}:${DB_PORT}"
+echo "  User: ${DB_USERNAME}"
+echo "  Database: ${DB_DATABASE}"
+echo "  File: ${BACKUP_FILE}"
+
+mkdir -p "${BACKUP_DIR}"
+
+if ! DUMP_ERROR=$(mysqldump --default-character-set=utf8mb4 -h"${DB_HOST}" -P"${DB_PORT}" -u"${DB_USERNAME}" -p"${DB_PASSWORD}" "${DB_DATABASE}" 2>&1 | gzip > "${BACKUP_FILE}"); then
+    echo "ERROR: mysqldump failed:"
+    echo "${DUMP_ERROR}"
+    rm -f "${BACKUP_FILE}"
+    exit 1
+fi
+
+# Проверяем что файл не пустой (gzip пустого потока ~20 байт)
+if [ ! -s "${BACKUP_FILE}" ] || [ "$(stat -c%s "${BACKUP_FILE}" 2>/dev/null || stat -f%z "${BACKUP_FILE}" 2>/dev/null)" -lt 100 ]; then
+    echo "ERROR: backup file is empty or too small, dump likely failed"
+    rm -f "${BACKUP_FILE}"
+    exit 1
+fi
+
+echo "Backup saved: ${BACKUP_FILE} ($(du -h "${BACKUP_FILE}" | cut -f1))"
 
 # Ротация: оставляем только 5 последних бекапов
 echo "=== Cleanup old backups ==="
