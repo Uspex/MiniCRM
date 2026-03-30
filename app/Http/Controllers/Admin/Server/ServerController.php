@@ -165,7 +165,7 @@ class ServerController extends Controller
         $password = config('database.connections.mysql.password');
 
         $command = sprintf(
-            'mysqldump --default-character-set=utf8mb4 -h %s -P %s -u %s -p%s %s > %s 2>&1',
+            'mysqldump --default-character-set=utf8mb4 -h %s -P %s -u %s -p%s %s > %s',
             escapeshellarg($host),
             escapeshellarg($port),
             escapeshellarg($username),
@@ -174,7 +174,7 @@ class ServerController extends Controller
             escapeshellarg($filepath)
         );
 
-        exec($command, $output, $exitCode);
+        exec($command . ' 2>&1', $output, $exitCode);
 
         if ($exitCode !== 0) {
             @unlink($filepath);
