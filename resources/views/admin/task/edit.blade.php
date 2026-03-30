@@ -61,6 +61,7 @@
                                                                            id="runtime"
                                                                            type="number"
                                                                            min="0"
+                                                                           step="0.01"
                                                                            class="form-control">
                                                                 </div>
                                                             </div>

@@ -18,7 +18,7 @@ class TaskUpdateRequest extends FormRequest
             'activity_id'        => ['required', 'integer', 'exists:activities,id'],
             'message'            => ['nullable', 'string', 'max:65535'],
             'product_count'      => ['nullable', 'integer', 'min:0'],
-            'runtime'            => ['nullable', 'integer', 'min:0'],
+            'runtime'            => ['nullable', 'numeric', 'min:0'],
             'status'             => ['boolean'],
         ];
     }
