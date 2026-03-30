@@ -77,14 +77,19 @@ class ServerController extends Controller
         try {
             Artisan::call('migrate', ['--force' => true, '--no-ansi' => true]);
 
+            $output = trim(Artisan::output());
+            $count = preg_match_all('/DONE/', $output);
+
             return response()->json([
                 'success' => true,
-                'output'  => trim(Artisan::output()),
+                'summary' => $count > 0 ? "Выполнено миграций: {$count}" : 'Нет новых миграций',
+                'log'     => $output,
             ]);
         } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
-                'output'  => $e->getMessage(),
+                'summary' => $e->getMessage(),
+                'log'     => $e->getMessage(),
             ]);
         }
     }
@@ -94,14 +99,19 @@ class ServerController extends Controller
         try {
             Artisan::call('db:seed', ['--force' => true, '--no-ansi' => true]);
 
+            $output = trim(Artisan::output());
+            $count = preg_match_all('/DONE/', $output);
+
             return response()->json([
                 'success' => true,
-                'output'  => 'OK',
+                'summary' => "Выполнено сидеров: {$count}",
+                'log'     => $output,
             ]);
         } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
-                'output'  => $e->getMessage(),
+                'summary' => $e->getMessage(),
+                'log'     => $e->getMessage(),
             ]);
         }
     }

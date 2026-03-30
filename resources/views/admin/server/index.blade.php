@@ -176,13 +176,16 @@
             });
         })
         .then(function (data) {
+            var summary = data.summary || data.output;
+            var logText = data.log || data.output;
+
             if (data.success) {
-                setStepState(step.key, 'done', data.output);
-                appendLog(step.key, data.output);
+                setStepState(step.key, 'done', summary);
+                appendLog(step.key, logText);
                 runSteps(index + 1);
             } else {
-                setStepState(step.key, 'fail', data.output);
-                appendLog(step.key, 'ERROR: ' + data.output);
+                setStepState(step.key, 'fail', summary);
+                appendLog(step.key, 'ERROR: ' + logText);
                 finishDeploy(false);
             }
         })
