@@ -4,6 +4,7 @@ return [
     'title'         => 'Dashboard',
     'chart_title'   => 'Production Output by Day',
     'chart_no_data' => 'No data for the selected period',
+    'table_total'   => 'Total',
 
     'filter' => [
         'users'     => 'All Employees',

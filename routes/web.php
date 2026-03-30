@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Admin\Activity\ActivityController;
 use App\Http\Controllers\Admin\User\UserController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\ServerController;
 
 
 Route::middleware('guest')->group(function () {
@@ -48,6 +49,10 @@ Route::middleware(['auth', 'setUserLanguage'])->group(function () {
         Route::group(['namespace' => 'Task'], function() {
             Route::resource('task', '\App\Http\Controllers\Admin\Task\TaskController')->except(['show'])->names('admin.task');
         });
+
+        //Сервер
+        Route::get('server', [ServerController::class, 'index'])->name('admin.server.index');
+        Route::post('server/update', [ServerController::class, 'update'])->name('admin.server.update');
     });
 });
 

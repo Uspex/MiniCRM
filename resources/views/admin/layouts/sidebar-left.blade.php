@@ -75,6 +75,13 @@
                                 <span class="nk-menu-text">{{ __('common.menu.permission') }}</span>
                             </a>
                         </li><!-- .nk-menu-item -->
+
+                        <li class="nk-menu-item {{ request()->routeIs('admin.server.*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.server.index') }}" class="nk-menu-link">
+                                <span class="nk-menu-icon"><em class="icon ni ni-server"></em></span>
+                                <span class="nk-menu-text">{{ __('common.menu.server') }}</span>
+                            </a>
+                        </li><!-- .nk-menu-item -->
                     @endif
 
 

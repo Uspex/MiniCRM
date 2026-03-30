@@ -89,6 +89,47 @@
                         <div class="chart-container" style="position: relative; height: 360px;">
                             <canvas id="employeeChart"></canvas>
                         </div>
+
+                        {{-- Таблица с данными --}}
+                        <div class="mt-4">
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-striped table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-nowrap">{{ __('task.list.head.activity') }}</th>
+                                            @foreach($chartData['labels'] as $label)
+                                                <th class="text-center text-nowrap">{{ $label }}</th>
+                                            @endforeach
+                                            <th class="text-center text-nowrap"><strong>{{ __('dashboard.table_total') }}</strong></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @php $columnTotals = array_fill(0, count($chartData['labels']), 0); @endphp
+                                        @foreach($chartData['datasets'] as $dataset)
+                                            <tr>
+                                                <td class="text-nowrap">{{ $dataset['label'] }}</td>
+                                                @foreach($dataset['data'] as $i => $value)
+                                                    <td class="text-center">{{ $value ?: '' }}</td>
+                                                    @php $columnTotals[$i] += $value; @endphp
+                                                @endforeach
+                                                <td class="text-center"><strong>{{ array_sum($dataset['data']) }}</strong></td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                    @if(count($chartData['datasets']) > 1)
+                                    <tfoot>
+                                        <tr>
+                                            <td class="text-nowrap"><strong>{{ __('dashboard.table_total') }}</strong></td>
+                                            @foreach($columnTotals as $colTotal)
+                                                <td class="text-center"><strong>{{ $colTotal ?: '' }}</strong></td>
+                                            @endforeach
+                                            <td class="text-center"><strong>{{ array_sum($columnTotals) }}</strong></td>
+                                        </tr>
+                                    </tfoot>
+                                    @endif
+                                </table>
+                            </div>
+                        </div>
                     @endif
 
                 </div>

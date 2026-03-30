@@ -48,7 +48,7 @@
                                                             <div class="col-lg-3">
                                                                 <div class="form-group">
                                                                     <label class="form-label" for="activity_id">{{ __('task.form.fields.activity_id') }}</label>
-                                                                    <select name="activity_id" id="activity_id" class="form-select" required>
+                                                                    <select name="activity_id" id="activity_id" class="form-select js-select2" data-search="on" required>
                                                                         <option value=""></option>
                                                                         @foreach($activities as $activity)
                                                                             <option value="{{ $activity->id }}" @selected(old('activity_id') == $activity->id)>{{ $activity->name }}</option>
@@ -105,3 +105,13 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+<script>
+$(function () {
+    if (typeof $.fn.select2 !== 'undefined') {
+        $('#activity_id').select2({ width: '100%' });
+    }
+});
+</script>
+@endpush

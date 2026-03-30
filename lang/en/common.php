@@ -27,6 +27,7 @@ return [
         'tasks'      => 'Tasks',
         'task'       => 'Tasks',
         'activity'   => 'Work Types',
+        'server'     => 'Server',
     ],
 
     'create' => [
