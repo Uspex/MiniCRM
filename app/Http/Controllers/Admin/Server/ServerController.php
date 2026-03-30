@@ -165,7 +165,7 @@ class ServerController extends Controller
         $password = config('database.connections.mysql.password');
 
         $command = sprintf(
-            'mysqldump --default-character-set=utf8mb4 -h %s -P %s -u %s -p%s %s > %s',
+            'mysqldump --default-character-set=utf8mb4 --no-tablespaces -h %s -P %s -u %s -p%s %s > %s',
             escapeshellarg($host),
             escapeshellarg($port),
             escapeshellarg($username),
