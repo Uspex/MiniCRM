@@ -5,7 +5,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Admin\Activity\ActivityController;
 use App\Http\Controllers\Admin\User\UserController;
 use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\ServerController;
+use App\Http\Controllers\Admin\Server\ServerController;
 
 
 Route::middleware('guest')->group(function () {
@@ -51,8 +51,15 @@ Route::middleware(['auth', 'setUserLanguage'])->group(function () {
         });
 
         //Сервер
-        Route::get('server', [ServerController::class, 'index'])->name('admin.server.index');
-        Route::post('server/update', [ServerController::class, 'update'])->name('admin.server.update');
+        Route::group(['namespace' => 'Server'], function() {
+            Route::get('server', [ServerController::class, 'index'])->name('admin.server.index');
+            Route::post('server/step/backup', [ServerController::class, 'stepBackup'])->name('admin.server.step.backup');
+            Route::post('server/step/git', [ServerController::class, 'stepGit'])->name('admin.server.step.git');
+            Route::post('server/step/migrate', [ServerController::class, 'stepMigrate'])->name('admin.server.step.migrate');
+            Route::post('server/step/seed', [ServerController::class, 'stepSeed'])->name('admin.server.step.seed');
+            Route::post('server/step/cache', [ServerController::class, 'stepCache'])->name('admin.server.step.cache');
+            Route::get('server/backup/{filename}', [ServerController::class, 'downloadBackup'])->name('admin.server.backup.download');
+        });
     });
 });
 

@@ -22,7 +22,7 @@ class AddAdminUserSeeder extends Seeder
         $password = config('add_user.admin.password');
 
         if (User::where('username', $username)->orWhere('email', $email)->exists()) {
-            echo '    ---- User with username ' . $username . ' already exists'.PHP_EOL;
+            $this->command?->info('User with username ' . $username . ' already exists');
             return;
         }
 

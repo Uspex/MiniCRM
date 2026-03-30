@@ -27,7 +27,7 @@ class SetUsernameFromNameSeeder extends Seeder
 
             $user->update(['username' => $username]);
 
-            echo "    User id={$user->id} name=\"{$user->name}\" → username=\"{$username}\"" . PHP_EOL;
+            $this->command?->info("User id={$user->id} name=\"{$user->name}\" → username=\"{$username}\"");
         });
     }
 }
