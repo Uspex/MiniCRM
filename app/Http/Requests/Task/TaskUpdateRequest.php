@@ -20,6 +20,7 @@ class TaskUpdateRequest extends FormRequest
             'product_count'      => ['nullable', 'integer', 'min:0'],
             'runtime'            => ['nullable', 'numeric', 'min:0'],
             'status'             => ['boolean'],
+            'created_at'         => ['nullable', 'date'],
         ];
     }
 }

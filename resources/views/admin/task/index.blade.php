@@ -28,34 +28,32 @@
                     <div class="collapse d-sm-block{{ request()->hasAny(['user_id', 'activity_id', 'status']) ? ' show' : '' }}" id="taskFilters">
                         <div class="card-tools w-100 pt-3 pt-sm-0">
                             <form method="GET" action="{{ route(request()->route()->getName(), [request()->get('page')]) }}">
-                                <div class="row gx-6 gy-3">
-                                    @if(auth()->user()->hasRole(\App\Models\Role::ROLE_ROOT))
-                                    <div class="col-12 col-sm-6 col-md-3">
-                                        <select class="form-select" name="user_id">
-                                            <option value="">{{ __('task.search.user') }}</option>
-                                            @foreach($users as $user)
-                                                <option value="{{ $user->id }}" @selected(request('user_id') == $user->id)>{{ $user->name }}</option>
-                                            @endforeach
-                                        </select>
+                                <div class="row">
+                                    <div class="col-12 col-md-9">
+                                        <div class="row gx-6 gy-3">
+                                            @if(auth()->user()->hasRole(\App\Models\Role::ROLE_ROOT))
+                                                <div class="col-12 col-sm-6 col-md-3">
+                                                    <select class="form-select form-select-sm" name="user_id">
+                                                        <option value="">{{ __('task.search.user') }}</option>
+                                                        @foreach($users as $user)
+                                                            <option value="{{ $user->id }}" @selected(request('user_id') == $user->id)>{{ $user->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            @endif
+                                            <div class="col-12 col-sm-6 col-md-3">
+                                                <select class="form-select form-select-sm" name="activity_id">
+                                                    <option value="">{{ __('task.search.activity') }}</option>
+                                                    @foreach($activities as $activity)
+                                                        <option value="{{ $activity->id }}" @selected(request('activity_id') == $activity->id)>{{ $activity->name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+
                                     </div>
-                                    @endif
-                                    <div class="col-12 col-sm-6 col-md-3">
-                                        <select class="form-select" name="activity_id">
-                                            <option value="">{{ __('task.search.activity') }}</option>
-                                            @foreach($activities as $activity)
-                                                <option value="{{ $activity->id }}" @selected(request('activity_id') == $activity->id)>{{ $activity->name }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    <div class="col-12 col-sm-6 col-md-3">
-                                        <select class="form-select" name="status">
-                                            <option value="">{{ __('task.search.status') }}</option>
-                                            <option value="1" @selected(request('status') === '1')>{{ __('task.status.active') }}</option>
-                                            <option value="0" @selected(request('status') === '0')>{{ __('task.status.inactive') }}</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-12 col-sm-6 col-md-3">
-                                        <div class="d-flex g-2 justify-content-sm-end">
+                                    <div class="col-12 col-md-3 mt-3 mt-md-0">
+                                        <div class="d-flex justify-content-end">
                                             <a href="{{ route(request()->route()->getName()) }}" class="btn btn-sm btn-warning me-2" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ __('common.btn_search_reset') }}">
                                                 <em class="icon ni ni-reload-alt"></em>
                                             </a>
@@ -64,6 +62,7 @@
                                             </button>
                                         </div>
                                     </div>
+
                                 </div>
                             </form>
                         </div><!-- .card-tools -->
@@ -80,7 +79,6 @@
                                 <div class="nk-tb-col"><span>{{ __('task.list.head.activity') }}</span></div>
                                 <div class="nk-tb-col"><span>{{ __('task.list.head.product_count') }}</span></div>
                                 <div class="nk-tb-col tb-col-sm"><span>{{ __('task.list.head.runtime') }}</span></div>
-                                <div class="nk-tb-col"><span>{{ __('task.list.head.status') }}</span></div>
                                 <div class="nk-tb-col tb-col-md"><span>{{ __('task.list.head.created_at') }}</span></div>
                                 <div class="nk-tb-col text-end"><em class="icon ni ni-setting"></em></div>
                             </div>
@@ -103,13 +101,6 @@
                                     </div>
                                     <div class="nk-tb-col tb-col-sm">
                                         <span>{{ $item->runtime }}</span>
-                                    </div>
-                                    <div class="nk-tb-col">
-                                        @if($item->status)
-                                            <span class="badge bg-info">{{ __('task.status.active') }}</span>
-                                        @else
-                                            <span class="badge bg-secondary">{{ __('task.status.inactive') }}</span>
-                                        @endif
                                     </div>
                                     <div class="nk-tb-col tb-col-md">
                                         <span>{{ $item->created_at->format('d.m.Y H:i') }}</span>

@@ -27,6 +27,7 @@ return [
             'product_count'      => 'Кол-во',
             'runtime'            => 'Время выполнения (ч)',
             'status'             => 'Статус',
+            'created_at'         => 'Дата создания',
         ],
     ],
 

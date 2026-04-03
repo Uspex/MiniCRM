@@ -100,6 +100,10 @@ class TaskController extends Controller
         $data = $request->validated();
         $data['user_id'] ??= auth()->id();
 
+        if (! auth()->user()->can(Permission::PERMISSION_TASK_EDIT_DATE)) {
+            unset($data['created_at']);
+        }
+
         $task->update($data);
 
         return redirect()

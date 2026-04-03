@@ -27,6 +27,7 @@ return [
             'product_count' => 'Count',
             'runtime'       => 'Actual Time (h)',
             'status'        => 'Status',
+            'created_at'    => 'Created Date',
         ],
     ],
 

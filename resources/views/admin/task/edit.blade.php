@@ -32,7 +32,7 @@
                                             <div class="tab-pane active" id="tab_general">
                                                 <div class="card-inner">
                                                     <div class="nk-block">
-                                                        <div class="row g-4">
+                                                        <div class="row g-3">
                                                             <div class="col-md-6 col-lg-3">
                                                                 <div class="form-group">
                                                                     <label class="form-label" for="activity_id">{{ __('task.form.fields.activity_id') }}</label>
@@ -44,41 +44,32 @@
                                                                     </select>
                                                                 </div>
                                                             </div>
-                                                            <div class="col-md-6 col-lg-3">
+                                                            <div class="col-md-4 col-lg-2">
                                                                 <div class="form-group">
                                                                     <label class="form-label" for="product_count">{{ __('task.form.fields.product_count') }}</label>
                                                                     <input name="product_count" value="{{ old('product_count', $task->product_count) }}"
-                                                                           id="product_count"
-                                                                           type="number"
-                                                                           min="0"
-                                                                           class="form-control">
+                                                                           id="product_count" type="number" min="0" class="form-control">
                                                                 </div>
                                                             </div>
-                                                            <div class="col-md-6 col-lg-3">
+                                                            <div class="col-md-4 col-lg-2">
                                                                 <div class="form-group">
                                                                     <label class="form-label" for="runtime">{{ __('task.form.fields.runtime') }}</label>
                                                                     <input name="runtime" value="{{ old('runtime', $task->runtime) }}"
-                                                                           id="runtime"
-                                                                           type="number"
-                                                                           min="0"
-                                                                           step="0.01"
-                                                                           class="form-control">
+                                                                           id="runtime" type="number" min="0" step="0.01" class="form-control">
                                                                 </div>
                                                             </div>
-                                                            <div class="col-lg-12">
+                                                            <div class="col-md-4 col-lg-3">
+                                                                <div class="form-group">
+                                                                    <label class="form-label" for="created_at">{{ __('task.form.fields.created_at') }}</label>
+                                                                    <input name="created_at" value="{{ old('created_at', $task->created_at->format('Y-m-d\TH:i')) }}"
+                                                                           id="created_at" type="datetime-local" class="form-control"
+                                                                           @cannot(\App\Models\Permission::PERMISSION_TASK_EDIT_DATE) disabled readonly @endcannot>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-12">
                                                                 <div class="form-group">
                                                                     <label class="form-label" for="message">{{ __('task.form.fields.message') }}</label>
-                                                                    <textarea name="message" id="message" class="form-control" rows="4">{{ old('message', $task->message) }}</textarea>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-md-6 col-lg-3">
-                                                                <div class="form-group">
-                                                                    <label class="form-label">{{ __('task.form.fields.status') }}</label>
-                                                                    <div class="custom-control custom-switch">
-                                                                        <input type="hidden" name="status" value="0">
-                                                                        <input type="checkbox" class="custom-control-input" id="status" name="status" value="1" @checked(old('status', $task->status))>
-                                                                        <label class="custom-control-label" for="status">{{ __('task.status.active') }}</label>
-                                                                    </div>
+                                                                    <textarea name="message" id="message" class="form-control" rows="3">{{ old('message', $task->message) }}</textarea>
                                                                 </div>
                                                             </div>
                                                         </div>
