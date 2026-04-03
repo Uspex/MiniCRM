@@ -54,6 +54,7 @@
                                 <div class="nk-tb-col"><span>#</span></div>
                                 <div class="nk-tb-col"><span>{{ __('user.list.head.name') }}</span></div>
                                 <div class="nk-tb-col"><span>{{ __('user.list.head.username') }}</span></div>
+                                <div class="nk-tb-col tb-col-md"><span>{{ __('user.list.head.department') }}</span></div>
                                 <div class="nk-tb-col"><span>{{ __('user.list.head.email') }}</span></div>
                                 <div class="nk-tb-col"><span>{{ __('user.list.head.role') }}</span></div>
                                 <div class="nk-tb-col text-end"><em class="icon ni ni-setting"></em></div>
@@ -69,6 +70,9 @@
                                     </div>
                                     <div class="nk-tb-col">
                                         <span>{{ $item->username }}</span>
+                                    </div>
+                                    <div class="nk-tb-col tb-col-md">
+                                        <span>{{ $item->department }}</span>
                                     </div>
                                     <div class="nk-tb-col">
                                         <span>{{ $item->email }}</span>

@@ -53,6 +53,15 @@
                                                             </div>
                                                             <div class="col-lg-3">
                                                                 <div class="form-group">
+                                                                    <label class="form-label" for="department">{{ __('user.form.fields.department') }}</label>
+                                                                    <input name="department" value="{{ old('department') }}"
+                                                                           id="department"
+                                                                           type="text"
+                                                                           class="form-control">
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-lg-3">
+                                                                <div class="form-group">
                                                                     <label class="form-label" for="email">{{ __('user.form.fields.email') }}</label>
                                                                     <input name="email" value="{{ old('email') }}"
                                                                            id="email"

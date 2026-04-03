@@ -6,10 +6,11 @@ return [
 
     'list' => [
         'head'    => [
-            'name'     => 'Имя',
-            'username' => 'Логин',
-            'email'    => 'Email',
-            'role'     => 'Роль',
+            'name'       => 'Имя',
+            'username'   => 'Логин',
+            'department' => 'Подразделение',
+            'email'      => 'Email',
+            'role'       => 'Роль',
         ],
     ],
 
@@ -17,11 +18,12 @@ return [
         'create_title' => 'Добавить пользователя',
         'edit_title'   => 'Редактировать пользователя',
         'fields' => [
-            'name'     => 'Имя',
-            'username' => 'Логин',
-            'email'    => 'Email',
-            'role'     => 'Роль',
-            'password' => 'Пароль',
+            'name'       => 'Имя',
+            'username'   => 'Логин',
+            'department' => 'Подразделение',
+            'email'      => 'Email',
+            'role'       => 'Роль',
+            'password'   => 'Пароль',
         ],
     ],
 

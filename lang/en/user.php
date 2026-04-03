@@ -6,10 +6,11 @@ return [
 
     'list' => [
         'head'    => [
-            'name'     => 'Name',
-            'username' => 'Username',
-            'email'    => 'Email',
-            'role'     => 'Role',
+            'name'       => 'Name',
+            'username'   => 'Username',
+            'department' => 'Department',
+            'email'      => 'Email',
+            'role'       => 'Role',
         ],
     ],
 
@@ -17,11 +18,12 @@ return [
         'create_title' => 'Add user',
         'edit_title'   => 'Edit user',
         'fields' => [
-            'name'     => 'Name',
-            'username' => 'Username',
-            'email'    => 'Email',
-            'role'     => 'Role',
-            'password' => 'Password',
+            'name'       => 'Name',
+            'username'   => 'Username',
+            'department' => 'Department',
+            'email'      => 'Email',
+            'role'       => 'Role',
+            'password'   => 'Password',
         ],
     ],
 
