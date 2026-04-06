@@ -84,6 +84,15 @@
                         </li><!-- .nk-menu-item -->
                     @endif
 
+                    @if(auth()->user()->hasPermissionTo(\App\Models\Permission::PERMISSION_SETTING_EDIT))
+                        <li class="nk-menu-item {{ request()->routeIs('admin.setting.*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.setting.index') }}" class="nk-menu-link">
+                                <span class="nk-menu-icon"><em class="icon ni ni-opt"></em></span>
+                                <span class="nk-menu-text">{{ __('common.menu.setting') }}</span>
+                            </a>
+                        </li><!-- .nk-menu-item -->
+                    @endif
+
 
 
                 </ul><!-- .nk-menu -->

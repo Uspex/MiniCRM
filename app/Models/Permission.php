@@ -12,6 +12,7 @@ class Permission extends BasePermission
     const GROUP_ACTIVITY  = 'activity';
     const GROUP_TASK      = 'task';
     const GROUP_ANALYTICS = 'analytics';
+    const GROUP_SETTING   = 'setting';
 
 
     //----------------------------------------------------------
@@ -24,6 +25,9 @@ class Permission extends BasePermission
 
     //----------------------------------------------------------
     const PERMISSION_ANALYTICS_DASHBOARD = 'analytics_dashboard';
+
+    //----------------------------------------------------------
+    const PERMISSION_SETTING_EDIT = 'setting_edit';
 
        //----------------------------------------------------------
     const PERMISSION_TASK_LIST = 'task_list';
@@ -43,6 +47,7 @@ class Permission extends BasePermission
             self::GROUP_ACTIVITY,
             self::GROUP_TASK,
             self::GROUP_ANALYTICS,
+            self::GROUP_SETTING,
         ];
     }
 
@@ -71,6 +76,9 @@ class Permission extends BasePermission
             ],
             self::GROUP_ANALYTICS => [
                 self::PERMISSION_ANALYTICS_DASHBOARD,
+            ],
+            self::GROUP_SETTING => [
+                self::PERMISSION_SETTING_EDIT,
             ],
         ];
     }

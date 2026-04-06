@@ -29,6 +29,7 @@ return [
         'task' => 'Операции',
         'activity' => 'Типы работ',
         'server' => 'Сервер',
+        'setting' => 'Настройки',
     ],
 
     'create' => [

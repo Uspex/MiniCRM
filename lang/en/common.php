@@ -28,6 +28,7 @@ return [
         'task'       => 'Tasks',
         'activity'   => 'Work Types',
         'server'     => 'Server',
+        'setting'    => 'Settings',
     ],
 
     'create' => [

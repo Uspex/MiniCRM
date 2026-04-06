@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\Activity\ActivityController;
 use App\Http\Controllers\Admin\User\UserController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\Server\ServerController;
+use App\Http\Controllers\Admin\Setting\SettingController;
 
 
 Route::middleware('guest')->group(function () {
@@ -48,6 +49,13 @@ Route::middleware(['auth', 'setUserLanguage'])->group(function () {
         //Задачи
         Route::group(['namespace' => 'Task'], function() {
             Route::resource('task', '\App\Http\Controllers\Admin\Task\TaskController')->except(['show'])->names('admin.task');
+        });
+
+        //Настройки
+        Route::group(['namespace' => 'Setting', 'prefix' => 'setting'], function() {
+            Route::get('/',           [SettingController::class, 'index'])->name('admin.setting.index');
+            Route::get('{type}/edit', [SettingController::class, 'edit'])->name('admin.setting.edit');
+            Route::post('{type}',     [SettingController::class, 'update'])->name('admin.setting.update');
         });
 
         //Сервер

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Setting;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
@@ -26,7 +27,7 @@ class Task extends Model
      */
     public static function resolveShift(Carbon $time): int
     {
-        $shifts = config('task.shifts', []);
+        $shifts = Setting::get(Setting::TYPE_SHIFTS, []);
         $timeMinutes = $time->hour * 60 + $time->minute;
 
         foreach ($shifts as $shift) {

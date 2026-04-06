@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Activity;
 use App\Models\Permission;
+use App\Models\Setting;
 use App\Models\Task;
 use App\Models\User;
 use Carbon\Carbon;
@@ -52,8 +53,9 @@ class DashboardController extends Controller
         $selectedActivityIds = array_filter((array) $request->input('activity_id', []));
         $selectedShifts      = array_filter((array) $request->input('shift', []));
 
-        // Граница рабочего дня берётся из первой смены в конфиге
-        $dayStartHour = (int) explode(':', config('task.shifts.0.start', '00:00'))[0];
+        // Граница рабочего дня берётся из первой смены в настройках
+        $shifts = Setting::get(Setting::TYPE_SHIFTS, []);
+        $dayStartHour = !empty($shifts) ? (int) explode(':', $shifts[0]['start'])[0] : 0;
 
         // Сдвигаем диапазон фильтра, чтобы «день» начинался со старта первой смены
         $filterFrom = $dateFrom->copy()->addHours($dayStartHour);
@@ -109,7 +111,7 @@ class DashboardController extends Controller
             'datasets' => $datasets,
         ];
 
-        $allShifts = collect(config('task.shifts'))->map(fn($s) => [
+        $allShifts = collect($shifts)->map(fn($s) => [
             'id'   => (int) $s['shift'],
             'name' => $s['name'],
         ]);

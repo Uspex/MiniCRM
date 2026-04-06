@@ -54,10 +54,14 @@
                                                             <div class="col-lg-3">
                                                                 <div class="form-group">
                                                                     <label class="form-label" for="department">{{ __('user.form.fields.department') }}</label>
-                                                                    <input name="department" value="{{ old('department') }}"
-                                                                           id="department"
-                                                                           type="text"
-                                                                           class="form-control">
+                                                                    <div class="form-control-wrap">
+                                                                        <select name="department" id="department" class="form-select form-control form-control-lg">
+                                                                            <option value="">—</option>
+                                                                            @foreach(\App\Models\Setting::get(\App\Models\Setting::TYPE_DEPARTMENTS, []) as $dept)
+                                                                                <option value="{{ $dept['name'] }}" @if(old('department') === $dept['name']) selected @endif>{{ $dept['name'] }}</option>
+                                                                            @endforeach
+                                                                        </select>
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                             <div class="col-lg-3">
