@@ -47,7 +47,9 @@
                             <div class="nk-tb-item nk-tb-head">
                                 <div class="nk-tb-col"><span>#</span></div>
                                 <div class="nk-tb-col"><span>{{ __('activity.list.head.name') }}</span></div>
-                                <div class="nk-tb-col"><span>{{ __('activity.list.head.slug') }}</span></div>
+                                <div class="nk-tb-col tb-col-md"><span>{{ __('activity.list.head.plan_quantity') }}</span></div>
+                                <div class="nk-tb-col tb-col-md"><span>{{ __('activity.list.head.plan_time') }}</span></div>
+                                <div class="nk-tb-col tb-col-sm"><span>{{ __('activity.list.head.slug') }}</span></div>
                                 <div class="nk-tb-col text-end"><em class="icon ni ni-setting"></em></div>
                             </div>
 
@@ -59,7 +61,13 @@
                                     <div class="nk-tb-col tb-col-sm">
                                         <a href="{{ route('admin.activity.edit', $item->id) }}"><span>{{ $item->name }}</span></a>
                                     </div>
-                                    <div class="nk-tb-col">
+                                    <div class="nk-tb-col tb-col-md">
+                                        <span>{{ $item->plan_quantity }}</span>
+                                    </div>
+                                    <div class="nk-tb-col tb-col-md">
+                                        <span>{{ $item->plan_time }}</span>
+                                    </div>
+                                    <div class="nk-tb-col tb-col-sm">
                                         <span>{{ $item->slug }}</span>
                                     </div>
                                     <div class="nk-tb-col nk-tb-col-tools">

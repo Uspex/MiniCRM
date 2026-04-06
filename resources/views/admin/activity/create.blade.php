@@ -42,6 +42,27 @@
                                                                            required>
                                                                 </div>
                                                             </div>
+                                                            <div class="col-lg-3">
+                                                                <div class="form-group">
+                                                                    <label class="form-label" for="plan_quantity">{{ __('activity.form.fields.plan_quantity') }}</label>
+                                                                    <input name="plan_quantity" value="{{ old('plan_quantity') }}"
+                                                                           id="plan_quantity"
+                                                                           type="number"
+                                                                           min="0"
+                                                                           class="form-control">
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-lg-3">
+                                                                <div class="form-group">
+                                                                    <label class="form-label" for="plan_time">{{ __('activity.form.fields.plan_time') }}</label>
+                                                                    <input name="plan_time" value="{{ old('plan_time') }}"
+                                                                           id="plan_time"
+                                                                           type="number"
+                                                                           min="0"
+                                                                           step="0.01"
+                                                                           class="form-control">
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                     </div><!-- .nk-block -->
                                                 </div><!-- .card-inner -->

@@ -57,8 +57,10 @@ class ActivityController extends Controller
     public function store(ActivityCreateRequest $request): RedirectResponse
     {
         Activity::create([
-            'name' => $request->input('name'),
-            'slug' => $this->generateUniqueSlug($request->input('name')),
+            'name'          => $request->input('name'),
+            'slug'          => $this->generateUniqueSlug($request->input('name')),
+            'plan_quantity' => $request->input('plan_quantity'),
+            'plan_time'     => $request->input('plan_time'),
         ]);
 
         return redirect()
@@ -83,7 +85,11 @@ class ActivityController extends Controller
     {
         $activity = Activity::findOrFail($id);
 
-        $data = ['name' => $request->input('name')];
+        $data = [
+            'name'          => $request->input('name'),
+            'plan_quantity' => $request->input('plan_quantity'),
+            'plan_time'     => $request->input('plan_time'),
+        ];
 
         if ($activity->name !== $request->input('name')) {
             $data['slug'] = $this->generateUniqueSlug($request->input('name'), $id);
