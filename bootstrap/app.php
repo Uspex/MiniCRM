@@ -23,7 +23,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->redirectGuestsTo(fn (Request $request) => route('login'));
-        $middleware->redirectUsersTo(fn (Request $request) => route('admin.dashboard'));
+        $middleware->redirectUsersTo(fn (Request $request) => route('admin.task.index'));
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

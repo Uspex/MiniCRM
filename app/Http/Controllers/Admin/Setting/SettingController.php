@@ -36,7 +36,8 @@ class SettingController extends Controller
     {
         abort_unless(in_array($type, Setting::getTypeList()), 404);
 
-        $setting = Setting::where('type', $type)->firstOrFail();
+        $setting = Setting::where('type', $type)->first()
+            ?? new Setting(['type' => $type, 'value' => []]);
 
         return view("admin.setting.{$type}.edit", compact('setting'));
     }

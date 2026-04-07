@@ -98,7 +98,6 @@ class TaskController extends Controller
         $task = Task::findOrFail($id);
 
         $data = $request->validated();
-        $data['user_id'] ??= auth()->id();
 
         if (! auth()->user()->can(Permission::PERMISSION_TASK_EDIT_DATE)) {
             unset($data['created_at']);
