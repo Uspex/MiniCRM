@@ -6,7 +6,8 @@ return [
     'chart_no_data' => 'Нет данных за выбранный период',
     'table_total'   => 'Итого',
     'plan_label'    => 'План: :name',
-    'coefficient'   => 'Коэффициент',
+    'coefficient'      => 'Коэффициент',
+    'user_table_title' => 'Коэффициент по сотрудникам',
 
     'filter' => [
         'users'      => 'Все сотрудники',

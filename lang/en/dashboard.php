@@ -6,7 +6,8 @@ return [
     'chart_no_data' => 'No data for the selected period',
     'table_total'   => 'Total',
     'plan_label'    => 'Plan: :name',
-    'coefficient'   => 'Coefficient',
+    'coefficient'      => 'Coefficient',
+    'user_table_title' => 'Coefficient by Employees',
 
     'filter' => [
         'users'     => 'All Employees',

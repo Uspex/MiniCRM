@@ -136,11 +136,64 @@ class DashboardController extends Controller
             'name' => $s['name'],
         ]);
 
+        // Данные по сотрудникам для таблицы коэффициентов
+        $userQuery = Task::select(
+            'user_id',
+            'activity_id',
+            DB::raw('DATE(created_at - INTERVAL ' . $dayStartHour . ' HOUR) as date'),
+            DB::raw('SUM(product_count) as total'),
+            DB::raw('SUM(runtime) as total_runtime')
+        )
+            ->whereBetween('created_at', [$filterFrom, $filterTo])
+            ->groupBy('user_id', 'activity_id', 'date');
+
+        if (!empty($selectedUserIds)) {
+            $userQuery->whereIn('user_id', $selectedUserIds);
+        }
+        if (!empty($selectedActivityIds)) {
+            $userQuery->whereIn('activity_id', $selectedActivityIds);
+        }
+        if (!empty($selectedShifts)) {
+            $userQuery->whereIn('shift', $selectedShifts);
+        }
+
+        $userRows = $userQuery->get();
+
+        // Собираем коэффициенты по сотрудникам
+        $userIds = $userRows->pluck('user_id')->unique();
+        $usersForTable = User::whereIn('id', $userIds)->orderBy('name')->get()->keyBy('id');
+
+        $userStats = [];
+        foreach ($usersForTable as $user) {
+            $userDayData = $dates->map(function ($date) use ($userRows, $user, $activities) {
+                $fact = 0;
+                $plan = 0;
+                foreach ($activities as $activity) {
+                    $row = $userRows->where('user_id', $user->id)
+                        ->where('activity_id', $activity->id)
+                        ->where('date', $date)
+                        ->first();
+                    if ($row) {
+                        $fact += (int) $row->total;
+                        if ($activity->plan_time && $row->total_runtime) {
+                            $plan += round(($row->total_runtime * 3600) / $activity->plan_time);
+                        }
+                    }
+                }
+                return ['fact' => $fact, 'plan' => $plan];
+            })->values()->toArray();
+
+            $userStats[] = [
+                'name' => $user->name,
+                'days' => $userDayData,
+            ];
+        }
+
         return view('admin.dashboard', compact(
             'chartData', 'allUsers', 'selectedUserIds',
             'allActivities', 'selectedActivityIds',
             'allShifts', 'selectedShifts',
-            'dateFrom', 'dateTo', 'isRoot'
+            'dateFrom', 'dateTo', 'isRoot', 'userStats'
         ));
     }
 }

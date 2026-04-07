@@ -199,6 +199,65 @@
                                 </table>
                             </div>
                         </div>
+
+                        {{-- Таблица коэффициентов по сотрудникам --}}
+                        @if(!empty($userStats))
+                        <div class="mt-4 mb-4">
+                            <h6 class="title mb-3">{{ __('dashboard.user_table_title') }}</h6>
+                            <div class="table-responsive pb-2">
+                                <table class="table table-bordered table-striped table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-nowrap">{{ __('dashboard.filter.users') }}</th>
+                                            @foreach($chartData['labels'] as $label)
+                                                <th class="text-center text-nowrap">{{ $label }}</th>
+                                            @endforeach
+                                            <th class="text-center text-nowrap"><strong>{{ __('dashboard.table_total') }}</strong></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($userStats as $uStat)
+                                            <tr>
+                                                <td class="text-nowrap">{{ $uStat['name'] }}</td>
+                                                @foreach($uStat['days'] as $day)
+                                                    @php
+                                                        $coeff = null;
+                                                        $cellStyle = '';
+                                                        $cellTitle = '';
+                                                        if ($day['plan'] && $day['fact']) {
+                                                            $coeff = round($day['fact'] / $day['plan'], 2);
+                                                            $cellStyle = $day['fact'] >= $day['plan'] ? 'border-bottom: 2px solid #1ee0ac !important;' : 'border-bottom: 2px solid #f4bd0e !important;';
+                                                            $cellTitle = $day['fact'] . '/' . $day['plan'];
+                                                        }
+                                                    @endphp
+                                                    <td class="text-center" @if($cellStyle) style="{{ $cellStyle }}" @endif @if($cellTitle) data-bs-toggle="tooltip" data-bs-placement="top" title="{{ $cellTitle }}" @endif>
+                                                        @if($coeff !== null){{ $coeff }}@endif
+                                                    </td>
+                                                @endforeach
+                                                @php
+                                                    $totalFact = array_sum(array_column($uStat['days'], 'fact'));
+                                                    $totalPlan = array_sum(array_column($uStat['days'], 'plan'));
+                                                    $totalCoeff = null;
+                                                    $totalStyle = '';
+                                                    $totalTitle = '';
+                                                    if ($totalPlan && $totalFact) {
+                                                        $totalCoeff = round($totalFact / $totalPlan, 2);
+                                                        $bgColor = $totalFact >= $totalPlan ? 'rgba(30, 224, 172, 0.15)' : 'rgba(244, 189, 14, 0.15)';
+                                                        $borderColor = $totalFact >= $totalPlan ? '#1ee0ac' : '#f4bd0e';
+                                                        $totalStyle = "background-color: {$bgColor}; border-bottom: 2px solid {$borderColor} !important;";
+                                                        $totalTitle = $totalFact . '/' . $totalPlan;
+                                                    }
+                                                @endphp
+                                                <td class="text-center" @if($totalStyle) style="{{ $totalStyle }}" @endif @if($totalTitle) data-bs-toggle="tooltip" data-bs-placement="top" title="{{ $totalTitle }}" @endif>
+                                                    <strong>@if($totalCoeff !== null){{ $totalCoeff }}@endif</strong>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        @endif
                     @endif
 
                 </div>
