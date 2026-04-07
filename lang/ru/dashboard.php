@@ -7,7 +7,6 @@ return [
     'table_total'   => 'Итого',
     'plan_label'    => 'План: :name',
     'coefficient'      => 'Коэффициент',
-    'user_table_title' => 'Коэффициент по сотрудникам',
 
     'filter' => [
         'users'      => 'Все сотрудники',

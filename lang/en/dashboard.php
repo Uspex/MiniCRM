@@ -7,7 +7,6 @@ return [
     'table_total'   => 'Total',
     'plan_label'    => 'Plan: :name',
     'coefficient'      => 'Coefficient',
-    'user_table_title' => 'Coefficient by Employees',
 
     'filter' => [
         'users'     => 'All Employees',
