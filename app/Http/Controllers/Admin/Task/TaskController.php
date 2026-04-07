@@ -9,6 +9,7 @@ use App\Models\Activity;
 use App\Models\Permission;
 use App\Models\Task;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\Middleware;
@@ -99,11 +100,13 @@ class TaskController extends Controller
 
         $data = $request->validated();
 
-        if (! auth()->user()->can(Permission::PERMISSION_TASK_EDIT_DATE)) {
-            unset($data['created_at']);
+        if(isset($data['created_at'])){
+            $task->created_at = Carbon::parse($data['created_at'])->format('Y-m-d H:i:s');
         }
 
+
         $task->update($data);
+        $task->save();
 
         return redirect()
             ->route('admin.task.edit', $task->id)
