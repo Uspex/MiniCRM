@@ -60,7 +60,7 @@
                                                                            id="plan_time"
                                                                            type="number"
                                                                            min="0"
-                                                                           step="0.01"
+                                                                           step="1"
                                                                            class="form-control">
                                                                 </div>
                                                             </div>

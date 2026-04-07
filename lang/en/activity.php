@@ -9,7 +9,7 @@ return [
             'name'          => 'Name',
             'slug'          => 'Slug',
             'plan_quantity' => 'Plan Qty/Shift',
-            'plan_time'     => 'Plan Time/Item (h)',
+            'plan_time'     => 'Time per Item (sec)',
         ],
     ],
 
@@ -20,7 +20,7 @@ return [
             'name'          => 'Name',
             'slug'          => 'Slug',
             'plan_quantity' => 'Plan Quantity per Shift',
-            'plan_time'     => 'Plan Time per Item (h)',
+            'plan_time'     => 'Time per Item (sec)',
         ],
     ],
 

@@ -64,7 +64,8 @@ class DashboardController extends Controller
         $query = Task::select(
             'activity_id',
             DB::raw('DATE(created_at - INTERVAL ' . $dayStartHour . ' HOUR) as date'),
-            DB::raw('SUM(product_count) as total')
+            DB::raw('SUM(product_count) as total'),
+            DB::raw('SUM(runtime) as total_runtime')
         )
             ->whereBetween('created_at', [$filterFrom, $filterTo])
             ->groupBy('activity_id', 'date');
@@ -104,6 +105,25 @@ class DashboardController extends Controller
                 'label' => $activity->name,
                 'data'  => $data,
             ];
+
+            // Линия плана (пунктирная) — ожидаемое кол-во: (runtime × 3600) / plan_time
+            if ($activity->plan_time) {
+                $planData = $dates->map(function ($date) use ($rows, $activity) {
+                    $row = $rows->where('activity_id', $activity->id)->where('date', $date)->first();
+                    if (!$row || !$row->total_runtime) {
+                        return 0;
+                    }
+
+                    // runtime в часах → секунды, plan_time в секундах
+                    return round(($row->total_runtime * 3600) / $activity->plan_time);
+                })->values()->toArray();
+
+                $datasets[] = [
+                    'label'  => __('dashboard.plan_label', ['name' => $activity->name]),
+                    'data'   => $planData,
+                    'isPlan' => true,
+                ];
+            }
         }
 
         $chartData = [

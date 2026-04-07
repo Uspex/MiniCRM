@@ -91,8 +91,8 @@
                         </div>
 
                         {{-- Таблица с данными --}}
-                        <div class="mt-4">
-                            <div class="table-responsive">
+                        <div class="mt-4 mb-4">
+                            <div class="table-responsive pb-2">
                                 <table class="table table-bordered table-striped table-sm">
                                     <thead>
                                         <tr>
@@ -104,26 +104,95 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @php $columnTotals = array_fill(0, count($chartData['labels']), 0); @endphp
-                                        @foreach($chartData['datasets'] as $dataset)
-                                            <tr>
-                                                <td class="text-nowrap">{{ $dataset['label'] }}</td>
+                                        @php
+                                            $columnTotals = array_fill(0, count($chartData['labels']), 0);
+                                            $columnPlanTotals = array_fill(0, count($chartData['labels']), 0);
+                                            $factDatasets = array_filter($chartData['datasets'], fn($ds) => empty($ds['isPlan']));
+                                            $planDataByLabel = [];
+                                            foreach ($chartData['datasets'] as $ds) {
+                                                if (!empty($ds['isPlan'])) {
+                                                    $planDataByLabel[$ds['label']] = $ds['data'];
+                                                }
+                                            }
+                                        @endphp
+                                        @foreach($factDatasets as $dataset)
+                                            @php
+                                                $planKey = __('dashboard.plan_label', ['name' => $dataset['label']]);
+                                                $planData = $planDataByLabel[$planKey] ?? null;
+                                            @endphp
+                                            <tr data-chart-row>
+                                                <td class="text-nowrap"><span class="d-inline-block me-1" data-chart-color style="width:10px;height:10px;"></span> {{ $dataset['label'] }}</td>
                                                 @foreach($dataset['data'] as $i => $value)
-                                                    <td class="text-center">{{ $value ?: '' }}</td>
-                                                    @php $columnTotals[$i] += $value; @endphp
+                                                    @php
+                                                        $planVal = $planData[$i] ?? null;
+                                                        $borderStyle = '';
+                                                        $cellTitle = '';
+                                                        if ($planVal && $value) {
+                                                            $borderStyle = $value >= $planVal ? 'border-bottom: 2px solid #1ee0ac !important;' : 'border-bottom: 2px solid #f4bd0e !important;';
+                                                            $cellTitle = __('dashboard.coefficient') . ': ' . round($value / $planVal, 2);
+                                                        }
+                                                    @endphp
+                                                    <td class="text-center" @if($borderStyle) style="{{ $borderStyle }}" @endif @if($cellTitle) data-bs-toggle="tooltip" data-bs-placement="top" title="{{ $cellTitle }}" @endif>
+                                                        @if($value || $planVal)
+                                                            {{ $value ?: 0 }}@if($planVal)/{{ $planVal }}@endif
+                                                        @endif
+                                                    </td>
+                                                    @php
+                                                        $columnTotals[$i] += $value;
+                                                        $columnPlanTotals[$i] += $planVal ?: 0;
+                                                    @endphp
                                                 @endforeach
-                                                <td class="text-center"><strong>{{ array_sum($dataset['data']) }}</strong></td>
+                                                @php
+                                                    $factTotal = array_sum($dataset['data']);
+                                                    $planTotal = $planData ? array_sum($planData) : null;
+                                                    $totalStyle = '';
+                                                    $totalTitle = '';
+                                                    if ($planTotal && $factTotal) {
+                                                        $bgColor = $factTotal >= $planTotal ? 'rgba(30, 224, 172, 0.15)' : 'rgba(244, 189, 14, 0.15)';
+                                                        $borderColor = $factTotal >= $planTotal ? '#1ee0ac' : '#f4bd0e';
+                                                        $totalStyle = "background-color: {$bgColor}; border-bottom: 2px solid {$borderColor} !important;";
+                                                        $totalTitle = __('dashboard.coefficient') . ': ' . round($factTotal / $planTotal, 2);
+                                                    }
+                                                @endphp
+                                                <td class="text-center" @if($totalStyle) style="{{ $totalStyle }}" @endif @if($totalTitle) data-bs-toggle="tooltip" data-bs-placement="top" title="{{ $totalTitle }}" @endif>
+                                                    <strong>{{ $factTotal }}@if($planTotal)/{{ $planTotal }}@endif</strong>
+                                                </td>
                                             </tr>
                                         @endforeach
                                     </tbody>
-                                    @if(count($chartData['datasets']) > 1)
+                                    @if(count($factDatasets) > 1)
                                     <tfoot>
                                         <tr>
                                             <td class="text-nowrap"><strong>{{ __('dashboard.table_total') }}</strong></td>
-                                            @foreach($columnTotals as $colTotal)
-                                                <td class="text-center"><strong>{{ $colTotal ?: '' }}</strong></td>
+                                            @foreach($columnTotals as $ci => $colTotal)
+                                                @php
+                                                    $colPlan = $columnPlanTotals[$ci];
+                                                    $colStyle = '';
+                                                    $colTitle = '';
+                                                    if ($colPlan && $colTotal) {
+                                                        $colStyle = $colTotal >= $colPlan ? 'border-bottom: 2px solid #1ee0ac !important;' : 'border-bottom: 2px solid #f4bd0e !important;';
+                                                        $colTitle = __('dashboard.coefficient') . ': ' . round($colTotal / $colPlan, 2);
+                                                    }
+                                                @endphp
+                                                <td class="text-center" @if($colStyle) style="{{ $colStyle }}" @endif @if($colTitle) data-bs-toggle="tooltip" data-bs-placement="top" title="{{ $colTitle }}" @endif>
+                                                    <strong>@if($colTotal || $colPlan){{ $colTotal ?: 0 }}@if($colPlan)/{{ $colPlan }}@endif @endif</strong>
+                                                </td>
                                             @endforeach
-                                            <td class="text-center"><strong>{{ array_sum($columnTotals) }}</strong></td>
+                                            @php
+                                                $grandFact = array_sum($columnTotals);
+                                                $grandPlan = array_sum($columnPlanTotals);
+                                                $grandStyle = '';
+                                                $grandTitle = '';
+                                                if ($grandPlan && $grandFact) {
+                                                    $bgColor = $grandFact >= $grandPlan ? 'rgba(30, 224, 172, 0.15)' : 'rgba(244, 189, 14, 0.15)';
+                                                    $borderColor = $grandFact >= $grandPlan ? '#1ee0ac' : '#f4bd0e';
+                                                    $grandStyle = "background-color: {$bgColor}; border-bottom: 2px solid {$borderColor} !important;";
+                                                    $grandTitle = __('dashboard.coefficient') . ': ' . round($grandFact / $grandPlan, 2);
+                                                }
+                                            @endphp
+                                            <td class="text-center" @if($grandStyle) style="{{ $grandStyle }}" @endif @if($grandTitle) data-bs-toggle="tooltip" data-bs-placement="top" title="{{ $grandTitle }}" @endif>
+                                                <strong>{{ $grandFact }}@if($grandPlan)/{{ $grandPlan }}@endif</strong>
+                                            </td>
                                         </tr>
                                     </tfoot>
                                     @endif
@@ -204,9 +273,7 @@
 
     if (!chartData.datasets || chartData.datasets.length === 0) return;
 
-    var total = chartData.datasets.length;
-
-    function generateColor(i) {
+    function generateColor(i, total) {
         var hue = Math.round((i * 360) / total) % 360;
         return {
             border: 'hsl(' + hue + ', 75%, 62%)',
@@ -214,8 +281,31 @@
         };
     }
 
-    var datasets = chartData.datasets.map(function (ds, i) {
-        var color = generateColor(i);
+    // Считаем только факт-линии для генерации цветов
+    var factCount = chartData.datasets.filter(function (ds) { return !ds.isPlan; }).length;
+    var factIndex = 0;
+
+    var datasets = chartData.datasets.map(function (ds) {
+        if (ds.isPlan) {
+            // Пунктирная линия плана — цвет предыдущей факт-линии, приглушённый
+            var color = generateColor(factIndex - 1, factCount);
+            return {
+                label: ds.label,
+                data: ds.data,
+                borderColor: color.border,
+                backgroundColor: 'transparent',
+                borderWidth: 2,
+                borderDash: [6, 4],
+                tension: 0,
+                fill: false,
+                pointRadius: 0,
+                pointHoverRadius: 0,
+                order: 1,
+            };
+        }
+
+        var color = generateColor(factIndex, factCount);
+        factIndex++;
         return {
             label: ds.label,
             data: ds.data,
@@ -226,6 +316,7 @@
             fill: false,
             pointRadius: 3,
             pointHoverRadius: 5,
+            order: 0,
         };
     });
 
@@ -247,8 +338,7 @@
             },
             plugins: {
                 legend: {
-                    display: true,
-                    position: 'top',
+                    display: false,
                 },
             },
             scales: {
@@ -266,6 +356,16 @@
             },
         },
     });
+
+    // Раскрасить кружки в таблице цветами графика
+    var rows = document.querySelectorAll('[data-chart-row]');
+    for (var r = 0; r < rows.length; r++) {
+        var dot = rows[r].querySelector('[data-chart-color]');
+        if (dot) {
+            var c = generateColor(r, rows.length);
+            dot.style.backgroundColor = c.border;
+        }
+    }
 
 }());
 </script>
