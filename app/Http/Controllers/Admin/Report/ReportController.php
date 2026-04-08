@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\Report;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\GenerateReportJob;
 use App\Models\Permission;
 use App\Models\Report;
 use App\Services\ReportService;
@@ -43,19 +44,32 @@ class ReportController extends Controller
             'date_to'   => ['required', 'date_format:d.m.Y'],
         ]);
 
-        $dateFrom = Carbon::createFromFormat('d.m.Y', $request->date_from)->startOfDay();
-        $dateTo   = Carbon::createFromFormat('d.m.Y', $request->date_to)->endOfDay();
+        ReportService::cleanOldReports();
 
-        ReportService::generate(auth()->id(), $dateFrom, $dateTo);
+        $report = Report::create([
+            'user_id'   => auth()->id(),
+            'date_from' => Carbon::createFromFormat('d.m.Y', $request->date_from)->startOfDay(),
+            'date_to'   => Carbon::createFromFormat('d.m.Y', $request->date_to)->endOfDay(),
+            'status'    => Report::STATUS_PENDING,
+        ]);
+
+        GenerateReportJob::dispatch($report);
 
         return redirect()
             ->route('admin.report.index')
-            ->with('success', __('report.generate_success'));
+            ->with('success', __('report.generate_queued'));
     }
 
     public function download(int $id)
     {
         $report = Report::findOrFail($id);
+
+        if ($report->status !== Report::STATUS_COMPLETED || !$report->file_path) {
+            return redirect()
+                ->route('admin.report.index')
+                ->with('error', __('report.file_not_found'));
+        }
+
         $path = Storage::disk('local')->path($report->file_path);
 
         if (!file_exists($path)) {
@@ -74,7 +88,11 @@ class ReportController extends Controller
     public function destroy(int $id): RedirectResponse
     {
         $report = Report::findOrFail($id);
-        Storage::disk('local')->delete($report->file_path);
+
+        if ($report->file_path) {
+            Storage::disk('local')->delete($report->file_path);
+        }
+
         $report->delete();
 
         return redirect()

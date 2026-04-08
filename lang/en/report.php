@@ -5,6 +5,7 @@ return [
     'period'         => 'Period',
     'generate'       => 'Generate Report',
     'generate_success' => 'Report generated successfully',
+    'generate_queued'  => 'Report has been queued for generation',
     'download'       => 'Download',
     'download_name'  => 'Report',
     'empty'          => 'No reports yet',
@@ -12,8 +13,16 @@ return [
     'confirm_delete' => 'Delete report?',
     'limit_message'  => 'Only the last :count reports are stored. Older reports are deleted automatically.',
 
+    'status' => [
+        'pending'    => 'Queued',
+        'processing' => 'Processing',
+        'completed'  => 'Completed',
+        'failed'     => 'Failed',
+    ],
+
     'list' => [
         'period'     => 'Period',
+        'status'     => 'Status',
         'created_by' => 'Created by',
         'created_at' => 'Created at',
     ],

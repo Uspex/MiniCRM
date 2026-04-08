@@ -56,6 +56,7 @@
                                 <div class="nk-tb-item nk-tb-head">
                                     <div class="nk-tb-col"><span>#</span></div>
                                     <div class="nk-tb-col"><span>{{ __('report.list.period') }}</span></div>
+                                    <div class="nk-tb-col"><span>{{ __('report.list.status') }}</span></div>
                                     <div class="nk-tb-col tb-col-md"><span>{{ __('report.list.created_by') }}</span></div>
                                     <div class="nk-tb-col tb-col-md"><span>{{ __('report.list.created_at') }}</span></div>
                                     <div class="nk-tb-col text-end"><em class="icon ni ni-setting"></em></div>
@@ -69,6 +70,22 @@
                                         <div class="nk-tb-col">
                                             <span>{{ $report->date_from->format('d.m.Y') }} &mdash; {{ $report->date_to->format('d.m.Y') }}</span>
                                         </div>
+                                        <div class="nk-tb-col">
+                                            @switch($report->status)
+                                                @case(\App\Models\Report::STATUS_PENDING)
+                                                    <span class="badge bg-warning">{{ __('report.status.pending') }}</span>
+                                                    @break
+                                                @case(\App\Models\Report::STATUS_PROCESSING)
+                                                    <span class="badge bg-info">{{ __('report.status.processing') }}</span>
+                                                    @break
+                                                @case(\App\Models\Report::STATUS_COMPLETED)
+                                                    <span class="badge bg-success">{{ __('report.status.completed') }}</span>
+                                                    @break
+                                                @case(\App\Models\Report::STATUS_FAILED)
+                                                    <span class="badge bg-danger">{{ __('report.status.failed') }}</span>
+                                                    @break
+                                            @endswitch
+                                        </div>
                                         <div class="nk-tb-col tb-col-md">
                                             <span>{{ $report->user->name ?? '—' }}</span>
                                         </div>
@@ -77,11 +94,14 @@
                                         </div>
                                         <div class="nk-tb-col nk-tb-col-tools">
                                             <ul class="nk-tb-actions gx-1">
+                                                @if($report->status === \App\Models\Report::STATUS_COMPLETED)
                                                 <li>
                                                     <a href="{{ route('admin.report.download', $report->id) }}" class="btn btn-icon btn-trigger" data-bs-toggle="tooltip" title="{{ __('report.download') }}">
                                                         <em class="icon ni ni-download"></em>
                                                     </a>
                                                 </li>
+                                                @endif
+                                                @if($report->status !== \App\Models\Report::STATUS_PROCESSING)
                                                 <li>
                                                     <form method="POST" action="{{ route('admin.report.destroy', $report->id) }}" class="d-inline" onsubmit="return confirm('{{ __('report.confirm_delete') }}')">
                                                         @csrf
@@ -91,6 +111,7 @@
                                                         </button>
                                                     </form>
                                                 </li>
+                                                @endif
                                             </ul>
                                         </div>
                                     </div>
@@ -124,24 +145,29 @@
     };
 
     var ranges = {};
+    ranges['{{ __('common.daterangepicker.ranges.yesterday') }}'] = [moment().subtract(1, 'days'), moment().subtract(1, 'days')];
     ranges['{{ __('common.daterangepicker.ranges.week') }}'] = [moment().subtract(6, 'days'), moment()];
     ranges['{{ __('common.daterangepicker.ranges.month') }}'] = [moment().subtract(29, 'days'), moment()];
     ranges['{{ __('common.daterangepicker.ranges.quarter') }}'] = [moment().subtract(2, 'months').startOf('month'), moment()];
+    ranges['{{ __('common.daterangepicker.ranges.year') }}'] = [moment().startOf('year'), moment()];
+
+    var startDate = moment().subtract(29, 'days');
+    var endDate = moment();
 
     $('#dateRangePicker').daterangepicker({
         locale: locale,
         ranges: ranges,
-        startDate: moment().subtract(29, 'days'),
-        endDate: moment(),
-        opens: 'right',
+        startDate: startDate,
+        endDate: endDate,
+        opens: 'left',
     }, function (start, end) {
         $('#inputDateFrom').val(start.format('DD.MM.YYYY'));
         $('#inputDateTo').val(end.format('DD.MM.YYYY'));
     });
 
     // Установить начальные значения
-    $('#inputDateFrom').val(moment().subtract(29, 'days').format('DD.MM.YYYY'));
-    $('#inputDateTo').val(moment().format('DD.MM.YYYY'));
+    $('#inputDateFrom').val(startDate.format('DD.MM.YYYY'));
+    $('#inputDateTo').val(endDate.format('DD.MM.YYYY'));
 }());
 </script>
 @endpush
