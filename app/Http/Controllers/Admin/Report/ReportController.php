@@ -78,7 +78,7 @@ class ReportController extends Controller
                 ->with('error', __('report.file_not_found'));
         }
 
-        $filename = __('report.download_name') . '_'
+        $filename = 'Report_'
             . $report->date_from->format('d.m.Y') . '-'
             . $report->date_to->format('d.m.Y') . '.csv';
 
