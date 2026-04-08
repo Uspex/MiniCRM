@@ -26,11 +26,20 @@ class GenerateReportJob implements ShouldQueue
 
     public function handle(): void
     {
+        Log::info('Report generation started', [
+            'report_id' => $this->report->id,
+            'period'    => $this->report->date_from->format('d.m.Y') . ' - ' . $this->report->date_to->format('d.m.Y'),
+        ]);
+
         $this->report->update(['status' => Report::STATUS_PROCESSING]);
 
         try {
             ReportService::generate($this->report);
             $this->report->update(['status' => Report::STATUS_COMPLETED]);
+
+            Log::info('Report generation completed', [
+                'report_id' => $this->report->id,
+            ]);
         } catch (\Throwable $e) {
             $this->saveError($e);
         }

@@ -9,6 +9,7 @@ use App\Models\Task;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class ReportService
@@ -33,10 +34,17 @@ class ReportService
             $dates[] = $dateFrom->copy()->addDays($i)->format('Y-m-d');
         }
 
+        Log::info('Report: loading tasks data', [
+            'report_id' => $report->id,
+            'period'    => $filterFrom->format('Y-m-d H:i') . ' - ' . $filterTo->format('Y-m-d H:i'),
+            'days'      => $days,
+        ]);
+
         // Собираем данные чанками: user_id => activity_id => date => {total, total_runtime}
         $data = [];
         $userIds = [];
         $activityIds = [];
+        $chunkNumber = 0;
 
         Task::select(
             'user_id',
@@ -48,7 +56,14 @@ class ReportService
             ->whereBetween('created_at', [$filterFrom, $filterTo])
             ->groupBy('user_id', 'activity_id', 'date')
             ->orderBy('user_id')
-            ->chunk(500, function ($rows) use (&$data, &$userIds, &$activityIds) {
+            ->chunk(500, function ($rows) use (&$data, &$userIds, &$activityIds, &$chunkNumber, $report) {
+                $chunkNumber++;
+                Log::info('Report: processing chunk', [
+                    'report_id' => $report->id,
+                    'chunk'     => $chunkNumber,
+                    'rows'      => $rows->count(),
+                ]);
+
                 foreach ($rows as $row) {
                     $userIds[$row->user_id] = true;
                     $activityIds[$row->activity_id] = true;
@@ -59,8 +74,17 @@ class ReportService
                 }
             });
 
+        Log::info('Report: tasks loaded', [
+            'report_id'  => $report->id,
+            'chunks'     => $chunkNumber,
+            'users'      => count($userIds),
+            'activities' => count($activityIds),
+        ]);
+
         $users = User::whereIn('id', array_keys($userIds))->orderBy('name')->get()->keyBy('id');
         $activities = Activity::whereIn('id', array_keys($activityIds))->get()->keyBy('id');
+
+        Log::info('Report: writing CSV', ['report_id' => $report->id, 'users' => $users->count()]);
 
         // Формируем CSV
         $filename = 'reports/report_' . now()->format('Ymd_His') . '.csv';
