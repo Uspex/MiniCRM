@@ -46,7 +46,7 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <div class="{{ $isRoot ? 'col-md-2' : 'col-md-3' }}">
+                            <div class="{{ $isRoot ? 'col-md-2' : 'col-md-2' }}">
                                 <label class="form-label">{{ __('dashboard.filter.shifts') }}</label>
                                 <select class="form-select" name="shift[]" multiple size="1" id="filterShifts">
                                     @foreach($allShifts as $shift)
@@ -57,7 +57,18 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <div class="{{ $isRoot ? 'col-md-3' : 'col-md-3' }}">
+                            <div class="{{ $isRoot ? 'col-md-2' : 'col-md-2' }}">
+                                <label class="form-label">{{ __('dashboard.filter.departments') }}</label>
+                                <select class="form-select" name="department[]" multiple size="1" id="filterDepartments">
+                                    @foreach($allDepartments as $dept)
+                                        <option value="{{ $dept }}"
+                                            @if(in_array($dept, $selectedDepartments)) selected @endif>
+                                            {{ $dept }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="{{ $isRoot ? 'col-md-2' : 'col-md-2' }}">
                                 <label class="form-label">{{ __('dashboard.filter.period') }}</label>
                                 <div class="input-group">
                                     <input type="text" class="form-control" id="dateRangePicker" autocomplete="off"
@@ -263,10 +274,16 @@
             allowClear: false,
             width: '100%',
         });
+        $('#filterDepartments').select2({
+            placeholder: '{{ __('dashboard.filter.departments') }}',
+            allowClear: false,
+            width: '100%',
+        });
     } else {
         $('#filterUsers').attr('size', 1).css('height', 'auto');
         $('#filterActivities').attr('size', 1).css('height', 'auto');
         $('#filterShifts').attr('size', 1).css('height', 'auto');
+        $('#filterDepartments').attr('size', 1).css('height', 'auto');
     }
 
     // Chart.js

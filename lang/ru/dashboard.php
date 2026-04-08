@@ -11,7 +11,8 @@ return [
     'filter' => [
         'users'      => 'Все сотрудники',
         'activities' => 'Все типы работ',
-        'shifts'     => 'Все смены',
+        'shifts'       => 'Все смены',
+        'departments'  => 'Все подразделения',
         'date_from'  => 'Дата от',
         'date_to'    => 'Дата до',
         'period'     => 'Период',

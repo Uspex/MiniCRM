@@ -50,8 +50,9 @@ class DashboardController extends Controller
             ? array_filter((array) $request->input('user_id', []))
             : [auth()->id()];
 
-        $selectedActivityIds = array_filter((array) $request->input('activity_id', []));
-        $selectedShifts      = array_filter((array) $request->input('shift', []));
+        $selectedActivityIds  = array_filter((array) $request->input('activity_id', []));
+        $selectedShifts       = array_filter((array) $request->input('shift', []));
+        $selectedDepartments  = array_filter((array) $request->input('department', []));
 
         // Граница рабочего дня берётся из первой смены в настройках
         $shifts = Setting::get(Setting::TYPE_SHIFTS, []);
@@ -80,6 +81,11 @@ class DashboardController extends Controller
 
         if (!empty($selectedShifts)) {
             $query->whereIn('shift', $selectedShifts);
+        }
+
+        if (!empty($selectedDepartments)) {
+            $departmentUserIds = User::whereIn('department', $selectedDepartments)->pluck('id');
+            $query->whereIn('user_id', $departmentUserIds);
         }
 
         $rows = $query->get();
@@ -136,10 +142,16 @@ class DashboardController extends Controller
             'name' => $s['name'],
         ]);
 
+        $allDepartments = collect(Setting::get(Setting::TYPE_DEPARTMENTS, []))
+            ->pluck('name')
+            ->filter()
+            ->values();
+
         return view('admin.dashboard', compact(
             'chartData', 'allUsers', 'selectedUserIds',
             'allActivities', 'selectedActivityIds',
             'allShifts', 'selectedShifts',
+            'allDepartments', 'selectedDepartments',
             'dateFrom', 'dateTo', 'isRoot'
         ));
     }

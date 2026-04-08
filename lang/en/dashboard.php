@@ -10,6 +10,7 @@ return [
 
     'filter' => [
         'users'     => 'All Employees',
+        'departments' => 'All Departments',
         'date_from' => 'Date From',
         'date_to'   => 'Date To',
         'period'    => 'Period',
