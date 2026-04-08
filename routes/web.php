@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\User\UserController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\Server\ServerController;
 use App\Http\Controllers\Admin\Setting\SettingController;
+use App\Http\Controllers\Admin\Report\ReportController;
 
 
 Route::middleware('guest')->group(function () {
@@ -56,6 +57,14 @@ Route::middleware(['auth', 'setUserLanguage'])->group(function () {
             Route::get('/',           [SettingController::class, 'index'])->name('admin.setting.index');
             Route::get('{type}/edit', [SettingController::class, 'edit'])->name('admin.setting.edit');
             Route::post('{type}',     [SettingController::class, 'update'])->name('admin.setting.update');
+        });
+
+        //Отчёты
+        Route::group(['namespace' => 'Report', 'prefix' => 'report'], function() {
+            Route::get('/',              [ReportController::class, 'index'])->name('admin.report.index');
+            Route::post('/generate',     [ReportController::class, 'generate'])->name('admin.report.generate');
+            Route::get('/{id}/download', [ReportController::class, 'download'])->name('admin.report.download');
+            Route::delete('/{id}',       [ReportController::class, 'destroy'])->name('admin.report.destroy');
         });
 
         //Сервер

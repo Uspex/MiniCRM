@@ -30,6 +30,7 @@ return [
         'activity' => 'Типы работ',
         'server' => 'Сервер',
         'setting' => 'Настройки',
+        'report' => 'Отчёты',
     ],
 
     'create' => [

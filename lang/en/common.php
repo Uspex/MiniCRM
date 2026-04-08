@@ -29,6 +29,7 @@ return [
         'activity'   => 'Work Types',
         'server'     => 'Server',
         'setting'    => 'Settings',
+        'report'     => 'Reports',
     ],
 
     'create' => [

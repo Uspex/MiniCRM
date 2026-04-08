@@ -84,6 +84,15 @@
                         </li><!-- .nk-menu-item -->
                     @endif
 
+                    @if(auth()->user()->hasPermissionTo(\App\Models\Permission::PERMISSION_REPORT_LIST))
+                        <li class="nk-menu-item {{ request()->routeIs('admin.report.*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.report.index') }}" class="nk-menu-link">
+                                <span class="nk-menu-icon"><em class="icon ni ni-file-text"></em></span>
+                                <span class="nk-menu-text">{{ __('common.menu.report') }}</span>
+                            </a>
+                        </li><!-- .nk-menu-item -->
+                    @endif
+
                     @if(auth()->user()->hasPermissionTo(\App\Models\Permission::PERMISSION_SETTING_EDIT))
                         <li class="nk-menu-item {{ request()->routeIs('admin.setting.*') ? 'active' : '' }}">
                             <a href="{{ route('admin.setting.index') }}" class="nk-menu-link">
