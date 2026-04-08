@@ -30,6 +30,7 @@ return [
         'server'     => 'Server',
         'setting'    => 'Settings',
         'report'     => 'Reports',
+        'log'        => 'Logs',
     ],
 
     'create' => [

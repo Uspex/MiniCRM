@@ -31,6 +31,7 @@ return [
         'server' => 'Сервер',
         'setting' => 'Настройки',
         'report' => 'Отчёты',
+        'log' => 'Логи',
     ],
 
     'create' => [

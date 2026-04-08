@@ -90,6 +90,13 @@
                                 <span class="nk-menu-text">{{ __('common.menu.server') }}</span>
                             </a>
                         </li><!-- .nk-menu-item -->
+
+                        <li class="nk-menu-item">
+                            <a href="{{ url('log-viewer') }}" class="nk-menu-link" target="_blank">
+                                <span class="nk-menu-icon"><em class="icon ni ni-file-code"></em></span>
+                                <span class="nk-menu-text">{{ __('common.menu.log') }}</span>
+                            </a>
+                        </li><!-- .nk-menu-item -->
                     @endif
 
 
