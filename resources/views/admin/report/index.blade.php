@@ -101,6 +101,13 @@
                                                     </a>
                                                 </li>
                                                 @endif
+                                                @if($report->status === \App\Models\Report::STATUS_FAILED && $report->file_path)
+                                                <li>
+                                                    <a href="{{ route('admin.report.download', $report->id) }}" class="btn btn-icon btn-trigger" data-bs-toggle="tooltip" title="{{ __('report.download_error') }}">
+                                                        <em class="icon ni ni-alert text-danger"></em>
+                                                    </a>
+                                                </li>
+                                                @endif
                                                 @if($report->status !== \App\Models\Report::STATUS_PROCESSING)
                                                 <li>
                                                     <form method="POST" action="{{ route('admin.report.destroy', $report->id) }}" class="d-inline" onsubmit="return confirm('{{ __('report.confirm_delete') }}')">

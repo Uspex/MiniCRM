@@ -64,7 +64,7 @@ class ReportController extends Controller
     {
         $report = Report::findOrFail($id);
 
-        if ($report->status !== Report::STATUS_COMPLETED || !$report->file_path) {
+        if (!in_array($report->status, [Report::STATUS_COMPLETED, Report::STATUS_FAILED]) || !$report->file_path) {
             return redirect()
                 ->route('admin.report.index')
                 ->with('error', __('report.file_not_found'));
