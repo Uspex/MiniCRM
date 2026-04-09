@@ -150,7 +150,7 @@ class ReportService
                 $totalPlan += $plan;
 
                 if ($plan && $fact) {
-                    $row[] = round($fact / $plan, 2);
+                    $row[] = str_replace('.', ',', (string) round($fact / $plan, 2));
                 } else {
                     $row[] = '';
                 }
@@ -158,7 +158,7 @@ class ReportService
 
             // Итого
             if ($totalPlan && $totalFact) {
-                $row[] = round($totalFact / $totalPlan, 2);
+                $row[] = str_replace('.', ',', (string) round($totalFact / $totalPlan, 2));
             } else {
                 $row[] = '';
             }
