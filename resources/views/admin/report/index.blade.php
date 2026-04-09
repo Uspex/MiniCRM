@@ -26,7 +26,7 @@
                         <div class="row gx-3 gy-2 align-items-end">
                             <div class="col-11">
                                 <div class="row gx-3 gy-2 align-items-end">
-                                    @if($isRoot)
+                                    @if($canViewAll)
                                     <div class="col-md-3">
                                         <label class="form-label">{{ __('dashboard.filter.users') }}</label>
                                         <select class="form-select" name="user_id[]" multiple size="1" id="filterUsers">
@@ -36,7 +36,7 @@
                                         </select>
                                     </div>
                                     @endif
-                                    <div class="{{ $isRoot ? 'col-md-2' : 'col-md-3' }}">
+                                    <div class="{{ $canViewAll ? 'col-md-2' : 'col-md-3' }}">
                                         <label class="form-label">{{ __('dashboard.filter.activities') }}</label>
                                         <select class="form-select" name="activity_id[]" multiple size="1" id="filterActivities">
                                             @foreach($allActivities as $activity)
@@ -44,7 +44,7 @@
                                             @endforeach
                                         </select>
                                     </div>
-                                    <div class="{{ $isRoot ? 'col-md-2' : 'col-md-3' }}">
+                                    <div class="{{ $canViewAll ? 'col-md-2' : 'col-md-3' }}">
                                         <label class="form-label">{{ __('dashboard.filter.shifts') }}</label>
                                         <select class="form-select" name="shift[]" multiple size="1" id="filterShifts">
                                             @foreach($allShifts as $shift)
@@ -52,7 +52,7 @@
                                             @endforeach
                                         </select>
                                     </div>
-                                    <div class="{{ $isRoot ? 'col-md-2' : 'col-md-3' }}">
+                                    <div class="{{ $canViewAll ? 'col-md-2' : 'col-md-3' }}">
                                         <label class="form-label">{{ __('dashboard.filter.departments') }}</label>
                                         <select class="form-select" name="department[]" multiple size="1" id="filterDepartments">
                                             @foreach($allDepartments as $dept)

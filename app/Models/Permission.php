@@ -25,22 +25,25 @@ class Permission extends BasePermission
     const PERMISSION_ACTIVITY_DESTROY = 'activity_destroy';
 
     //----------------------------------------------------------
-    const PERMISSION_ANALYTICS_DASHBOARD = 'analytics_dashboard';
+    const PERMISSION_ANALYTICS_DASHBOARD  = 'analytics_dashboard';
+    const PERMISSION_ANALYTICS_ALL_USERS  = 'analytics_all_users';
 
     //----------------------------------------------------------
     const PERMISSION_SETTING_EDIT = 'setting_edit';
 
     //----------------------------------------------------------
-    const PERMISSION_REPORT_LIST     = 'report_list';
-    const PERMISSION_REPORT_GENERATE = 'report_generate';
+    const PERMISSION_REPORT_LIST      = 'report_list';
+    const PERMISSION_REPORT_GENERATE  = 'report_generate';
+    const PERMISSION_REPORT_ALL_USERS = 'report_all_users';
 
        //----------------------------------------------------------
     const PERMISSION_TASK_LIST = 'task_list';
     const PERMISSION_TASK_CREATE = 'task_create';
     const PERMISSION_TASK_UPDATE = 'task_update';
     const PERMISSION_TASK_INFO = 'task_info';
-    const PERMISSION_TASK_DESTROY = 'task_destroy';
+    const PERMISSION_TASK_DESTROY   = 'task_destroy';
     const PERMISSION_TASK_EDIT_DATE = 'task_edit_date';
+    const PERMISSION_TASK_ALL_USERS = 'task_all_users';
 
     /**
      * Список групп
@@ -79,9 +82,11 @@ class Permission extends BasePermission
                 self::PERMISSION_TASK_INFO,
                 self::PERMISSION_TASK_DESTROY,
                 self::PERMISSION_TASK_EDIT_DATE,
+                self::PERMISSION_TASK_ALL_USERS,
             ],
             self::GROUP_ANALYTICS => [
                 self::PERMISSION_ANALYTICS_DASHBOARD,
+                self::PERMISSION_ANALYTICS_ALL_USERS,
             ],
             self::GROUP_SETTING => [
                 self::PERMISSION_SETTING_EDIT,
@@ -89,6 +94,7 @@ class Permission extends BasePermission
             self::GROUP_REPORT => [
                 self::PERMISSION_REPORT_LIST,
                 self::PERMISSION_REPORT_GENERATE,
+                self::PERMISSION_REPORT_ALL_USERS,
             ],
         ];
     }

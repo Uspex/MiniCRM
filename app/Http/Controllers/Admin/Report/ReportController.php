@@ -7,7 +7,6 @@ use App\Jobs\GenerateReportJob;
 use App\Models\Activity;
 use App\Models\Permission;
 use App\Models\Report;
-use App\Models\Role;
 use App\Models\Setting;
 use App\Models\User;
 use App\Services\ReportService;
@@ -35,8 +34,8 @@ class ReportController extends Controller
             ->limit(ReportService::MAX_REPORTS)
             ->get();
 
-        $isRoot = auth()->user()->hasRole(Role::ROLE_ROOT);
-        $allUsers = $isRoot ? User::orderBy('name')->get() : collect();
+        $canViewAll = auth()->user()->can(Permission::PERMISSION_REPORT_ALL_USERS);
+        $allUsers = $canViewAll ? User::orderBy('name')->get() : collect();
         $allActivities = Activity::orderBy('name')->get();
 
         $shifts = Setting::get(Setting::TYPE_SHIFTS, []);
@@ -51,7 +50,7 @@ class ReportController extends Controller
             ->values();
 
         return view('admin.report.index', compact(
-            'reports', 'isRoot',
+            'reports', 'canViewAll',
             'allUsers', 'allActivities', 'allShifts', 'allDepartments',
         ) + ['maxReports' => ReportService::MAX_REPORTS]);
     }
@@ -69,10 +68,10 @@ class ReportController extends Controller
             'department'    => ['nullable', 'array'],
         ]);
 
-        $isRoot = auth()->user()->hasRole(Role::ROLE_ROOT);
+        $canViewAll = auth()->user()->can(Permission::PERMISSION_REPORT_ALL_USERS);
 
         $filters = [
-            'user_ids'     => $isRoot ? array_map('intval', array_filter((array) $request->input('user_id', []))) : [auth()->id()],
+            'user_ids'     => $canViewAll ? array_map('intval', array_filter((array) $request->input('user_id', []))) : [auth()->id()],
             'activity_ids' => array_map('intval', array_filter((array) $request->input('activity_id', []))),
             'shifts'       => array_map('intval', array_filter((array) $request->input('shift', []))),
             'departments'  => array_filter((array) $request->input('department', [])),

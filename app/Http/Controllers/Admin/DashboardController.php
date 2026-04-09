@@ -44,9 +44,9 @@ class DashboardController extends Controller
             $dates->push($dateFrom->copy()->addDays($i)->format('Y-m-d'));
         }
 
-        $isRoot = auth()->user()->hasRole(\App\Models\Role::ROLE_ROOT);
+        $canViewAll = auth()->user()->can(Permission::PERMISSION_ANALYTICS_ALL_USERS);
 
-        $selectedUserIds = $isRoot
+        $selectedUserIds = $canViewAll
             ? array_filter((array) $request->input('user_id', []))
             : [auth()->id()];
 
@@ -91,7 +91,7 @@ class DashboardController extends Controller
         $rows = $query->get();
 
         // Пользователи для фильтра (только для root)
-        $allUsers = $isRoot ? User::orderBy('name')->get() : collect();
+        $allUsers = $canViewAll ? User::orderBy('name')->get() : collect();
 
         // Все типы работ для фильтра
         $allActivities = Activity::orderBy('name')->get();
@@ -152,7 +152,7 @@ class DashboardController extends Controller
             'allActivities', 'selectedActivityIds',
             'allShifts', 'selectedShifts',
             'allDepartments', 'selectedDepartments',
-            'dateFrom', 'dateTo', 'isRoot'
+            'dateFrom', 'dateTo', 'canViewAll'
         ));
     }
 }

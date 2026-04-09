@@ -31,7 +31,7 @@
                                 <div class="row">
                                     <div class="col-12 col-md-9">
                                         <div class="row gx-6 gy-3">
-                                            @if(auth()->user()->hasRole(\App\Models\Role::ROLE_ROOT))
+                                            @if($canViewAll)
                                                 <div class="col-12 col-sm-6 col-md-3">
                                                     <select class="form-select form-select-sm" name="user_id">
                                                         <option value="">{{ __('task.search.user') }}</option>

@@ -34,12 +34,12 @@ class TaskController extends Controller
      */
     public function index(Request $request): View
     {
-        $isRoot = auth()->user()->hasRole(\App\Models\Role::ROLE_ROOT);
+        $canViewAll = auth()->user()->can(Permission::PERMISSION_TASK_ALL_USERS);
 
         $paginator = Task::query()
             ->with(['user', 'activity'])
-            ->when($isRoot && $request->get('user_id'), fn($q) => $q->where('user_id', $request->input('user_id')))
-            ->when(! $isRoot, fn($q) => $q->where('user_id', auth()->id()))
+            ->when($canViewAll && $request->get('user_id'), fn($q) => $q->where('user_id', $request->input('user_id')))
+            ->when(! $canViewAll, fn($q) => $q->where('user_id', auth()->id()))
             ->when($request->get('activity_id'), fn($q) => $q->where('activity_id', $request->input('activity_id')))
             ->when($request->filled('status'), fn($q) => $q->where('status', $request->input('status')))
             ->orderByDesc('id')
@@ -48,7 +48,7 @@ class TaskController extends Controller
         $users      = User::orderBy('name')->get();
         $activities = Activity::orderBy('name')->get();
 
-        return view('admin.task.index', compact('paginator', 'users', 'activities'));
+        return view('admin.task.index', compact('paginator', 'users', 'activities', 'canViewAll'));
     }
 
     /**
