@@ -55,10 +55,10 @@
 
                             @foreach($paginator as $item)
                                 <div class="nk-tb-item">
-                                    <div class="nk-tb-col tb-col-sm">
+                                    <div class="nk-tb-col">
                                         <span>{{ $loop->iteration }}</span>
                                     </div>
-                                    <div class="nk-tb-col tb-col-sm">
+                                    <div class="nk-tb-col">
                                         <a href="{{ route('admin.activity.edit', $item->id) }}"><span>{{ $item->name }}</span></a>
                                     </div>
                                     <div class="nk-tb-col tb-col-md">
