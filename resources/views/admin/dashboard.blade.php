@@ -111,7 +111,7 @@
                                             @foreach($chartData['labels'] as $label)
                                                 <th class="text-center text-nowrap">{{ $label }}</th>
                                             @endforeach
-                                            <th class="text-center text-nowrap"><strong>{{ __('dashboard.table_average') }}</strong></th>
+                                            <th class="text-center text-nowrap" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ __('dashboard.table_average') }}"><strong>{{ __('dashboard.table_total') }}</strong></th>
                                         </tr>
                                     </thead>
                                     <tbody>
