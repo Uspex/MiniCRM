@@ -9,10 +9,12 @@ return [
     'coefficient'      => 'Coefficient',
 
     'filter' => [
-        'users'     => 'All Employees',
+        'users'       => 'All Employees',
+        'activities'  => 'All Activities',
+        'shifts'      => 'All Shifts',
         'departments' => 'All Departments',
-        'date_from' => 'Date From',
-        'date_to'   => 'Date To',
-        'period'    => 'Period',
+        'date_from'   => 'Date From',
+        'date_to'     => 'Date To',
+        'period'      => 'Period',
     ],
 ];

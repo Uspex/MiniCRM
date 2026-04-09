@@ -15,6 +15,7 @@ class Report extends Model
         'user_id',
         'date_from',
         'date_to',
+        'filters',
         'file_path',
         'status',
     ];
@@ -22,6 +23,7 @@ class Report extends Model
     protected $casts = [
         'date_from' => 'date',
         'date_to'   => 'date',
+        'filters'   => 'array',
     ];
 
     public function user()

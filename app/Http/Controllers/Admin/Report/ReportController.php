@@ -4,8 +4,12 @@ namespace App\Http\Controllers\Admin\Report;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\GenerateReportJob;
+use App\Models\Activity;
 use App\Models\Permission;
 use App\Models\Report;
+use App\Models\Role;
+use App\Models\Setting;
+use App\Models\User;
 use App\Services\ReportService;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
@@ -31,18 +35,48 @@ class ReportController extends Controller
             ->limit(ReportService::MAX_REPORTS)
             ->get();
 
-        return view('admin.report.index', [
-            'reports'    => $reports,
-            'maxReports' => ReportService::MAX_REPORTS,
+        $isRoot = auth()->user()->hasRole(Role::ROLE_ROOT);
+        $allUsers = $isRoot ? User::orderBy('name')->get() : collect();
+        $allActivities = Activity::orderBy('name')->get();
+
+        $shifts = Setting::get(Setting::TYPE_SHIFTS, []);
+        $allShifts = collect($shifts)->map(fn($s) => [
+            'id'   => (int) $s['shift'],
+            'name' => $s['name'],
         ]);
+
+        $allDepartments = collect(Setting::get(Setting::TYPE_DEPARTMENTS, []))
+            ->pluck('name')
+            ->filter()
+            ->values();
+
+        return view('admin.report.index', compact(
+            'reports', 'isRoot',
+            'allUsers', 'allActivities', 'allShifts', 'allDepartments',
+        ) + ['maxReports' => ReportService::MAX_REPORTS]);
     }
 
     public function generate(Request $request): RedirectResponse
     {
         $request->validate([
-            'date_from' => ['required', 'date_format:d.m.Y'],
-            'date_to'   => ['required', 'date_format:d.m.Y'],
+            'date_from'     => ['required', 'date_format:d.m.Y'],
+            'date_to'       => ['required', 'date_format:d.m.Y'],
+            'user_id'       => ['nullable', 'array'],
+            'user_id.*'     => ['integer', 'exists:users,id'],
+            'activity_id'   => ['nullable', 'array'],
+            'activity_id.*' => ['integer', 'exists:activities,id'],
+            'shift'         => ['nullable', 'array'],
+            'department'    => ['nullable', 'array'],
         ]);
+
+        $isRoot = auth()->user()->hasRole(Role::ROLE_ROOT);
+
+        $filters = [
+            'user_ids'     => $isRoot ? array_map('intval', array_filter((array) $request->input('user_id', []))) : [auth()->id()],
+            'activity_ids' => array_map('intval', array_filter((array) $request->input('activity_id', []))),
+            'shifts'       => array_map('intval', array_filter((array) $request->input('shift', []))),
+            'departments'  => array_filter((array) $request->input('department', [])),
+        ];
 
         ReportService::cleanOldReports();
 
@@ -50,6 +84,7 @@ class ReportController extends Controller
             'user_id'   => auth()->id(),
             'date_from' => Carbon::createFromFormat('d.m.Y', $request->date_from)->startOfDay(),
             'date_to'   => Carbon::createFromFormat('d.m.Y', $request->date_to)->endOfDay(),
+            'filters'   => $filters,
             'status'    => Report::STATUS_PENDING,
         ]);
 

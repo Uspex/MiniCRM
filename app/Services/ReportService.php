@@ -40,13 +40,20 @@ class ReportService
             'days'      => $days,
         ]);
 
+        // Фильтры из отчёта
+        $filters = $report->filters ?? [];
+        $filterUserIds      = $filters['user_ids'] ?? [];
+        $filterActivityIds  = $filters['activity_ids'] ?? [];
+        $filterShifts       = $filters['shifts'] ?? [];
+        $filterDepartments  = $filters['departments'] ?? [];
+
         // Собираем данные чанками: user_id => activity_id => date => {total, total_runtime}
         $data = [];
         $userIds = [];
         $activityIds = [];
         $chunkNumber = 0;
 
-        Task::select(
+        $query = Task::select(
             'user_id',
             'activity_id',
             DB::raw('DATE(created_at - INTERVAL ' . $dayStartHour . ' HOUR) as date'),
@@ -55,8 +62,26 @@ class ReportService
         )
             ->whereBetween('created_at', [$filterFrom, $filterTo])
             ->groupBy('user_id', 'activity_id', 'date')
-            ->orderBy('user_id')
-            ->chunk(500, function ($rows) use (&$data, &$userIds, &$activityIds, &$chunkNumber, $report) {
+            ->orderBy('user_id');
+
+        if (!empty($filterUserIds)) {
+            $query->whereIn('user_id', $filterUserIds);
+        }
+
+        if (!empty($filterActivityIds)) {
+            $query->whereIn('activity_id', $filterActivityIds);
+        }
+
+        if (!empty($filterShifts)) {
+            $query->whereIn('shift', $filterShifts);
+        }
+
+        if (!empty($filterDepartments)) {
+            $departmentUserIds = User::whereIn('department', $filterDepartments)->pluck('id');
+            $query->whereIn('user_id', $departmentUserIds);
+        }
+
+        $query->chunk(500, function ($rows) use (&$data, &$userIds, &$activityIds, &$chunkNumber, $report) {
                 $chunkNumber++;
                 Log::info('Report: processing chunk', [
                     'report_id' => $report->id,
@@ -125,10 +150,7 @@ class ReportService
                 $totalPlan += $plan;
 
                 if ($plan && $fact) {
-                    $coeff = round($fact / $plan, 2);
-                    $row[] = $coeff . ' (' . $fact . '/' . $plan . ')';
-                } elseif ($fact) {
-                    $row[] = $fact;
+                    $row[] = round($fact / $plan, 2);
                 } else {
                     $row[] = '';
                 }
@@ -136,9 +158,7 @@ class ReportService
 
             // Итого
             if ($totalPlan && $totalFact) {
-                $row[] = round($totalFact / $totalPlan, 2) . ' (' . $totalFact . '/' . $totalPlan . ')';
-            } elseif ($totalFact) {
-                $row[] = $totalFact;
+                $row[] = round($totalFact / $totalPlan, 2);
             } else {
                 $row[] = '';
             }

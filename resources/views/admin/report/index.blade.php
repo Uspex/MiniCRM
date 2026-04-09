@@ -24,18 +24,56 @@
                     <form method="POST" action="{{ route('admin.report.generate') }}" class="mb-4">
                         @csrf
                         <div class="row gx-3 gy-2 align-items-end">
-                            <div class="col-md-4">
-                                <label class="form-label">{{ __('report.period') }}</label>
-                                <div class="input-group">
-                                    <input type="text" class="form-control" id="dateRangePicker" autocomplete="off">
-                                    <input type="hidden" name="date_from" id="inputDateFrom">
-                                    <input type="hidden" name="date_to" id="inputDateTo">
-                                    <span class="input-group-text"><em class="icon ni ni-calendar"></em></span>
+                            <div class="col-11">
+                                <div class="row gx-3 gy-2 align-items-end">
+                                    @if($isRoot)
+                                    <div class="col-md-3">
+                                        <label class="form-label">{{ __('dashboard.filter.users') }}</label>
+                                        <select class="form-select" name="user_id[]" multiple size="1" id="filterUsers">
+                                            @foreach($allUsers as $user)
+                                                <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    @endif
+                                    <div class="{{ $isRoot ? 'col-md-2' : 'col-md-3' }}">
+                                        <label class="form-label">{{ __('dashboard.filter.activities') }}</label>
+                                        <select class="form-select" name="activity_id[]" multiple size="1" id="filterActivities">
+                                            @foreach($allActivities as $activity)
+                                                <option value="{{ $activity->id }}">{{ $activity->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="{{ $isRoot ? 'col-md-2' : 'col-md-3' }}">
+                                        <label class="form-label">{{ __('dashboard.filter.shifts') }}</label>
+                                        <select class="form-select" name="shift[]" multiple size="1" id="filterShifts">
+                                            @foreach($allShifts as $shift)
+                                                <option value="{{ $shift['id'] }}">{{ $shift['name'] }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="{{ $isRoot ? 'col-md-2' : 'col-md-3' }}">
+                                        <label class="form-label">{{ __('dashboard.filter.departments') }}</label>
+                                        <select class="form-select" name="department[]" multiple size="1" id="filterDepartments">
+                                            @foreach($allDepartments as $dept)
+                                                <option value="{{ $dept }}">{{ $dept }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">{{ __('report.period') }}</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="dateRangePicker" autocomplete="off">
+                                            <input type="hidden" name="date_from" id="inputDateFrom">
+                                            <input type="hidden" name="date_to" id="inputDateTo">
+                                            <span class="input-group-text"><em class="icon ni ni-calendar"></em></span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="col-md-3">
-                                <button type="submit" class="btn btn-primary">
-                                    <em class="icon ni ni-download me-1"></em> {{ __('report.generate') }}
+                            <div class="col-1 text-center">
+                                <button type="submit" class="btn btn-icon btn-primary" data-bs-toggle="tooltip" title="{{ __('report.generate') }}">
+                                    <em class="icon ni ni-download"></em>
                                 </button>
                             </div>
                         </div>
@@ -175,6 +213,16 @@
     // Установить начальные значения
     $('#inputDateFrom').val(startDate.format('DD.MM.YYYY'));
     $('#inputDateTo').val(endDate.format('DD.MM.YYYY'));
+
+    // Select2 для фильтров
+    if (typeof $.fn.select2 !== 'undefined') {
+        $('#filterUsers').select2({ placeholder: '{{ __('dashboard.filter.users') }}', allowClear: false, width: '100%' });
+        $('#filterActivities').select2({ placeholder: '{{ __('dashboard.filter.activities') }}', allowClear: false, width: '100%' });
+        $('#filterShifts').select2({ placeholder: '{{ __('dashboard.filter.shifts') }}', allowClear: false, width: '100%' });
+        $('#filterDepartments').select2({ placeholder: '{{ __('dashboard.filter.departments') }}', allowClear: false, width: '100%' });
+    } else {
+        $('#filterUsers, #filterActivities, #filterShifts, #filterDepartments').attr('size', 1).css('height', 'auto');
+    }
 }());
 </script>
 @endpush
