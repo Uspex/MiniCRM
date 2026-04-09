@@ -123,14 +123,13 @@ class ReportService
         foreach ($dates as $date) {
             $header[] = Carbon::parse($date)->format('d.m');
         }
-        $header[] = __('dashboard.table_total');
+        $header[] = __('report.csv.average');
         fputcsv($handle, $header, ';');
 
         // Данные по сотрудникам
         foreach ($users as $user) {
             $row = [$user->name];
-            $totalFact = 0;
-            $totalPlan = 0;
+            $dailyCoefficients = [];
 
             foreach ($dates as $date) {
                 $fact = 0;
@@ -146,19 +145,18 @@ class ReportService
                     }
                 }
 
-                $totalFact += $fact;
-                $totalPlan += $plan;
-
                 if ($plan && $fact) {
-                    $row[] = str_replace('.', ',', (string) round($fact / $plan, 2));
+                    $coefficient = round($fact / $plan, 2);
+                    $dailyCoefficients[] = $coefficient;
+                    $row[] = str_replace('.', ',', (string) $coefficient);
                 } else {
                     $row[] = '';
                 }
             }
 
-            // Итого
-            if ($totalPlan && $totalFact) {
-                $row[] = str_replace('.', ',', (string) round($totalFact / $totalPlan, 2));
+            // Среднее значение
+            if (!empty($dailyCoefficients)) {
+                $row[] = str_replace('.', ',', (string) round(array_sum($dailyCoefficients) / count($dailyCoefficients), 2));
             } else {
                 $row[] = '';
             }

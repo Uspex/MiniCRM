@@ -111,7 +111,7 @@
                                             @foreach($chartData['labels'] as $label)
                                                 <th class="text-center text-nowrap">{{ $label }}</th>
                                             @endforeach
-                                            <th class="text-center text-nowrap"><strong>{{ __('dashboard.table_total') }}</strong></th>
+                                            <th class="text-center text-nowrap"><strong>{{ __('dashboard.table_average') }}</strong></th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -156,13 +156,22 @@
                                                 @php
                                                     $factTotal = array_sum($dataset['data']);
                                                     $planTotal = $planData ? array_sum($planData) : null;
+                                                    // Среднее дневных коэффициентов
+                                                    $dailyCoeffs = [];
+                                                    foreach ($dataset['data'] as $di => $dv) {
+                                                        $dp = $planData[$di] ?? 0;
+                                                        if ($dp && $dv) {
+                                                            $dailyCoeffs[] = $dv / $dp;
+                                                        }
+                                                    }
+                                                    $avgCoeff = !empty($dailyCoeffs) ? round(array_sum($dailyCoeffs) / count($dailyCoeffs), 2) : null;
                                                     $totalStyle = '';
                                                     $totalTitle = '';
-                                                    if ($planTotal && $factTotal) {
-                                                        $bgColor = $factTotal >= $planTotal ? 'rgba(30, 224, 172, 0.15)' : 'rgba(244, 189, 14, 0.15)';
-                                                        $borderColor = $factTotal >= $planTotal ? '#1ee0ac' : '#f4bd0e';
+                                                    if ($avgCoeff !== null) {
+                                                        $bgColor = $avgCoeff >= 1 ? 'rgba(30, 224, 172, 0.15)' : 'rgba(244, 189, 14, 0.15)';
+                                                        $borderColor = $avgCoeff >= 1 ? '#1ee0ac' : '#f4bd0e';
                                                         $totalStyle = "background-color: {$bgColor}; border-bottom: 2px solid {$borderColor} !important;";
-                                                        $totalTitle = __('dashboard.coefficient') . ': ' . round($factTotal / $planTotal, 2);
+                                                        $totalTitle = __('dashboard.coefficient') . ': ' . $avgCoeff;
                                                     }
                                                 @endphp
                                                 <td class="text-center" @if($totalStyle) style="{{ $totalStyle }}" @endif @if($totalTitle) data-bs-toggle="tooltip" data-bs-placement="top" title="{{ $totalTitle }}" @endif>
@@ -192,13 +201,22 @@
                                             @php
                                                 $grandFact = array_sum($columnTotals);
                                                 $grandPlan = array_sum($columnPlanTotals);
+                                                // Среднее дневных коэффициентов по всем активностям
+                                                $grandDailyCoeffs = [];
+                                                foreach ($columnTotals as $gi => $gFact) {
+                                                    $gPlan = $columnPlanTotals[$gi];
+                                                    if ($gPlan && $gFact) {
+                                                        $grandDailyCoeffs[] = $gFact / $gPlan;
+                                                    }
+                                                }
+                                                $grandAvgCoeff = !empty($grandDailyCoeffs) ? round(array_sum($grandDailyCoeffs) / count($grandDailyCoeffs), 2) : null;
                                                 $grandStyle = '';
                                                 $grandTitle = '';
-                                                if ($grandPlan && $grandFact) {
-                                                    $bgColor = $grandFact >= $grandPlan ? 'rgba(30, 224, 172, 0.15)' : 'rgba(244, 189, 14, 0.15)';
-                                                    $borderColor = $grandFact >= $grandPlan ? '#1ee0ac' : '#f4bd0e';
+                                                if ($grandAvgCoeff !== null) {
+                                                    $bgColor = $grandAvgCoeff >= 1 ? 'rgba(30, 224, 172, 0.15)' : 'rgba(244, 189, 14, 0.15)';
+                                                    $borderColor = $grandAvgCoeff >= 1 ? '#1ee0ac' : '#f4bd0e';
                                                     $grandStyle = "background-color: {$bgColor}; border-bottom: 2px solid {$borderColor} !important;";
-                                                    $grandTitle = __('dashboard.coefficient') . ': ' . round($grandFact / $grandPlan, 2);
+                                                    $grandTitle = __('dashboard.coefficient') . ': ' . $grandAvgCoeff;
                                                 }
                                             @endphp
                                             <td class="text-center" @if($grandStyle) style="{{ $grandStyle }}" @endif @if($grandTitle) data-bs-toggle="tooltip" data-bs-placement="top" title="{{ $grandTitle }}" @endif>

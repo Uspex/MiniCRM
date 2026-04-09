@@ -30,5 +30,6 @@ return [
 
     'csv' => [
         'employee' => 'Employee',
+        'average'  => 'Average',
     ],
 ];

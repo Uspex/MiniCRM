@@ -5,6 +5,7 @@ return [
     'chart_title'   => 'Production Output by Day',
     'chart_no_data' => 'No data for the selected period',
     'table_total'   => 'Total',
+    'table_average' => 'Average',
     'plan_label'    => 'Plan: :name',
     'coefficient'      => 'Coefficient',
 
