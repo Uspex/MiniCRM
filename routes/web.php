@@ -63,6 +63,7 @@ Route::middleware(['auth', 'setUserLanguage'])->group(function () {
         Route::group(['namespace' => 'Report', 'prefix' => 'report'], function() {
             Route::get('/',              [ReportController::class, 'index'])->name('admin.report.index');
             Route::post('/generate',     [ReportController::class, 'generate'])->name('admin.report.generate');
+            Route::get('/statuses',      [ReportController::class, 'statuses'])->name('admin.report.statuses');
             Route::get('/{id}/download', [ReportController::class, 'download'])->name('admin.report.download');
             Route::delete('/{id}',       [ReportController::class, 'destroy'])->name('admin.report.destroy');
         });

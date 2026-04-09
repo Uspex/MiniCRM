@@ -21,6 +21,7 @@ return [
     'tab_setting' => 'Settings',
 
     'menu' => [
+        'dashboard'  => 'Analytics',
         'user'       => 'Users',
         'role'       => 'Roles',
         'permission' => 'Permissions',

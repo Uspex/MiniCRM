@@ -11,6 +11,7 @@ use App\Models\Setting;
 use App\Models\User;
 use App\Services\ReportService;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\Middleware;
@@ -92,6 +93,29 @@ class ReportController extends Controller
         return redirect()
             ->route('admin.report.index')
             ->with('success', __('report.generate_queued'));
+    }
+
+    public function statuses(): JsonResponse
+    {
+        $reports = Report::orderByDesc('created_at')
+            ->limit(ReportService::MAX_REPORTS)
+            ->get(['id', 'status', 'file_path']);
+
+        return response()->json($reports->map(fn($r) => [
+            'id'           => $r->id,
+            'status'       => $r->status,
+            'status_badge' => match ($r->status) {
+                Report::STATUS_PENDING    => '<span class="badge bg-warning">' . __('report.status.pending') . '</span>',
+                Report::STATUS_PROCESSING => '<span class="badge bg-info">' . __('report.status.processing') . '</span>',
+                Report::STATUS_COMPLETED  => '<span class="badge bg-success">' . __('report.status.completed') . '</span>',
+                Report::STATUS_FAILED     => '<span class="badge bg-danger">' . __('report.status.failed') . '</span>',
+                default                   => '',
+            },
+            'download_url' => ($r->status === Report::STATUS_COMPLETED || ($r->status === Report::STATUS_FAILED && $r->file_path))
+                ? route('admin.report.download', $r->id) : null,
+            'is_failed'    => $r->status === Report::STATUS_FAILED && $r->file_path,
+            'can_delete'   => $r->status !== Report::STATUS_PROCESSING,
+        ]));
     }
 
     public function download(int $id)

@@ -101,14 +101,38 @@
                                 </div>
 
                                 @foreach($reports as $report)
-                                    <div class="nk-tb-item">
+                                    <div class="nk-tb-item" data-report-id="{{ $report->id }}">
                                         <div class="nk-tb-col">
                                             <span>{{ $loop->iteration }}</span>
                                         </div>
                                         <div class="nk-tb-col">
                                             <span>{{ $report->date_from->format('d.m.Y') }} &mdash; {{ $report->date_to->format('d.m.Y') }}</span>
+                                            @if($report->filters && collect($report->filters)->flatten()->filter()->isNotEmpty())
+                                                @php
+                                                    $f = $report->filters;
+                                                    $parts = [];
+                                                    if (!empty($f['user_ids'])) {
+                                                        $names = $allUsers->whereIn('id', $f['user_ids'])->pluck('name')->implode(', ');
+                                                        if ($names) $parts[] = __('dashboard.filter.users') . ': ' . $names;
+                                                    }
+                                                    if (!empty($f['activity_ids'])) {
+                                                        $names = $allActivities->whereIn('id', $f['activity_ids'])->pluck('name')->implode(', ');
+                                                        if ($names) $parts[] = __('dashboard.filter.activities') . ': ' . $names;
+                                                    }
+                                                    if (!empty($f['shifts'])) {
+                                                        $names = $allShifts->whereIn('id', $f['shifts'])->pluck('name')->implode(', ');
+                                                        if ($names) $parts[] = __('dashboard.filter.shifts') . ': ' . $names;
+                                                    }
+                                                    if (!empty($f['departments'])) {
+                                                        $parts[] = __('dashboard.filter.departments') . ': ' . implode(', ', $f['departments']);
+                                                    }
+                                                @endphp
+                                                @if(!empty($parts))
+                                                    <em class="icon ni ni-filter ms-1 text-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ implode(' | ', $parts) }}"></em>
+                                                @endif
+                                            @endif
                                         </div>
-                                        <div class="nk-tb-col">
+                                        <div class="nk-tb-col" data-col="status">
                                             @switch($report->status)
                                                 @case(\App\Models\Report::STATUS_PENDING)
                                                     <span class="badge bg-warning">{{ __('report.status.pending') }}</span>
@@ -130,7 +154,7 @@
                                         <div class="nk-tb-col tb-col-md">
                                             <span>{{ $report->created_at->format('d.m.Y H:i') }}</span>
                                         </div>
-                                        <div class="nk-tb-col nk-tb-col-tools">
+                                        <div class="nk-tb-col nk-tb-col-tools" data-col="actions">
                                             <ul class="nk-tb-actions gx-1">
                                                 @if($report->status === \App\Models\Report::STATUS_COMPLETED)
                                                 <li>
@@ -222,6 +246,44 @@
         $('#filterDepartments').select2({ placeholder: '{{ __('dashboard.filter.departments') }}', allowClear: false, width: '100%' });
     } else {
         $('#filterUsers, #filterActivities, #filterShifts, #filterDepartments').attr('size', 1).css('height', 'auto');
+    }
+
+    // Polling статусов отчётов
+    var hasPending = !!document.querySelector('.badge.bg-warning, .badge.bg-info');
+    if (hasPending) {
+        var pollInterval = setInterval(function () {
+            $.getJSON('{{ route('admin.report.statuses') }}', function (data) {
+                var stillPending = false;
+                data.forEach(function (r) {
+                    var row = document.querySelector('[data-report-id="' + r.id + '"]');
+                    if (!row) return;
+
+                    row.querySelector('[data-col="status"]').innerHTML = r.status_badge;
+
+                    var actionsCol = row.querySelector('[data-col="actions"]');
+                    var html = '<ul class="nk-tb-actions gx-1">';
+                    if (r.status === 'completed' && r.download_url) {
+                        html += '<li><a href="' + r.download_url + '" class="btn btn-icon btn-trigger" data-bs-toggle="tooltip" title="{{ __('report.download') }}"><em class="icon ni ni-download"></em></a></li>';
+                    }
+                    if (r.is_failed && r.download_url) {
+                        html += '<li><a href="' + r.download_url + '" class="btn btn-icon btn-trigger" data-bs-toggle="tooltip" title="{{ __('report.download_error') }}"><em class="icon ni ni-alert text-danger"></em></a></li>';
+                    }
+                    if (r.can_delete) {
+                        html += '<li><form method="POST" action="{{ url('admin/report') }}/' + r.id + '" class="d-inline" onsubmit="return confirm(\'{{ __('report.confirm_delete') }}\')">@csrf @method('DELETE')<button type="submit" class="btn btn-icon btn-trigger" data-bs-toggle="tooltip" title="{{ __('common.item_delete') }}"><em class="icon ni ni-trash"></em></button></form></li>';
+                    }
+                    html += '</ul>';
+                    actionsCol.innerHTML = html;
+
+                    if (r.status === 'pending' || r.status === 'processing') {
+                        stillPending = true;
+                    }
+                });
+
+                if (!stillPending) {
+                    clearInterval(pollInterval);
+                }
+            });
+        }, 5000);
     }
 }());
 </script>
