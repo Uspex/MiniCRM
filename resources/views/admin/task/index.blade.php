@@ -73,7 +73,7 @@
                         <div class="nk-tb-list nk-tb-ulist">
                             <div class="nk-tb-item nk-tb-head">
                                 <div class="nk-tb-col tb-col-sm"><span>#</span></div>
-                                @if(auth()->user()->hasRole(\App\Models\Role::ROLE_ROOT))
+                                @if($canViewAll)
                                 <div class="nk-tb-col tb-col-md"><span>{{ __('task.list.head.user') }}</span></div>
                                 @endif
                                 <div class="nk-tb-col"><span>{{ __('task.list.head.activity') }}</span></div>
@@ -88,7 +88,7 @@
                                     <div class="nk-tb-col tb-col-sm">
                                         <span>{{ $loop->iteration }}</span>
                                     </div>
-                                    @if(auth()->user()->hasRole(\App\Models\Role::ROLE_ROOT))
+                                    @if($canViewAll)
                                     <div class="nk-tb-col tb-col-md">
                                         <a href="{{ route('admin.task.edit', $item->id) }}"><span>{{ $item->user->name ?? '—' }}</span></a>
                                     </div>
