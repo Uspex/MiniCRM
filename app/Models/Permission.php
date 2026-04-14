@@ -42,7 +42,6 @@ class Permission extends BasePermission
     const PERMISSION_TASK_UPDATE = 'task_update';
     const PERMISSION_TASK_INFO = 'task_info';
     const PERMISSION_TASK_DESTROY   = 'task_destroy';
-    const PERMISSION_TASK_EDIT_DATE = 'task_edit_date';
     const PERMISSION_TASK_ALL_USERS = 'task_all_users';
 
     /**
@@ -81,7 +80,6 @@ class Permission extends BasePermission
                 self::PERMISSION_TASK_UPDATE,
                 self::PERMISSION_TASK_INFO,
                 self::PERMISSION_TASK_DESTROY,
-                self::PERMISSION_TASK_EDIT_DATE,
                 self::PERMISSION_TASK_ALL_USERS,
             ],
             self::GROUP_ANALYTICS => [

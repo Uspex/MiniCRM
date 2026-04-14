@@ -34,8 +34,8 @@ class DashboardController extends Controller
             : now()->subDays(29)->startOfDay();
 
         $dateTo = $request->filled('date_to')
-            ? Carbon::createFromFormat('d.m.Y', $request->date_to)->endOfDay()
-            : now()->endOfDay();
+            ? Carbon::createFromFormat('d.m.Y', $request->date_to)->startOfDay()
+            : now()->startOfDay();
 
         // Все даты за период
         $days = $dateFrom->diffInDays($dateTo) + 1;
@@ -54,22 +54,16 @@ class DashboardController extends Controller
         $selectedShifts       = array_filter((array) $request->input('shift', []));
         $selectedDepartments  = array_filter((array) $request->input('department', []));
 
-        // Граница рабочего дня берётся из первой смены в настройках
         $shifts = Setting::get(Setting::TYPE_SHIFTS, []);
-        $dayStartHour = !empty($shifts) ? (int) explode(':', $shifts[0]['start'])[0] : 0;
-
-        // Сдвигаем диапазон фильтра, чтобы «день» начинался со старта первой смены
-        $filterFrom = $dateFrom->copy()->addHours($dayStartHour);
-        $filterTo   = $dateTo->copy()->addHours($dayStartHour);
 
         $query = Task::select(
             'activity_id',
-            DB::raw('DATE(created_at - INTERVAL ' . $dayStartHour . ' HOUR) as date'),
+            'work_day as date',
             DB::raw('SUM(product_count) as total'),
             DB::raw('SUM(runtime) as total_runtime')
         )
-            ->whereBetween('created_at', [$filterFrom, $filterTo])
-            ->groupBy('activity_id', 'date');
+            ->whereBetween('work_day', [$dateFrom->format('Y-m-d'), $dateTo->format('Y-m-d')])
+            ->groupBy('activity_id', 'work_day');
 
         if (!empty($selectedUserIds)) {
             $query->whereIn('user_id', $selectedUserIds);

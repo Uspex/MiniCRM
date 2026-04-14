@@ -77,6 +77,23 @@
                                                                            class="form-control">
                                                                 </div>
                                                             </div>
+                                                            <div class="col-md-6 col-lg-3">
+                                                                <div class="form-group">
+                                                                    <label class="form-label" for="shift">{{ __('task.form.fields.shift') }}</label>
+                                                                    <select name="shift" id="shift" class="form-select">
+                                                                        @foreach($allShifts as $shift)
+                                                                            <option value="{{ $shift['id'] }}" @selected(old('shift', $currentShift) == $shift['id'])>{{ $shift['name'] }}</option>
+                                                                        @endforeach
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-6 col-lg-3">
+                                                                <div class="form-group">
+                                                                    <label class="form-label" for="work_day">{{ __('task.form.fields.work_day') }}</label>
+                                                                    <input name="work_day" value="{{ old('work_day', $currentWorkDay) }}"
+                                                                           id="work_day" type="date" class="form-control">
+                                                                </div>
+                                                            </div>
                                                             <div class="col-lg-12">
                                                                 <div class="form-group">
                                                                     <label class="form-label" for="message">{{ __('task.form.fields.message') }}</label>

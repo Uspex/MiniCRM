@@ -13,6 +13,8 @@ return [
             'scheduled_runtime' => 'Scheduled',
             'runtime'           => 'Actual Time (h)',
             'status'            => 'Status',
+            'shift'             => 'Shift',
+            'work_day'          => 'Work Day',
             'created_at'        => 'Date',
         ],
     ],
@@ -27,7 +29,8 @@ return [
             'product_count' => 'Count',
             'runtime'       => 'Actual Time (h)',
             'status'        => 'Status',
-            'created_at'    => 'Created Date',
+            'shift'         => 'Shift',
+            'work_day'      => 'Work Day',
         ],
     ],
 
@@ -35,6 +38,8 @@ return [
         'user'     => 'Employee',
         'activity' => 'Work Type',
         'status'   => 'Status',
+        'date'     => 'Period',
+        'shift'    => 'Shift',
     ],
 
     'status' => [

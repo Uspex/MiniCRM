@@ -7,6 +7,7 @@ use App\Http\Requests\Task\TaskCreateRequest;
 use App\Http\Requests\Task\TaskUpdateRequest;
 use App\Models\Activity;
 use App\Models\Permission;
+use App\Models\Setting;
 use App\Models\Task;
 use App\Models\User;
 use Carbon\Carbon;
@@ -36,19 +37,34 @@ class TaskController extends Controller
     {
         $canViewAll = auth()->user()->can(Permission::PERMISSION_TASK_ALL_USERS);
 
+        $dateFrom = $request->filled('date_from')
+            ? Carbon::createFromFormat('d.m.Y', $request->date_from)->startOfDay()
+            : null;
+
+        $dateTo = $request->filled('date_to')
+            ? Carbon::createFromFormat('d.m.Y', $request->date_to)->endOfDay()
+            : null;
+
         $paginator = Task::query()
             ->with(['user', 'activity'])
             ->when($canViewAll && $request->get('user_id'), fn($q) => $q->where('user_id', $request->input('user_id')))
             ->when(! $canViewAll, fn($q) => $q->where('user_id', auth()->id()))
             ->when($request->get('activity_id'), fn($q) => $q->where('activity_id', $request->input('activity_id')))
             ->when($request->filled('status'), fn($q) => $q->where('status', $request->input('status')))
+            ->when($request->filled('shift'), fn($q) => $q->where('shift', $request->input('shift')))
+            ->when($dateFrom && $dateTo, fn($q) => $q->whereBetween('work_day', [$dateFrom->format('Y-m-d'), $dateTo->format('Y-m-d')]))
             ->orderByDesc('id')
-            ->paginate($this->perPage);
+            ->paginate($this->perPage)
+            ->withQueryString();
 
         $users      = User::orderBy('name')->get();
         $activities = Activity::orderBy('name')->get();
+        $allShifts  = collect(Setting::get(Setting::TYPE_SHIFTS, []))->map(fn($s) => [
+            'id'   => (int) $s['shift'],
+            'name' => $s['name'],
+        ]);
 
-        return view('admin.task.index', compact('paginator', 'users', 'activities', 'canViewAll'));
+        return view('admin.task.index', compact('paginator', 'users', 'activities', 'allShifts', 'canViewAll', 'dateFrom', 'dateTo'));
     }
 
     /**
@@ -59,8 +75,16 @@ class TaskController extends Controller
         $task       = new Task();
         $users      = User::orderBy('name')->get();
         $activities = Activity::orderBy('name')->get();
+        $allShifts  = collect(Setting::get(Setting::TYPE_SHIFTS, []))->map(fn($s) => [
+            'id'   => (int) $s['shift'],
+            'name' => $s['name'],
+        ]);
 
-        return view('admin.task.create', compact('task', 'users', 'activities'));
+        $shiftData    = Task::resolveShiftData(now());
+        $currentShift = $shiftData['shift'];
+        $currentWorkDay = $shiftData['work_day'];
+
+        return view('admin.task.create', compact('task', 'users', 'activities', 'allShifts', 'currentShift', 'currentWorkDay'));
     }
 
     /**
@@ -70,7 +94,18 @@ class TaskController extends Controller
     {
         $data = $request->validated();
         $data['user_id'] ??= auth()->id();
-        $data['shift'] = Task::resolveShift(now());
+
+        if (!empty($data['shift']) && !empty($data['work_day'])) {
+            $times = Task::resolveShiftTimes((int) $data['shift'], $data['work_day']);
+        } else {
+            $shiftData = Task::resolveShiftData(now());
+            $data['shift']    = $shiftData['shift'];
+            $data['work_day'] = $shiftData['work_day'];
+            $times = ['work_start' => $shiftData['work_start'], 'work_finish' => $shiftData['work_finish']];
+        }
+
+        $data['work_start']  = $times['work_start'];
+        $data['work_finish'] = $times['work_finish'];
 
         Task::create($data);
 
@@ -87,8 +122,12 @@ class TaskController extends Controller
         $task       = Task::findOrFail($id);
         $users      = User::orderBy('name')->get();
         $activities = Activity::orderBy('name')->get();
+        $allShifts  = collect(Setting::get(Setting::TYPE_SHIFTS, []))->map(fn($s) => [
+            'id'   => (int) $s['shift'],
+            'name' => $s['name'],
+        ]);
 
-        return view('admin.task.edit', compact('task', 'users', 'activities'));
+        return view('admin.task.edit', compact('task', 'users', 'activities', 'allShifts'));
     }
 
     /**
@@ -100,13 +139,13 @@ class TaskController extends Controller
 
         $data = $request->validated();
 
-        if(isset($data['created_at'])){
-            $task->created_at = Carbon::parse($data['created_at'])->format('Y-m-d H:i:s');
+        if (!empty($data['shift']) && !empty($data['work_day'])) {
+            $times = Task::resolveShiftTimes((int) $data['shift'], $data['work_day']);
+            $data['work_start']  = $times['work_start'];
+            $data['work_finish'] = $times['work_finish'];
         }
 
-
         $task->update($data);
-        $task->save();
 
         return redirect()
             ->route('admin.task.edit', $task->id)

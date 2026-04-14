@@ -58,12 +58,21 @@
                                                                            id="runtime" type="number" min="0" step="0.01" class="form-control">
                                                                 </div>
                                                             </div>
-                                                            <div class="col-md-4 col-lg-3">
+                                                            <div class="col-md-4 col-lg-2">
                                                                 <div class="form-group">
-                                                                    <label class="form-label" for="created_at">{{ __('task.form.fields.created_at') }}</label>
-                                                                    <input name="created_at" value="{{ old('created_at', $task->created_at->format('Y-m-d\TH:i')) }}"
-                                                                           id="created_at" type="datetime-local" class="form-control"
-                                                                           @cannot(\App\Models\Permission::PERMISSION_TASK_EDIT_DATE) disabled readonly @endcannot>
+                                                                    <label class="form-label" for="shift">{{ __('task.form.fields.shift') }}</label>
+                                                                    <select name="shift" id="shift" class="form-select">
+                                                                        @foreach($allShifts as $shift)
+                                                                            <option value="{{ $shift['id'] }}" @selected(old('shift', $task->shift) == $shift['id'])>{{ $shift['name'] }}</option>
+                                                                        @endforeach
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-4 col-lg-2">
+                                                                <div class="form-group">
+                                                                    <label class="form-label" for="work_day">{{ __('task.form.fields.work_day') }}</label>
+                                                                    <input name="work_day" value="{{ old('work_day', $task->work_day ? \Carbon\Carbon::parse($task->work_day)->format('Y-m-d') : '') }}"
+                                                                           id="work_day" type="date" class="form-control">
                                                                 </div>
                                                             </div>
                                                             <div class="col-12">

@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\Activity;
 use App\Models\Report;
-use App\Models\Setting;
 use App\Models\Task;
 use App\Models\User;
 use Carbon\Carbon;
@@ -18,17 +17,11 @@ class ReportService
 
     public static function generate(Report $report): void
     {
-        $dateFrom = $report->date_from->copy()->startOfDay();
-        $dateTo   = $report->date_to->copy()->endOfDay();
-
-        $shifts = Setting::get(Setting::TYPE_SHIFTS, []);
-        $dayStartHour = !empty($shifts) ? (int) explode(':', $shifts[0]['start'])[0] : 0;
-
-        $filterFrom = $dateFrom->copy()->addHours($dayStartHour);
-        $filterTo   = $dateTo->copy()->addHours($dayStartHour);
+        $dateFrom = $report->date_from->copy();
+        $dateTo   = $report->date_to->copy();
 
         // Все даты за период
-        $days = $dateFrom->diffInDays($dateTo->copy()->startOfDay()) + 1;
+        $days = $dateFrom->diffInDays($dateTo) + 1;
         $dates = [];
         for ($i = 0; $i < $days; $i++) {
             $dates[] = $dateFrom->copy()->addDays($i)->format('Y-m-d');
@@ -36,7 +29,7 @@ class ReportService
 
         Log::info('Report: loading tasks data', [
             'report_id' => $report->id,
-            'period'    => $filterFrom->format('Y-m-d H:i') . ' - ' . $filterTo->format('Y-m-d H:i'),
+            'period'    => $dateFrom->format('Y-m-d') . ' - ' . $dateTo->format('Y-m-d'),
             'days'      => $days,
         ]);
 
@@ -56,12 +49,12 @@ class ReportService
         $query = Task::select(
             'user_id',
             'activity_id',
-            DB::raw('DATE(created_at - INTERVAL ' . $dayStartHour . ' HOUR) as date'),
+            'work_day as date',
             DB::raw('SUM(product_count) as total'),
             DB::raw('SUM(runtime) as total_runtime')
         )
-            ->whereBetween('created_at', [$filterFrom, $filterTo])
-            ->groupBy('user_id', 'activity_id', 'date')
+            ->whereBetween('work_day', [$dateFrom->format('Y-m-d'), $dateTo->format('Y-m-d')])
+            ->groupBy('user_id', 'activity_id', 'work_day')
             ->orderBy('user_id');
 
         if (!empty($filterUserIds)) {
