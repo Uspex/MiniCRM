@@ -24,12 +24,34 @@ return [
     'list' => [
         'period'     => 'Period',
         'status'     => 'Status',
+        'type'       => 'Type',
         'created_by' => 'Created by',
         'created_at' => 'Created at',
     ],
 
+    'form' => [
+        'fields' => [
+            'type' => 'Report type',
+        ],
+    ],
+
+    'type' => [
+        'coefficient'  => 'Coefficient',
+        'productivity' => 'Productivity',
+        'operations'   => 'Operations',
+    ],
+
     'csv' => [
-        'employee' => 'Employee',
-        'average'  => 'Average',
+        'employee'      => 'Employee',
+        'average'       => 'Average',
+        'total'         => 'Total',
+        'activity'      => 'Activity',
+        'created_at'    => 'Created at',
+        'work_day'      => 'Work day',
+        'shift'         => 'Shift',
+        'department'    => 'Department',
+        'product_count' => 'Quantity',
+        'runtime'       => 'Time (h)',
+        'message'       => 'Message',
     ],
 ];

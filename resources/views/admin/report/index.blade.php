@@ -26,8 +26,18 @@
                         <div class="row gx-3 gy-2 align-items-end">
                             <div class="col-11">
                                 <div class="row gx-3 gy-2 align-items-end">
+                                    <div class="col-md-2">
+                                        <label class="form-label">{{ __('report.form.fields.type') }}</label>
+                                        <select class="form-select" name="type" required>
+                                            @foreach(\App\Models\Report::getTypes() as $type)
+                                                <option value="{{ $type }}" {{ $type === \App\Models\Report::TYPE_COEFFICIENT ? 'selected' : '' }}>
+                                                    {{ __('report.type.' . $type) }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
                                     @if($canViewAll)
-                                    <div class="col-md-3">
+                                    <div class="col-md-2">
                                         <label class="form-label">{{ __('dashboard.filter.users') }}</label>
                                         <select class="form-select" name="user_id[]" multiple size="1" id="filterUsers">
                                             @foreach($allUsers as $user)
@@ -36,7 +46,7 @@
                                         </select>
                                     </div>
                                     @endif
-                                    <div class="{{ $canViewAll ? 'col-md-2' : 'col-md-3' }}">
+                                    <div class="col-md-2">
                                         <label class="form-label">{{ __('dashboard.filter.activities') }}</label>
                                         <select class="form-select" name="activity_id[]" multiple size="1" id="filterActivities">
                                             @foreach($allActivities as $activity)
@@ -44,7 +54,7 @@
                                             @endforeach
                                         </select>
                                     </div>
-                                    <div class="{{ $canViewAll ? 'col-md-2' : 'col-md-3' }}">
+                                    <div class="col-md-2">
                                         <label class="form-label">{{ __('dashboard.filter.shifts') }}</label>
                                         <select class="form-select" name="shift[]" multiple size="1" id="filterShifts">
                                             @foreach($allShifts as $shift)
@@ -52,7 +62,7 @@
                                             @endforeach
                                         </select>
                                     </div>
-                                    <div class="{{ $canViewAll ? 'col-md-2' : 'col-md-3' }}">
+                                    <div class="col-md-2">
                                         <label class="form-label">{{ __('dashboard.filter.departments') }}</label>
                                         <select class="form-select" name="department[]" multiple size="1" id="filterDepartments">
                                             @foreach($allDepartments as $dept)
@@ -60,7 +70,7 @@
                                             @endforeach
                                         </select>
                                     </div>
-                                    <div class="col-md-3">
+                                    <div class="{{ $canViewAll ? 'col-md-2' : 'col-md-3' }}">
                                         <label class="form-label">{{ __('report.period') }}</label>
                                         <div class="input-group">
                                             <input type="text" class="form-control" id="dateRangePicker" autocomplete="off">
@@ -93,6 +103,7 @@
                             <div class="nk-tb-list nk-tb-ulist">
                                 <div class="nk-tb-item nk-tb-head">
                                     <div class="nk-tb-col"><span>#</span></div>
+                                    <div class="nk-tb-col"><span>{{ __('report.list.type') }}</span></div>
                                     <div class="nk-tb-col"><span>{{ __('report.list.period') }}</span></div>
                                     <div class="nk-tb-col"><span>{{ __('report.list.status') }}</span></div>
                                     <div class="nk-tb-col tb-col-md"><span>{{ __('report.list.created_by') }}</span></div>
@@ -104,6 +115,9 @@
                                     <div class="nk-tb-item" data-report-id="{{ $report->id }}">
                                         <div class="nk-tb-col">
                                             <span>{{ $loop->iteration }}</span>
+                                        </div>
+                                        <div class="nk-tb-col">
+                                            <span class="badge bg-outline-primary">{{ __('report.type.' . ($report->type ?? \App\Models\Report::TYPE_COEFFICIENT)) }}</span>
                                         </div>
                                         <div class="nk-tb-col">
                                             <span>{{ $report->date_from->format('d.m.Y') }} &mdash; {{ $report->date_to->format('d.m.Y') }}</span>

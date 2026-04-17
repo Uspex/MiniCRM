@@ -21,70 +21,77 @@
 
                     {{-- Фильтры --}}
                     <form method="GET" action="{{ route('admin.dashboard') }}" class="mb-4">
-                        <div class="row gx-3 gy-2 align-items-end">
-                            @if($canViewAll)
-                            <div class="col-md-3">
-                                <label class="form-label">{{ __('dashboard.filter.users') }}</label>
-                                <select class="form-select" name="user_id[]" multiple size="1" id="filterUsers">
-                                    @foreach($allUsers as $user)
-                                        <option value="{{ $user->id }}"
-                                            @if(in_array($user->id, $selectedUserIds)) selected @endif>
-                                            {{ $user->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            @endif
-                            <div class="{{ $canViewAll ? 'col-md-3' : 'col-md-4' }}">
-                                <label class="form-label">{{ __('dashboard.filter.activities') }}</label>
-                                <select class="form-select" name="activity_id[]" multiple size="1" id="filterActivities">
-                                    @foreach($allActivities as $activity)
-                                        <option value="{{ $activity->id }}"
-                                            @if(in_array($activity->id, $selectedActivityIds)) selected @endif>
-                                            {{ $activity->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="{{ $canViewAll ? 'col-md-2' : 'col-md-2' }}">
-                                <label class="form-label">{{ __('dashboard.filter.shifts') }}</label>
-                                <select class="form-select" name="shift[]" multiple size="1" id="filterShifts">
-                                    @foreach($allShifts as $shift)
-                                        <option value="{{ $shift['id'] }}"
-                                            @if(in_array($shift['id'], $selectedShifts)) selected @endif>
-                                            {{ $shift['name'] }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="{{ $canViewAll ? 'col-md-2' : 'col-md-2' }}">
-                                <label class="form-label">{{ __('dashboard.filter.departments') }}</label>
-                                <select class="form-select" name="department[]" multiple size="1" id="filterDepartments">
-                                    @foreach($allDepartments as $dept)
-                                        <option value="{{ $dept }}"
-                                            @if(in_array($dept, $selectedDepartments)) selected @endif>
-                                            {{ $dept }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="{{ $canViewAll ? 'col-md-2' : 'col-md-2' }}">
-                                <label class="form-label">{{ __('dashboard.filter.period') }}</label>
-                                <div class="input-group">
-                                    <input type="text" class="form-control" id="dateRangePicker" autocomplete="off"
-                                        value="{{ request('date_from', $dateFrom->format('d.m.Y')) }} - {{ request('date_to', $dateTo->format('d.m.Y')) }}">
-                                    <input type="hidden" name="date_from" id="inputDateFrom" value="{{ request('date_from', $dateFrom->format('d.m.Y')) }}">
-                                    <input type="hidden" name="date_to" id="inputDateTo" value="{{ request('date_to', $dateTo->format('d.m.Y')) }}">
-                                    <span class="input-group-text"><em class="icon ni ni-calendar"></em></span>
+                        <div class="row">
+                            <div class="col-11">
+                                <div class="row gx-3 gy-2 align-items-end">
+                                    @if($canViewAll)
+                                        <div class="col-md-3">
+                                            <label class="form-label">{{ __('dashboard.filter.users') }}</label>
+                                            <select class="form-select" name="user_id[]" multiple size="1" id="filterUsers">
+                                                @foreach($allUsers as $user)
+                                                    <option value="{{ $user->id }}"
+                                                            @if(in_array($user->id, $selectedUserIds)) selected @endif>
+                                                        {{ $user->name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    @endif
+                                    <div class="{{ $canViewAll ? 'col-md-3' : 'col-md-4' }}">
+                                        <label class="form-label">{{ __('dashboard.filter.activities') }}</label>
+                                        <select class="form-select" name="activity_id[]" multiple size="1" id="filterActivities">
+                                            @foreach($allActivities as $activity)
+                                                <option value="{{ $activity->id }}"
+                                                        @if(in_array($activity->id, $selectedActivityIds)) selected @endif>
+                                                    {{ $activity->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="{{ $canViewAll ? 'col-md-2' : 'col-md-2' }}">
+                                        <label class="form-label">{{ __('dashboard.filter.shifts') }}</label>
+                                        <select class="form-select" name="shift[]" multiple size="1" id="filterShifts">
+                                            @foreach($allShifts as $shift)
+                                                <option value="{{ $shift['id'] }}"
+                                                        @if(in_array($shift['id'], $selectedShifts)) selected @endif>
+                                                    {{ $shift['name'] }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="{{ $canViewAll ? 'col-md-2' : 'col-md-2' }}">
+                                        <label class="form-label">{{ __('dashboard.filter.departments') }}</label>
+                                        <select class="form-select" name="department[]" multiple size="1" id="filterDepartments">
+                                            @foreach($allDepartments as $dept)
+                                                <option value="{{ $dept }}"
+                                                        @if(in_array($dept, $selectedDepartments)) selected @endif>
+                                                    {{ $dept }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="{{ $canViewAll ? 'col-md-2' : 'col-md-2' }}">
+                                        <label class="form-label">{{ __('dashboard.filter.period') }}</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="dateRangePicker" autocomplete="off"
+                                                   value="{{ request('date_from', $dateFrom->format('d.m.Y')) }} - {{ request('date_to', $dateTo->format('d.m.Y')) }}">
+                                            <input type="hidden" name="date_from" id="inputDateFrom" value="{{ request('date_from', $dateFrom->format('d.m.Y')) }}">
+                                            <input type="hidden" name="date_to" id="inputDateTo" value="{{ request('date_to', $dateTo->format('d.m.Y')) }}">
+                                            <span class="input-group-text"><em class="icon ni ni-calendar"></em></span>
+                                        </div>
+                                    </div>
+
                                 </div>
                             </div>
-                            <div class="col-md-1">
+                            <div class="col-1 mt-1">
+                                <label class="form-label"></label>
                                 <div class="d-flex">
                                     <button type="submit" class="btn btn-icon btn-primary me-2" title="{{ __('common.btn_search_apply') }}"><em class="icon ni ni-search"></em></button>
                                     <a href="{{ route('admin.dashboard') }}" class="btn btn-icon btn-warning" title="{{ __('common.btn_search_reset') }}"><em class="icon ni ni-reload"></em></a>
                                 </div>
                             </div>
                         </div>
+
                     </form>
 
                     {{-- График --}}

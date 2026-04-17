@@ -24,12 +24,34 @@ return [
     'list' => [
         'period'     => 'Период',
         'status'     => 'Статус',
+        'type'       => 'Тип',
         'created_by' => 'Создал',
         'created_at' => 'Дата создания',
     ],
 
+    'form' => [
+        'fields' => [
+            'type' => 'Тип отчёта',
+        ],
+    ],
+
+    'type' => [
+        'coefficient'  => 'Коэффициент',
+        'productivity' => 'Производительность',
+        'operations'   => 'Операции',
+    ],
+
     'csv' => [
-        'employee' => 'Сотрудник',
-        'average'  => 'Среднее значение',
+        'employee'      => 'Сотрудник',
+        'average'       => 'Среднее значение',
+        'total'         => 'Итого',
+        'activity'      => 'Тип работ',
+        'created_at'    => 'Дата создания',
+        'work_day'      => 'Рабочий день',
+        'shift'         => 'Смена',
+        'department'    => 'Подразделение',
+        'product_count' => 'Кол-во',
+        'runtime'       => 'Время (ч)',
+        'message'       => 'Сообщение',
     ],
 ];

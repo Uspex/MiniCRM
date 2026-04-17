@@ -59,6 +59,7 @@ class ReportController extends Controller
     public function generate(Request $request): RedirectResponse
     {
         $request->validate([
+            'type'          => ['required', 'string', 'in:' . implode(',', Report::getTypes())],
             'date_from'     => ['required', 'date_format:d.m.Y'],
             'date_to'       => ['required', 'date_format:d.m.Y'],
             'user_id'       => ['nullable', 'array'],
@@ -82,6 +83,7 @@ class ReportController extends Controller
 
         $report = Report::create([
             'user_id'   => auth()->id(),
+            'type'      => $request->input('type'),
             'date_from' => Carbon::createFromFormat('d.m.Y', $request->date_from)->startOfDay(),
             'date_to'   => Carbon::createFromFormat('d.m.Y', $request->date_to)->endOfDay(),
             'filters'   => $filters,
@@ -137,6 +139,7 @@ class ReportController extends Controller
         }
 
         $filename = 'Report_'
+            . ($report->type ?? Report::TYPE_COEFFICIENT) . '_'
             . $report->date_from->format('d.m.Y') . '-'
             . $report->date_to->format('d.m.Y') . '.csv';
 
