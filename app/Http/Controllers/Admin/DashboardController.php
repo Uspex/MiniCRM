@@ -106,7 +106,8 @@ class DashboardController extends Controller
                 'data'  => $data,
             ];
 
-            // Линия плана (пунктирная) — ожидаемое кол-во: (runtime × 3600) / plan_time
+            // Линия плана (пунктирная) — ожидаемое кол-во: (runtime × 3600) / plan_time.
+            // Для активностей без plan_time план приравнивается к факту (нерегулярные виды работ).
             if ($activity->plan_time) {
                 $planData = $dates->map(function ($date) use ($rows, $activity) {
                     $row = $rows->where('activity_id', $activity->id)->where('date', $date)->first();
@@ -114,16 +115,17 @@ class DashboardController extends Controller
                         return 0;
                     }
 
-                    // runtime в часах → секунды, plan_time в секундах
                     return round(($row->total_runtime * 3600) / $activity->plan_time);
                 })->values()->toArray();
-
-                $datasets[] = [
-                    'label'  => __('dashboard.plan_label', ['name' => $activity->name]),
-                    'data'   => $planData,
-                    'isPlan' => true,
-                ];
+            } else {
+                $planData = $data;
             }
+
+            $datasets[] = [
+                'label'  => __('dashboard.plan_label', ['name' => $activity->name]),
+                'data'   => $planData,
+                'isPlan' => true,
+            ];
         }
 
         $chartData = [

@@ -89,6 +89,8 @@ class ReportService
                         $fact += $taskData['total'];
                         if ($activity->plan_time && $taskData['total_runtime']) {
                             $plan += round(($taskData['total_runtime'] * 3600) / $activity->plan_time);
+                        } elseif (!$activity->plan_time) {
+                            $plan += $taskData['total'];
                         }
                     }
                 }
