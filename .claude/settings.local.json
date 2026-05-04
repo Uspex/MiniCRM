@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(php artisan:*)",
+      "Bash(composer show:*)",
+      "Bash(xargs grep:*)",
+      "Bash(php -l app/Services/ReportService.php)",
+      "Bash(php -l app/Models/Report.php)",
+      "Bash(php -l app/Http/Controllers/Admin/Report/ReportController.php)",
+      "Bash(php -l lang/ru/report.php)",
+      "Bash(php -l lang/en/report.php)"
+    ]
+  }
+}

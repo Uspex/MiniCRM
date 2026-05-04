@@ -43,7 +43,6 @@ return [
 
     'csv' => [
         'employee'      => 'Сотрудник',
-        'average'       => 'Среднее значение',
         'total'         => 'Итого',
         'activity'      => 'Тип работ',
         'created_at'    => 'Дата создания',
