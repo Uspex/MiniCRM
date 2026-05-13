@@ -35,11 +35,12 @@ return [
     ],
 
     'search' => [
-        'user'     => 'Employee',
-        'activity' => 'Work Type',
-        'status'   => 'Status',
-        'date'     => 'Period',
-        'shift'    => 'Shift',
+        'user'       => 'Employee',
+        'activity'   => 'Work Type',
+        'status'     => 'Status',
+        'date'       => 'Period',
+        'shift'      => 'Shift',
+        'department' => 'Department',
     ],
 
     'status' => [

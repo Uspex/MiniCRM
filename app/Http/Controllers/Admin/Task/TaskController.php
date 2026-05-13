@@ -49,6 +49,10 @@ class TaskController extends Controller
             ->with(['user', 'activity'])
             ->when($canViewAll && $request->get('user_id'), fn($q) => $q->where('user_id', $request->input('user_id')))
             ->when(! $canViewAll, fn($q) => $q->where('user_id', auth()->id()))
+            ->when($canViewAll && $request->filled('department'), fn($q) => $q->whereIn(
+                'user_id',
+                User::where('department', $request->input('department'))->pluck('id')
+            ))
             ->when($request->get('activity_id'), fn($q) => $q->where('activity_id', $request->input('activity_id')))
             ->when($request->filled('status'), fn($q) => $q->where('status', $request->input('status')))
             ->when($request->filled('shift'), fn($q) => $q->where('shift', $request->input('shift')))
@@ -63,8 +67,12 @@ class TaskController extends Controller
             'id'   => (int) $s['shift'],
             'name' => $s['name'],
         ]);
+        $allDepartments = collect(Setting::get(Setting::TYPE_DEPARTMENTS, []))
+            ->pluck('name')
+            ->filter()
+            ->values();
 
-        return view('admin.task.index', compact('paginator', 'users', 'activities', 'allShifts', 'canViewAll', 'dateFrom', 'dateTo'));
+        return view('admin.task.index', compact('paginator', 'users', 'activities', 'allShifts', 'allDepartments', 'canViewAll', 'dateFrom', 'dateTo'));
     }
 
     /**

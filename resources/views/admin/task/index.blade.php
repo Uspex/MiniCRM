@@ -29,7 +29,7 @@
                             <em class="icon ni ni-search"></em>
                         </a>
                     </div>
-                    <div class="collapse d-sm-block{{ request()->hasAny(['user_id', 'activity_id', 'status', 'shift', 'date_from', 'date_to']) ? ' show' : '' }}" id="taskFilters">
+                    <div class="collapse d-sm-block{{ request()->hasAny(['user_id', 'activity_id', 'status', 'shift', 'department', 'date_from', 'date_to']) ? ' show' : '' }}" id="taskFilters">
                         <div class="card-tools w-100 pt-3 pt-sm-0">
                             <form method="GET" action="{{ route(request()->route()->getName(), [request()->get('page')]) }}">
                                 <div class="row">
@@ -41,6 +41,14 @@
                                                         <option value="">{{ __('task.search.user') }}</option>
                                                         @foreach($users as $user)
                                                             <option value="{{ $user->id }}" @selected(request('user_id') == $user->id)>{{ $user->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <div class="col-12 col-sm-6 col-md-3">
+                                                    <select class="form-select" name="department">
+                                                        <option value="">{{ __('task.search.department') }}</option>
+                                                        @foreach($allDepartments as $department)
+                                                            <option value="{{ $department }}" @selected(request('department') == $department)>{{ $department }}</option>
                                                         @endforeach
                                                     </select>
                                                 </div>
