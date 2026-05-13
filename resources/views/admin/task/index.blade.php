@@ -33,18 +33,18 @@
                         <div class="card-tools w-100 pt-3 pt-sm-0">
                             <form method="GET" action="{{ route(request()->route()->getName(), [request()->get('page')]) }}">
                                 <div class="row">
-                                    <div class="col-12 col-md-9">
+                                    <div class="col-12 col-md-10">
                                         <div class="row gx-6 gy-3">
                                             @if($canViewAll)
                                                 <div class="col-12 col-sm-6 col-md-3">
-                                                    <select class="form-select" name="user_id">
-                                                        <option value="">{{ __('task.search.user') }}</option>
+                                                    <select class="form-select" name="user_id" id="filterUserId">
+                                                        <option value=""></option>
                                                         @foreach($users as $user)
                                                             <option value="{{ $user->id }}" @selected(request('user_id') == $user->id)>{{ $user->name }}</option>
                                                         @endforeach
                                                     </select>
                                                 </div>
-                                                <div class="col-12 col-sm-6 col-md-3">
+                                                <div class="col-12 col-sm-6 col-md-2">
                                                     <select class="form-select" name="department">
                                                         <option value="">{{ __('task.search.department') }}</option>
                                                         @foreach($allDepartments as $department)
@@ -54,8 +54,8 @@
                                                 </div>
                                             @endif
                                             <div class="col-12 col-sm-6 col-md-3">
-                                                <select class="form-select" name="activity_id">
-                                                    <option value="">{{ __('task.search.activity') }}</option>
+                                                <select class="form-select" name="activity_id" id="filterActivityId">
+                                                    <option value=""></option>
                                                     @foreach($activities as $activity)
                                                         <option value="{{ $activity->id }}" @selected(request('activity_id') == $activity->id)>{{ $activity->name }}</option>
                                                     @endforeach
@@ -69,7 +69,7 @@
                                                     @endforeach
                                                 </select>
                                             </div>
-                                            <div class="col-12 col-sm-6 col-md-3">
+                                            <div class="col-12 col-sm-6 col-md-2">
                                                 <div class="input-group input-group-sm">
                                                     <input type="text" class="form-control" id="dateRangePicker" autocomplete="off" placeholder="{{ __('task.search.date') }}"
                                                         value="{{ $dateFrom && $dateTo ? $dateFrom->format('d.m.Y') . ' - ' . $dateTo->format('d.m.Y') : '' }}">
@@ -81,7 +81,7 @@
                                         </div>
 
                                     </div>
-                                    <div class="col-12 col-md-3 mt-3 mt-md-0">
+                                    <div class="col-12 col-md-2 mt-2 mt-md-0">
                                         <div class="d-flex justify-content-end">
                                             <a href="{{ route(request()->route()->getName()) }}" class="btn btn-sm btn-warning me-2" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ __('common.btn_search_reset') }}">
                                                 <em class="icon ni ni-reload-alt"></em>
@@ -235,6 +235,20 @@ $(function () {
 
     if (hasDate) {
         $('#dateRangePicker').val($('#inputDateFrom').val() + ' - ' + $('#inputDateTo').val());
+    }
+
+    // Select2 с поиском для фильтров «Сотрудник» и «Тип работ»
+    if (typeof $.fn.select2 !== 'undefined') {
+        $('#filterUserId').select2({
+            placeholder: '{{ __('task.search.user') }}',
+            allowClear: true,
+            width: '100%',
+        });
+        $('#filterActivityId').select2({
+            placeholder: '{{ __('task.search.activity') }}',
+            allowClear: true,
+            width: '100%',
+        });
     }
 });
 </script>
