@@ -6,6 +6,7 @@ use App\Models\Activity;
 use App\Models\Report;
 use App\Models\Setting;
 use App\Models\Task;
+use App\Models\TaskHistory;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -27,9 +28,10 @@ class ReportService
         ]);
 
         match ($type) {
-            Report::TYPE_COEFFICIENT  => self::generateCoefficient($report),
-            Report::TYPE_PRODUCTIVITY => self::generateProductivity($report),
-            Report::TYPE_OPERATIONS   => self::generateOperations($report),
+            Report::TYPE_COEFFICIENT        => self::generateCoefficient($report),
+            Report::TYPE_PRODUCTIVITY       => self::generateProductivity($report),
+            Report::TYPE_OPERATIONS         => self::generateOperations($report),
+            Report::TYPE_OPERATIONS_HISTORY => self::generateOperationsHistory($report),
         };
     }
 
@@ -258,6 +260,118 @@ class ReportService
         });
 
         self::closeCsv($handle, $report, $filename);
+    }
+
+    private static function generateOperationsHistory(Report $report): void
+    {
+        [$dateFrom, $dateTo] = self::resolveDateRange($report);
+
+        $filters = $report->filters ?? [];
+        $filterUserIds      = $filters['user_ids'] ?? [];
+        $filterActivityIds  = $filters['activity_ids'] ?? [];
+        $filterShifts       = $filters['shifts'] ?? [];
+        $filterDepartments  = $filters['departments'] ?? [];
+
+        $query = TaskHistory::with([
+                'editor:id,name',
+                'task:id,user_id,activity_id',
+                'task.user:id,name,department',
+                'task.activity:id,name',
+            ])
+            ->whereBetween('created_at', [$dateFrom, $dateTo])
+            ->whereHas('task', function ($q) use ($filterUserIds, $filterActivityIds, $filterShifts, $filterDepartments) {
+                if (!empty($filterUserIds)) {
+                    $q->whereIn('user_id', $filterUserIds);
+                }
+                if (!empty($filterActivityIds)) {
+                    $q->whereIn('activity_id', $filterActivityIds);
+                }
+                if (!empty($filterShifts)) {
+                    $q->whereIn('shift', $filterShifts);
+                }
+                if (!empty($filterDepartments)) {
+                    $departmentUserIds = User::whereIn('department', $filterDepartments)->pluck('id');
+                    $q->whereIn('user_id', $departmentUserIds);
+                }
+            })
+            ->orderBy('created_at');
+
+        $shiftNames = collect(Setting::get(Setting::TYPE_SHIFTS, []))
+            ->mapWithKeys(fn($s) => [(int) $s['shift'] => $s['name']])
+            ->all();
+
+        $activityNames = Activity::pluck('name', 'id')->all();
+
+        $fieldLabels = [
+            'activity_id'   => __('task.form.fields.activity_id'),
+            'product_count' => __('task.form.fields.product_count'),
+            'runtime'       => __('task.form.fields.runtime'),
+            'shift'         => __('task.form.fields.shift'),
+            'work_day'      => __('task.form.fields.work_day'),
+            'message'       => __('task.form.fields.message'),
+        ];
+
+        [$handle, $filename] = self::openCsv($report);
+
+        fputcsv($handle, [
+            __('report.csv.changed_at'),
+            __('report.csv.editor'),
+            __('report.csv.operation_id'),
+            __('report.csv.employee'),
+            __('report.csv.department'),
+            __('report.csv.activity'),
+            __('report.csv.field'),
+            __('report.csv.old_value'),
+            __('report.csv.new_value'),
+        ], ';');
+
+        $chunkNumber = 0;
+        $query->chunk(500, function ($rows) use ($handle, $shiftNames, $activityNames, $fieldLabels, &$chunkNumber, $report) {
+            $chunkNumber++;
+            Log::info('Report: processing chunk', [
+                'report_id' => $report->id,
+                'chunk'     => $chunkNumber,
+                'rows'      => $rows->count(),
+            ]);
+
+            foreach ($rows as $history) {
+                $task = $history->task;
+
+                foreach (($history->changes ?? []) as $field => $pair) {
+                    fputcsv($handle, [
+                        optional($history->created_at)->format('d.m.Y H:i'),
+                        $history->editor->name ?? '',
+                        $history->task_id,
+                        $task->user->name ?? '',
+                        $task->user->department ?? '',
+                        $task->activity->name ?? '',
+                        $fieldLabels[$field] ?? $field,
+                        self::formatHistoryValue($field, $pair['old'] ?? null, $shiftNames, $activityNames),
+                        self::formatHistoryValue($field, $pair['new'] ?? null, $shiftNames, $activityNames),
+                    ], ';');
+                }
+            }
+        });
+
+        self::closeCsv($handle, $report, $filename);
+    }
+
+    /**
+     * Приводит значение изменённого поля к читаемому виду для CSV.
+     */
+    private static function formatHistoryValue(string $field, $value, array $shiftNames, array $activityNames): string
+    {
+        if ($value === null || $value === '') {
+            return '';
+        }
+
+        return match ($field) {
+            'activity_id' => $activityNames[(int) $value] ?? (string) $value,
+            'shift'       => $shiftNames[(int) $value] ?? (string) $value,
+            'work_day'    => Carbon::parse($value)->format('d.m.Y'),
+            'runtime'     => str_replace('.', ',', (string) $value),
+            default       => (string) $value,
+        };
     }
 
     private static function resolveDateRange(Report $report): array

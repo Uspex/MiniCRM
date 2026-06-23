@@ -8,7 +8,8 @@
       "Bash(php -l app/Models/Report.php)",
       "Bash(php -l app/Http/Controllers/Admin/Report/ReportController.php)",
       "Bash(php -l lang/ru/report.php)",
-      "Bash(php -l lang/en/report.php)"
+      "Bash(php -l lang/en/report.php)",
+      "PowerShell(php -l app\\\\Services\\\\ReportService.php; php -l app\\\\Http\\\\Controllers\\\\Admin\\\\Task\\\\TaskController.php; php -l app\\\\Models\\\\TaskHistory.php; php -l app\\\\Models\\\\Report.php)"
     ]
   }
 }

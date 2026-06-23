@@ -36,9 +36,10 @@ return [
     ],
 
     'type' => [
-        'coefficient'  => 'Коэффициент',
-        'productivity' => 'Производительность',
-        'operations'   => 'Операции',
+        'coefficient'        => 'Коэффициент',
+        'productivity'       => 'Производительность',
+        'operations'         => 'Операции',
+        'operations_history' => 'История изменений операций',
     ],
 
     'csv' => [
@@ -52,5 +53,11 @@ return [
         'product_count' => 'Кол-во',
         'runtime'       => 'Время (ч)',
         'message'       => 'Сообщение',
+        'changed_at'    => 'Дата изменения',
+        'editor'        => 'Кто изменил',
+        'operation_id'  => 'ID операции',
+        'field'         => 'Изменённое поле',
+        'old_value'     => 'Было',
+        'new_value'     => 'Стало',
     ],
 ];

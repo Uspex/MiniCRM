@@ -9,6 +9,7 @@ use App\Models\Activity;
 use App\Models\Permission;
 use App\Models\Setting;
 use App\Models\Task;
+use App\Models\TaskHistory;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
@@ -135,7 +136,12 @@ class TaskController extends Controller
             'name' => $s['name'],
         ]);
 
-        return view('admin.task.edit', compact('task', 'users', 'activities', 'allShifts'));
+        $histories = TaskHistory::with('editor:id,name')
+            ->where('task_id', $task->id)
+            ->orderByDesc('id')
+            ->get();
+
+        return view('admin.task.edit', compact('task', 'users', 'activities', 'allShifts', 'histories'));
     }
 
     /**
@@ -153,7 +159,29 @@ class TaskController extends Controller
             $data['work_finish'] = $times['work_finish'];
         }
 
-        $task->update($data);
+        $task->fill($data);
+
+        // Фиксируем изменения значимых полей (влияют на коэффициент/отчёты)
+        $tracked = ['activity_id', 'product_count', 'runtime', 'shift', 'work_day', 'message'];
+        $changes = [];
+        foreach ($tracked as $field) {
+            if ($task->isDirty($field)) {
+                $changes[$field] = [
+                    'old' => $task->getOriginal($field),
+                    'new' => $task->getAttribute($field),
+                ];
+            }
+        }
+
+        $task->save();
+
+        if (!empty($changes)) {
+            TaskHistory::create([
+                'task_id'   => $task->id,
+                'editor_id' => auth()->id(),
+                'changes'   => $changes,
+            ]);
+        }
 
         return redirect()
             ->route('admin.task.edit', $task->id)

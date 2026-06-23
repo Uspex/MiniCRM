@@ -36,9 +36,10 @@ return [
     ],
 
     'type' => [
-        'coefficient'  => 'Coefficient',
-        'productivity' => 'Productivity',
-        'operations'   => 'Operations',
+        'coefficient'        => 'Coefficient',
+        'productivity'       => 'Productivity',
+        'operations'         => 'Operations',
+        'operations_history' => 'Operation change history',
     ],
 
     'csv' => [
@@ -52,5 +53,11 @@ return [
         'product_count' => 'Quantity',
         'runtime'       => 'Time (h)',
         'message'       => 'Message',
+        'changed_at'    => 'Changed at',
+        'editor'        => 'Changed by',
+        'operation_id'  => 'Operation ID',
+        'field'         => 'Changed field',
+        'old_value'     => 'Was',
+        'new_value'     => 'Now',
     ],
 ];

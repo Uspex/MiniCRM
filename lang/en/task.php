@@ -47,4 +47,14 @@ return [
         'active'   => 'Completed',
         'inactive' => 'Not Completed',
     ],
+
+    'history' => [
+        'title'   => 'Change history',
+        'date'    => 'Date',
+        'editor'  => 'Changed by',
+        'changes' => 'Changes',
+        'from'    => 'was',
+        'to'      => 'now',
+        'empty'   => '—',
+    ],
 ];

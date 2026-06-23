@@ -98,6 +98,59 @@
                             </div><!-- .card-aside-wrap -->
                         </div><!-- .card -->
                     </div><!-- .nk-block -->
+
+                    @if($histories->isNotEmpty())
+                        @php
+                            $activityNames = $activities->pluck('name', 'id');
+                            $shiftNames    = collect($allShifts)->mapWithKeys(fn($s) => [(int) $s['id'] => $s['name']]);
+                            $renderValue = function ($field, $value) use ($activityNames, $shiftNames) {
+                                if ($value === null || $value === '') {
+                                    return '—';
+                                }
+                                return match ($field) {
+                                    'activity_id' => $activityNames[(int) $value] ?? $value,
+                                    'shift'       => $shiftNames[(int) $value] ?? $value,
+                                    'work_day'    => \Carbon\Carbon::parse($value)->format('d.m.Y'),
+                                    default       => $value,
+                                };
+                            };
+                        @endphp
+                        <div class="nk-block">
+                            <div class="card card-bordered">
+                                <div class="card-inner">
+                                    <h5 class="title mb-3">{{ __('task.history.title') }}</h5>
+                                    <div class="nk-tb-list nk-tb-ulist">
+                                        <div class="nk-tb-item nk-tb-head">
+                                            <div class="nk-tb-col"><span>{{ __('task.history.date') }}</span></div>
+                                            <div class="nk-tb-col"><span>{{ __('task.history.editor') }}</span></div>
+                                            <div class="nk-tb-col"><span>{{ __('task.history.changes') }}</span></div>
+                                        </div>
+                                        @foreach($histories as $history)
+                                            <div class="nk-tb-item">
+                                                <div class="nk-tb-col">
+                                                    <span>{{ optional($history->created_at)->format('d.m.Y H:i') }}</span>
+                                                </div>
+                                                <div class="nk-tb-col">
+                                                    <span>{{ $history->editor->name ?? '—' }}</span>
+                                                </div>
+                                                <div class="nk-tb-col">
+                                                    @foreach(($history->changes ?? []) as $field => $pair)
+                                                        <div>
+                                                            <strong>{{ __('task.form.fields.' . $field) }}:</strong>
+                                                            <span class="text-soft">{{ __('task.history.from') }}</span>
+                                                            {{ $renderValue($field, $pair['old'] ?? null) }}
+                                                            <span class="text-soft">→ {{ __('task.history.to') }}</span>
+                                                            {{ $renderValue($field, $pair['new'] ?? null) }}
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
