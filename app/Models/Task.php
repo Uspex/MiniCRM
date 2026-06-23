@@ -8,6 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Task extends Model
 {
+    // Статусы отмены операции (null/active — обычная операция, учитывается в отчётах)
+    const CANCEL_REQUESTED = 'requested';
+    const CANCEL_CANCELLED = 'cancelled';
+    const CANCEL_REJECTED  = 'rejected';
+
     protected $fillable = [
         'user_id',
         'activity_id',
@@ -20,6 +25,18 @@ class Task extends Model
         'work_start',
         'work_finish',
         'status',
+        'cancel_status',
+        'cancel_reason',
+        'cancel_requested_by',
+        'cancel_requested_at',
+        'cancel_processed_by',
+        'cancel_processed_at',
+        'cancel_decision_comment',
+    ];
+
+    protected $casts = [
+        'cancel_requested_at' => 'datetime',
+        'cancel_processed_at' => 'datetime',
     ];
 
     /**
@@ -120,6 +137,18 @@ class Task extends Model
         ];
     }
 
+    /**
+     * Только операции, идущие в основные отчёты: исключаются одобренные отмены.
+     * Статусы requested/rejected по-прежнему учитываются.
+     */
+    public function scopeReportable($query)
+    {
+        return $query->where(function ($q) {
+            $q->whereNull('cancel_status')
+                ->orWhere('cancel_status', '!=', self::CANCEL_CANCELLED);
+        });
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
@@ -128,5 +157,15 @@ class Task extends Model
     public function activity()
     {
         return $this->belongsTo(Activity::class, 'activity_id');
+    }
+
+    public function cancelRequester()
+    {
+        return $this->belongsTo(User::class, 'cancel_requested_by');
+    }
+
+    public function cancelProcessor()
+    {
+        return $this->belongsTo(User::class, 'cancel_processed_by');
     }
 }

@@ -6,6 +6,15 @@
 
 @section('content')
 
+    @php
+        $canCancelRequest = auth()->user()->can(\App\Models\Permission::PERMISSION_TASK_CANCEL_REQUEST);
+        $cancelBadges = [
+            \App\Models\Task::CANCEL_REQUESTED => 'bg-warning',
+            \App\Models\Task::CANCEL_CANCELLED => 'bg-danger',
+            \App\Models\Task::CANCEL_REJECTED  => 'bg-light text-dark',
+        ];
+    @endphp
+
     <div class="nk-content-body">
         <div class="nk-block-head nk-block-head-sm">
             <div class="nk-block-between g-3">
@@ -125,6 +134,9 @@
                                     @endif
                                     <div class="nk-tb-col">
                                         <a href="{{ route('admin.task.edit', $item->id) }}"><span>{{ $item->activity->name ?? '—' }}</span><em class="icon ni ni-edit"></em></a>
+                                        @if($item->cancel_status)
+                                            <span class="badge {{ $cancelBadges[$item->cancel_status] ?? 'bg-light' }} ms-1">{{ __('task.cancel.status.' . $item->cancel_status) }}</span>
+                                        @endif
                                     </div>
                                     <div class="nk-tb-col">
                                         <span>{{ $item->product_count }}</span>
@@ -148,7 +160,18 @@
                                                     <a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
                                                     <div class="dropdown-menu dropdown-menu-end">
                                                         <ul class="link-list-opt no-bdr">
-                                                            <li><a href="{{ route('admin.task.edit', $item->id) }}"><em class="icon ni ni-edit"></em><span>{{ __('common.item_edit') }}</span></a></li>
+                                                            @php
+                                                                $isLocked = in_array($item->cancel_status, [\App\Models\Task::CANCEL_REQUESTED, \App\Models\Task::CANCEL_CANCELLED], true);
+                                                                $canRequestThis = $canCancelRequest
+                                                                    && in_array($item->cancel_status, [null, \App\Models\Task::CANCEL_REJECTED], true)
+                                                                    && ($canViewAll || $item->user_id === auth()->id());
+                                                            @endphp
+                                                            @unless($isLocked)
+                                                                <li><a href="{{ route('admin.task.edit', $item->id) }}"><em class="icon ni ni-edit"></em><span>{{ __('common.item_edit') }}</span></a></li>
+                                                            @endunless
+                                                            @if($canRequestThis)
+                                                                <li><a href="#" class="js-cancel-request" data-action="{{ route('admin.task.cancel_request', $item->id) }}"><em class="icon ni ni-na"></em><span>{{ __('task.cancel.request_btn') }}</span></a></li>
+                                                            @endif
                                                             <li>
                                                                 <form method="POST" action="{{ route('admin.task.destroy', $item->id) }}">
                                                                     @method('DELETE')
@@ -178,6 +201,32 @@
             </div>
         </div>
     </div>
+
+    @if($canCancelRequest)
+        <div class="modal fade" id="cancelRequestModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <form method="POST" id="cancelRequestForm">
+                    @csrf
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">{{ __('task.cancel.request_title') }}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label class="form-label" for="cancel_reason">{{ __('task.cancel.reason') }}</label>
+                                <textarea name="cancel_reason" id="cancel_reason" class="form-control" rows="3" required></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">{{ __('common.back') }}</button>
+                            <button type="submit" class="btn btn-primary">{{ __('task.cancel.send_request') }}</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @endif
 
 @endsection
 
@@ -250,6 +299,17 @@ $(function () {
             width: '100%',
         });
     }
+
+    // Модалка запроса на отмену операции
+    $(document).on('click', '.js-cancel-request', function (e) {
+        e.preventDefault();
+        $('#cancelRequestForm').attr('action', $(this).data('action'));
+        $('#cancel_reason').val('');
+        var el = document.getElementById('cancelRequestModal');
+        if (el) {
+            bootstrap.Modal.getOrCreateInstance(el).show();
+        }
+    });
 });
 </script>
 @endpush

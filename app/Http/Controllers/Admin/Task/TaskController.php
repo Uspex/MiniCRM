@@ -28,7 +28,16 @@ class TaskController extends Controller
             new Middleware('permission:'.Permission::PERMISSION_TASK_INFO,    only: ['edit']),
             new Middleware('permission:'.Permission::PERMISSION_TASK_UPDATE,  only: ['update']),
             new Middleware('permission:'.Permission::PERMISSION_TASK_DESTROY, only: ['destroy']),
+            new Middleware('permission:'.Permission::PERMISSION_TASK_CANCEL_REQUEST, only: ['cancelRequest']),
         ];
+    }
+
+    /**
+     * Заблокирована ли операция для редактирования (на отмене или отменена).
+     */
+    private function isLocked(Task $task): bool
+    {
+        return in_array($task->cancel_status, [Task::CANCEL_REQUESTED, Task::CANCEL_CANCELLED], true);
     }
 
     /**
@@ -141,7 +150,10 @@ class TaskController extends Controller
             ->orderByDesc('id')
             ->get();
 
-        return view('admin.task.edit', compact('task', 'users', 'activities', 'allShifts', 'histories'));
+        $task->loadMissing(['cancelRequester:id,name', 'cancelProcessor:id,name']);
+        $locked = $this->isLocked($task);
+
+        return view('admin.task.edit', compact('task', 'users', 'activities', 'allShifts', 'histories', 'locked'));
     }
 
     /**
@@ -150,6 +162,13 @@ class TaskController extends Controller
     public function update(TaskUpdateRequest $request, int $id): RedirectResponse
     {
         $task = Task::findOrFail($id);
+
+        // Операцию на отмене / отменённую редактировать нельзя
+        if ($this->isLocked($task)) {
+            return redirect()
+                ->route('admin.task.edit', $task->id)
+                ->with('error', __('task.cancel.locked_notice'));
+        }
 
         $data = $request->validated();
 
@@ -186,6 +205,46 @@ class TaskController extends Controller
         return redirect()
             ->route('admin.task.edit', $task->id)
             ->with(['success' => trans('common.update.success')]);
+    }
+
+    /**
+     * Запрос на отмену операции (сотрудник указывает причину).
+     * Одобряет/отклоняет запрос другой сотрудник в разделе «Операции — отмена».
+     */
+    public function cancelRequest(Request $request, int $id): RedirectResponse
+    {
+        $task = Task::findOrFail($id);
+
+        // Без права «все пользователи» отменять можно только свои операции
+        $canViewAll = auth()->user()->can(Permission::PERMISSION_TASK_ALL_USERS);
+        if (!$canViewAll && $task->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        // Запросить отмену можно только для активной или ранее отклонённой операции
+        if (!in_array($task->cancel_status, [null, Task::CANCEL_REJECTED], true)) {
+            return back()->with('error', __('task.cancel.not_requestable'));
+        }
+
+        $request->validate(
+            ['cancel_reason' => ['required', 'string', 'max:65535']],
+            ['cancel_reason.required' => __('task.cancel.reason_required')]
+        );
+
+        $task->update([
+            'cancel_status'           => Task::CANCEL_REQUESTED,
+            'cancel_reason'           => $request->input('cancel_reason'),
+            'cancel_requested_by'     => auth()->id(),
+            'cancel_requested_at'     => now(),
+            // сбрасываем прошлое решение, если операция переотправляется после отклонения
+            'cancel_processed_by'     => null,
+            'cancel_processed_at'     => null,
+            'cancel_decision_comment' => null,
+        ]);
+
+        return redirect()
+            ->route('admin.task.index')
+            ->with('success', __('task.cancel.request_success'));
     }
 
     /**

@@ -8,6 +8,8 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\Server\ServerController;
 use App\Http\Controllers\Admin\Setting\SettingController;
 use App\Http\Controllers\Admin\Report\ReportController;
+use App\Http\Controllers\Admin\Task\TaskController;
+use App\Http\Controllers\Admin\Task\TaskCancellationController;
 
 
 Route::middleware('guest')->group(function () {
@@ -49,6 +51,14 @@ Route::middleware(['auth', 'setUserLanguage'])->group(function () {
 
         //Задачи
         Route::group(['namespace' => 'Task'], function() {
+            // Раздел «Операции — отмена» — объявляем до resource, чтобы task/cancellation не перехватывался
+            Route::get('task/cancellation',               [TaskCancellationController::class, 'index'])->name('admin.task.cancellation.index');
+            Route::post('task/cancellation/{id}/approve', [TaskCancellationController::class, 'approve'])->name('admin.task.cancellation.approve');
+            Route::post('task/cancellation/{id}/reject',  [TaskCancellationController::class, 'reject'])->name('admin.task.cancellation.reject');
+
+            // Запрос на отмену операции
+            Route::post('task/{id}/cancel-request', [TaskController::class, 'cancelRequest'])->name('admin.task.cancel_request');
+
             Route::resource('task', '\App\Http\Controllers\Admin\Task\TaskController')->except(['show'])->names('admin.task');
         });
 

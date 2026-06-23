@@ -36,10 +36,11 @@ return [
     ],
 
     'type' => [
-        'coefficient'        => 'Коэффициент',
-        'productivity'       => 'Производительность',
-        'operations'         => 'Операции',
-        'operations_history' => 'История изменений операций',
+        'coefficient'         => 'Коэффициент',
+        'productivity'        => 'Производительность',
+        'operations'          => 'Операции',
+        'operations_history'  => 'История изменений операций',
+        'operations_cancelled' => 'Отменённые операции',
     ],
 
     'csv' => [
@@ -59,5 +60,10 @@ return [
         'field'         => 'Изменённое поле',
         'old_value'     => 'Было',
         'new_value'     => 'Стало',
+        'cancel_reason'    => 'Причина отмены',
+        'cancel_requester' => 'Кто запросил',
+        'cancel_requested_at' => 'Дата запроса',
+        'cancel_approver'  => 'Кто одобрил',
+        'cancel_approved_at' => 'Дата одобрения',
     ],
 ];

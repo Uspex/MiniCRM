@@ -11,10 +11,11 @@ class Report extends Model
     const STATUS_COMPLETED  = 'completed';
     const STATUS_FAILED     = 'failed';
 
-    const TYPE_COEFFICIENT        = 'coefficient';
-    const TYPE_PRODUCTIVITY       = 'productivity';
-    const TYPE_OPERATIONS         = 'operations';
-    const TYPE_OPERATIONS_HISTORY = 'operations_history';
+    const TYPE_COEFFICIENT         = 'coefficient';
+    const TYPE_PRODUCTIVITY        = 'productivity';
+    const TYPE_OPERATIONS          = 'operations';
+    const TYPE_OPERATIONS_HISTORY  = 'operations_history';
+    const TYPE_OPERATIONS_CANCELLED = 'operations_cancelled';
 
     protected $fillable = [
         'user_id',
@@ -33,6 +34,7 @@ class Report extends Model
             self::TYPE_PRODUCTIVITY,
             self::TYPE_OPERATIONS,
             self::TYPE_OPERATIONS_HISTORY,
+            self::TYPE_OPERATIONS_CANCELLED,
         ];
     }
 

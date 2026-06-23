@@ -28,10 +28,11 @@ class ReportService
         ]);
 
         match ($type) {
-            Report::TYPE_COEFFICIENT        => self::generateCoefficient($report),
-            Report::TYPE_PRODUCTIVITY       => self::generateProductivity($report),
-            Report::TYPE_OPERATIONS         => self::generateOperations($report),
-            Report::TYPE_OPERATIONS_HISTORY => self::generateOperationsHistory($report),
+            Report::TYPE_COEFFICIENT         => self::generateCoefficient($report),
+            Report::TYPE_PRODUCTIVITY        => self::generateProductivity($report),
+            Report::TYPE_OPERATIONS          => self::generateOperations($report),
+            Report::TYPE_OPERATIONS_HISTORY  => self::generateOperationsHistory($report),
+            Report::TYPE_OPERATIONS_CANCELLED => self::generateOperationsCancelled($report),
         };
     }
 
@@ -197,6 +198,7 @@ class ReportService
         $filterDepartments  = $filters['departments'] ?? [];
 
         $query = Task::with(['user:id,name,department', 'activity:id,name'])
+            ->reportable()
             ->whereBetween('work_day', [$dateFrom->format('Y-m-d'), $dateTo->format('Y-m-d')])
             ->orderBy('work_day')
             ->orderBy('created_at');
@@ -356,6 +358,92 @@ class ReportService
         self::closeCsv($handle, $report, $filename);
     }
 
+    private static function generateOperationsCancelled(Report $report): void
+    {
+        [$dateFrom, $dateTo] = self::resolveDateRange($report);
+
+        $filters = $report->filters ?? [];
+        $filterUserIds      = $filters['user_ids'] ?? [];
+        $filterActivityIds  = $filters['activity_ids'] ?? [];
+        $filterShifts       = $filters['shifts'] ?? [];
+        $filterDepartments  = $filters['departments'] ?? [];
+
+        $query = Task::with([
+                'user:id,name,department',
+                'activity:id,name',
+                'cancelRequester:id,name',
+                'cancelProcessor:id,name',
+            ])
+            ->where('cancel_status', Task::CANCEL_CANCELLED)
+            ->whereBetween('work_day', [$dateFrom->format('Y-m-d'), $dateTo->format('Y-m-d')])
+            ->orderBy('work_day')
+            ->orderBy('cancel_processed_at');
+
+        if (!empty($filterUserIds)) {
+            $query->whereIn('user_id', $filterUserIds);
+        }
+        if (!empty($filterActivityIds)) {
+            $query->whereIn('activity_id', $filterActivityIds);
+        }
+        if (!empty($filterShifts)) {
+            $query->whereIn('shift', $filterShifts);
+        }
+        if (!empty($filterDepartments)) {
+            $departmentUserIds = User::whereIn('department', $filterDepartments)->pluck('id');
+            $query->whereIn('user_id', $departmentUserIds);
+        }
+
+        $shiftNames = collect(Setting::get(Setting::TYPE_SHIFTS, []))
+            ->mapWithKeys(fn($s) => [(int) $s['shift'] => $s['name']])
+            ->all();
+
+        [$handle, $filename] = self::openCsv($report);
+
+        fputcsv($handle, [
+            __('report.csv.work_day'),
+            __('report.csv.shift'),
+            __('report.csv.employee'),
+            __('report.csv.department'),
+            __('report.csv.activity'),
+            __('report.csv.product_count'),
+            __('report.csv.runtime'),
+            __('report.csv.cancel_reason'),
+            __('report.csv.cancel_requester'),
+            __('report.csv.cancel_approver'),
+            __('report.csv.cancel_approved_at'),
+        ], ';');
+
+        $chunkNumber = 0;
+        $query->chunk(500, function ($rows) use ($handle, $shiftNames, &$chunkNumber, $report) {
+            $chunkNumber++;
+            Log::info('Report: processing chunk', [
+                'report_id' => $report->id,
+                'chunk'     => $chunkNumber,
+                'rows'      => $rows->count(),
+            ]);
+
+            foreach ($rows as $task) {
+                $shiftLabel = $task->shift ? ($shiftNames[(int) $task->shift] ?? '') : '';
+
+                fputcsv($handle, [
+                    $task->work_day ? Carbon::parse($task->work_day)->format('d.m.Y') : '',
+                    $shiftLabel,
+                    $task->user->name ?? '',
+                    $task->user->department ?? '',
+                    $task->activity->name ?? '',
+                    $task->product_count,
+                    $task->runtime !== null ? str_replace('.', ',', (string) $task->runtime) : '',
+                    $task->cancel_reason,
+                    $task->cancelRequester->name ?? '',
+                    $task->cancelProcessor->name ?? '',
+                    optional($task->cancel_processed_at)->format('d.m.Y H:i'),
+                ], ';');
+            }
+        });
+
+        self::closeCsv($handle, $report, $filename);
+    }
+
     /**
      * Приводит значение изменённого поля к читаемому виду для CSV.
      */
@@ -403,6 +491,7 @@ class ReportService
             DB::raw('SUM(product_count) as total'),
             DB::raw('SUM(runtime) as total_runtime')
         )
+            ->reportable()
             ->whereBetween('work_day', [$dateFrom->format('Y-m-d'), $dateTo->format('Y-m-d')])
             ->groupBy('user_id', 'activity_id', 'work_day')
             ->orderBy('user_id');

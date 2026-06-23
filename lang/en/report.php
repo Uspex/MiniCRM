@@ -36,10 +36,11 @@ return [
     ],
 
     'type' => [
-        'coefficient'        => 'Coefficient',
-        'productivity'       => 'Productivity',
-        'operations'         => 'Operations',
-        'operations_history' => 'Operation change history',
+        'coefficient'         => 'Coefficient',
+        'productivity'        => 'Productivity',
+        'operations'          => 'Operations',
+        'operations_history'  => 'Operation change history',
+        'operations_cancelled' => 'Cancelled operations',
     ],
 
     'csv' => [
@@ -59,5 +60,10 @@ return [
         'field'         => 'Changed field',
         'old_value'     => 'Was',
         'new_value'     => 'Now',
+        'cancel_reason'    => 'Cancellation reason',
+        'cancel_requester' => 'Requested by',
+        'cancel_requested_at' => 'Requested at',
+        'cancel_approver'  => 'Approved by',
+        'cancel_approved_at' => 'Approved at',
     ],
 ];

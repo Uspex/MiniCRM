@@ -2,7 +2,37 @@
 
 ## Текущая задача
 
-### История изменений операций + отчёт для выявления накрутки коэффициента (2026-06-22)
+### Отмена операций с одобрением + раздел и отчёт «Отменённые операции» (2026-06-23)
+
+**Задача:** Запретить сотрудникам редактировать ранее созданные операции — вместо этого разрешить запрос на отмену с указанием причины (после чего сотрудник создаёт новую операцию). Запрос на отмену должен одобрить другой сотрудник с разрешением; фиксируем, кто одобрил. Отменённые операции не идут в основные отчёты — для них отдельный отчёт. Отдельный раздел «Операции — отмена» для обработки запросов менеджером.
+
+**Решения:** в основных отчётах операция исключается только после одобрения (`cancelled`); статусы `requested`/`rejected` учитываются. Менеджер может одобрить и отклонить. Отчёт «Отменённые операции» фильтруется по `work_day`. Запрет редактирования реализуется через права (сотруднику выдаётся `task_cancel_request` вместо `task_update`), а не хардкодом ролей; форма редактирования блокируется в коде при `requested`/`cancelled`. Самоодобрение запрещено.
+
+**Состояния `cancel_status`:** `null/active` → `requested` (запрос) → `cancelled` (одобрено, из отчётов исключена) | `rejected` (отклонено, снова учитывается).
+
+| # | Шаг | Статус |
+|---|------|--------|
+| 1 | Миграция `add_cancellation_to_tasks_table` (cancel_status, cancel_reason, cancel_requested_by/at, cancel_processed_by/at, cancel_decision_comment) | ✅ |
+| 2 | Модель `Task` — fillable, casts, константы `CANCEL_*`, связи `cancelRequester`/`cancelProcessor`, scope `reportable()` | ✅ |
+| 3 | Пермишены `task_cancel_request`, `task_cancel_approve` (GROUP_TASK) + запуск PermissionSeeder | ✅ |
+| 4 | Локализация ru/en — `task.cancel.*`, `report.type.operations_cancelled` + CSV, `common.menu.task_cancellation` | ✅ |
+| 5 | Маршруты — cancel-request (POST) + раздел cancellation (index/approve/reject) | ✅ |
+| 6 | `TaskController` — метод `cancelRequest`, middleware, блокировка `update`/`edit` для отменённых/на отмене | ✅ |
+| 7 | `TaskCancellationController` — index (список + фильтры), approve, reject (запрет самоодобрения) | ✅ |
+| 8 | Исключение `cancelled` из основных отчётов — `buildAggregatedQuery` + `generateOperations` | ✅ |
+| 9 | Исключение `cancelled` из дашборда — `DashboardController` | ✅ |
+| 10 | Тип отчёта `operations_cancelled` — `Report` константа/getTypes + `generateOperationsCancelled` | ✅ |
+| 11 | Вьюшка `task/index` — бейдж статуса + действие «Запросить отмену» (модалка), скрытие edit | ✅ |
+| 12 | Вьюшка `task/edit` — блок отмены + блокировка формы при `requested`/`cancelled` | ✅ |
+| 13 | Вьюшка раздела `task/cancellation/index` — список + одобрить/отклонить | ✅ |
+| 14 | Sidebar — пункт «Операции — отмена» по `task_cancel_approve` | ✅ |
+| 15 | `view:clear` + `php -l` всех изменённых PHP-файлов | ✅ |
+
+Миграция применена, PermissionSeeder выполнен (добавлены `task_cancel_request`, `task_cancel_approve`), все PHP-файлы проходят `php -l`, blade-шаблоны компилируются, `view:clear` выполнен. Дополнительно: в `admin/common/messages.blade.php` добавлен вывод `session('error')` (его использует и существующий ReportController).
+
+---
+
+### История изменений операций + отчёт для выявления накрутки коэффициента (2026-06-22) ✅
 
 **Задача:** Сохранять историю правок операции (кто и что изменил: было → стало). Показывать историю на странице редактирования операции. Добавить тип отчёта «История изменений операций», чтобы root мог выявлять пользователей, которые накручивают коэффициент (правят `product_count`, `runtime`, `activity_id` и т.п. после создания).
 

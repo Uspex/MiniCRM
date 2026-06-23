@@ -34,16 +34,25 @@
                     @endif
 
 
-                    @if(auth()->user()->hasAnyPermission([\App\Models\Permission::PERMISSION_TASK_LIST, \App\Models\Permission::PERMISSION_ACTIVITY_LIST]))
+                    @if(auth()->user()->hasAnyPermission([\App\Models\Permission::PERMISSION_TASK_LIST, \App\Models\Permission::PERMISSION_ACTIVITY_LIST, \App\Models\Permission::PERMISSION_TASK_CANCEL_APPROVE]))
                         <li class="nk-menu-heading">
                             <h6 class="overline-title text-primary-alt">{{ __('common.menu.tasks') }}</h6>
                         </li><!-- .nk-menu-heading -->
 
                         @if(auth()->user()->hasPermissionTo(\App\Models\Permission::PERMISSION_TASK_LIST))
-                            <li class="nk-menu-item {{ request()->routeIs('admin.task.*') ? 'active' : '' }}">
+                            <li class="nk-menu-item {{ request()->routeIs('admin.task.*') && !request()->routeIs('admin.task.cancellation.*') ? 'active' : '' }}">
                                 <a href="{{ route('admin.task.index') }}" class="nk-menu-link">
                                     <span class="nk-menu-icon"><em class="icon ni ni-todo"></em></span>
                                     <span class="nk-menu-text">{{ __('common.menu.task') }}</span>
+                                </a>
+                            </li><!-- .nk-menu-item -->
+                        @endif
+
+                        @if(auth()->user()->hasPermissionTo(\App\Models\Permission::PERMISSION_TASK_CANCEL_APPROVE))
+                            <li class="nk-menu-item {{ request()->routeIs('admin.task.cancellation.*') ? 'active' : '' }}">
+                                <a href="{{ route('admin.task.cancellation.index') }}" class="nk-menu-link">
+                                    <span class="nk-menu-icon"><em class="icon ni ni-na"></em></span>
+                                    <span class="nk-menu-text">{{ __('common.menu.task_cancellation') }}</span>
                                 </a>
                             </li><!-- .nk-menu-item -->
                         @endif

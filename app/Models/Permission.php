@@ -43,6 +43,8 @@ class Permission extends BasePermission
     const PERMISSION_TASK_INFO = 'task_info';
     const PERMISSION_TASK_DESTROY   = 'task_destroy';
     const PERMISSION_TASK_ALL_USERS = 'task_all_users';
+    const PERMISSION_TASK_CANCEL_REQUEST = 'task_cancel_request';
+    const PERMISSION_TASK_CANCEL_APPROVE = 'task_cancel_approve';
 
     /**
      * Список групп
@@ -81,6 +83,8 @@ class Permission extends BasePermission
                 self::PERMISSION_TASK_INFO,
                 self::PERMISSION_TASK_DESTROY,
                 self::PERMISSION_TASK_ALL_USERS,
+                self::PERMISSION_TASK_CANCEL_REQUEST,
+                self::PERMISSION_TASK_CANCEL_APPROVE,
             ],
             self::GROUP_ANALYTICS => [
                 self::PERMISSION_ANALYTICS_DASHBOARD,

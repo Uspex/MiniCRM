@@ -27,6 +27,7 @@ return [
         'permission' => 'Permissions',
         'tasks'      => 'Tasks',
         'task'       => 'Tasks',
+        'task_cancellation' => 'Operations — cancellation',
         'activity'   => 'Work Types',
         'server'     => 'Server',
         'setting'    => 'Settings',

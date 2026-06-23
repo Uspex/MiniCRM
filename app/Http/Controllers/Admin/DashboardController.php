@@ -62,6 +62,7 @@ class DashboardController extends Controller
             DB::raw('SUM(product_count) as total'),
             DB::raw('SUM(runtime) as total_runtime')
         )
+            ->reportable()
             ->whereBetween('work_day', [$dateFrom->format('Y-m-d'), $dateTo->format('Y-m-d')])
             ->groupBy('activity_id', 'work_day');
 
