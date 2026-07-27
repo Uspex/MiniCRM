@@ -46,6 +46,7 @@ return [
     'csv' => [
         'employee'      => 'Сотрудник',
         'total'         => 'Итого',
+        'total_average' => 'Итого Среднее',
         'activity'      => 'Тип работ',
         'created_at'    => 'Дата создания',
         'work_day'      => 'Рабочий день',

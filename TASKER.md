@@ -2,33 +2,20 @@
 
 ## Текущая задача
 
-### Отмена операций с одобрением + раздел и отчёт «Отменённые операции» (2026-06-23)
+### Колонка «Итого Среднее» в отчёте «Коэффициент» (2026-07-27)
 
-**Задача:** Запретить сотрудникам редактировать ранее созданные операции — вместо этого разрешить запрос на отмену с указанием причины (после чего сотрудник создаёт новую операцию). Запрос на отмену должен одобрить другой сотрудник с разрешением; фиксируем, кто одобрил. Отменённые операции не идут в основные отчёты — для них отдельный отчёт. Отдельный раздел «Операции — отмена» для обработки запросов менеджером.
+**Задача:** В CSV-отчёте типа `coefficient` добавить новую колонку «Итого Среднее» — среднее арифметическое дневных коэффициентов. Существующая колонка «Итого» (`сумма факта / сумма плана`) остаётся без изменений, новая идёт после неё.
 
-**Решения:** в основных отчётах операция исключается только после одобрения (`cancelled`); статусы `requested`/`rejected` учитываются. Менеджер может одобрить и отклонить. Отчёт «Отменённые операции» фильтруется по `work_day`. Запрет редактирования реализуется через права (сотруднику выдаётся `task_cancel_request` вместо `task_update`), а не хардкодом ролей; форма редактирования блокируется в коде при `requested`/`cancelled`. Самоодобрение запрещено.
+**Решения:**
+- Подсветку дней цветом (>2,5 → #9EFAAB, <0,2 → #FBAA9D) не делаем — формат CSV не хранит форматирование ячеек, пользователь отказался от смены формата на XLSX.
+- Среднее считается только по дням, где коэффициент есть (пустые дни не занижают среднее). Если ни одного дня с коэффициентом — колонка пустая.
+- Разделитель дробной части — запятая, как и в остальных числах отчёта.
 
-**Состояния `cancel_status`:** `null/active` → `requested` (запрос) → `cancelled` (одобрено, из отчётов исключена) | `rejected` (отклонено, снова учитывается).
-
-| # | Шаг | Статус |
-|---|------|--------|
-| 1 | Миграция `add_cancellation_to_tasks_table` (cancel_status, cancel_reason, cancel_requested_by/at, cancel_processed_by/at, cancel_decision_comment) | ✅ |
-| 2 | Модель `Task` — fillable, casts, константы `CANCEL_*`, связи `cancelRequester`/`cancelProcessor`, scope `reportable()` | ✅ |
-| 3 | Пермишены `task_cancel_request`, `task_cancel_approve` (GROUP_TASK) + запуск PermissionSeeder | ✅ |
-| 4 | Локализация ru/en — `task.cancel.*`, `report.type.operations_cancelled` + CSV, `common.menu.task_cancellation` | ✅ |
-| 5 | Маршруты — cancel-request (POST) + раздел cancellation (index/approve/reject) | ✅ |
-| 6 | `TaskController` — метод `cancelRequest`, middleware, блокировка `update`/`edit` для отменённых/на отмене | ✅ |
-| 7 | `TaskCancellationController` — index (список + фильтры), approve, reject (запрет самоодобрения) | ✅ |
-| 8 | Исключение `cancelled` из основных отчётов — `buildAggregatedQuery` + `generateOperations` | ✅ |
-| 9 | Исключение `cancelled` из дашборда — `DashboardController` | ✅ |
-| 10 | Тип отчёта `operations_cancelled` — `Report` константа/getTypes + `generateOperationsCancelled` | ✅ |
-| 11 | Вьюшка `task/index` — бейдж статуса + действие «Запросить отмену» (модалка), скрытие edit | ✅ |
-| 12 | Вьюшка `task/edit` — блок отмены + блокировка формы при `requested`/`cancelled` | ✅ |
-| 13 | Вьюшка раздела `task/cancellation/index` — список + одобрить/отклонить | ✅ |
-| 14 | Sidebar — пункт «Операции — отмена» по `task_cancel_approve` | ✅ |
-| 15 | `view:clear` + `php -l` всех изменённых PHP-файлов | ✅ |
-
-Миграция применена, PermissionSeeder выполнен (добавлены `task_cancel_request`, `task_cancel_approve`), все PHP-файлы проходят `php -l`, blade-шаблоны компилируются, `view:clear` выполнен. Дополнительно: в `admin/common/messages.blade.php` добавлен вывод `session('error')` (его использует и существующий ReportController).
+| # | Шаг | Статус | Заметка |
+|---|------|--------|---------|
+| 1 | Локализация — ключ `report.csv.total_average` в ru/en | ✅ | ru «Итого Среднее», en «Total Average» |
+| 2 | `ReportService::generateCoefficient` — заголовок + сбор дневных коэффициентов + среднее | ✅ | `$dayCoefficients[]` наполняется только в ветке `if ($plan && $fact)` — пустые дни не попадают в знаменатель |
+| 3 | `php -l` изменённых файлов | ✅ | 3 файла без ошибок |
 
 ---
 
@@ -149,6 +136,38 @@
 ---
 
 ## Архив выполненных задач
+
+### Отмена операций с одобрением + раздел и отчёт «Отменённые операции» (2026-06-23) ✅
+
+**Задача:** Запретить сотрудникам редактировать ранее созданные операции — вместо этого разрешить запрос на отмену с указанием причины (после чего сотрудник создаёт новую операцию). Запрос на отмену должен одобрить другой сотрудник с разрешением; фиксируем, кто одобрил. Отменённые операции не идут в основные отчёты — для них отдельный отчёт. Отдельный раздел «Операции — отмена» для обработки запросов менеджером.
+
+**Решения:** в основных отчётах операция исключается только после одобрения (`cancelled`); статусы `requested`/`rejected` учитываются. Менеджер может одобрить и отклонить. Отчёт «Отменённые операции» фильтруется по `work_day`. Запрет редактирования реализуется через права (сотруднику выдаётся `task_cancel_request` вместо `task_update`), а не хардкодом ролей; форма редактирования блокируется в коде при `requested`/`cancelled`. Самоодобрение запрещено.
+
+**Состояния `cancel_status`:** `null/active` → `requested` (запрос) → `cancelled` (одобрено, из отчётов исключена) | `rejected` (отклонено, снова учитывается).
+
+| # | Шаг | Статус |
+|---|------|--------|
+| 1 | Миграция `add_cancellation_to_tasks_table` (cancel_status, cancel_reason, cancel_requested_by/at, cancel_processed_by/at, cancel_decision_comment) | ✅ |
+| 2 | Модель `Task` — fillable, casts, константы `CANCEL_*`, связи `cancelRequester`/`cancelProcessor`, scope `reportable()` | ✅ |
+| 3 | Пермишены `task_cancel_request`, `task_cancel_approve` (GROUP_TASK) + запуск PermissionSeeder | ✅ |
+| 4 | Локализация ru/en — `task.cancel.*`, `report.type.operations_cancelled` + CSV, `common.menu.task_cancellation` | ✅ |
+| 5 | Маршруты — cancel-request (POST) + раздел cancellation (index/approve/reject) | ✅ |
+| 6 | `TaskController` — метод `cancelRequest`, middleware, блокировка `update`/`edit` для отменённых/на отмене | ✅ |
+| 7 | `TaskCancellationController` — index (список + фильтры), approve, reject (запрет самоодобрения) | ✅ |
+| 8 | Исключение `cancelled` из основных отчётов — `buildAggregatedQuery` + `generateOperations` | ✅ |
+| 9 | Исключение `cancelled` из дашборда — `DashboardController` | ✅ |
+| 10 | Тип отчёта `operations_cancelled` — `Report` константа/getTypes + `generateOperationsCancelled` | ✅ |
+| 11 | Вьюшка `task/index` — бейдж статуса + действие «Запросить отмену» (модалка), скрытие edit | ✅ |
+| 12 | Вьюшка `task/edit` — блок отмены + блокировка формы при `requested`/`cancelled` | ✅ |
+| 13 | Вьюшка раздела `task/cancellation/index` — список + одобрить/отклонить | ✅ |
+| 14 | Sidebar — пункт «Операции — отмена» по `task_cancel_approve` | ✅ |
+| 15 | `view:clear` + `php -l` всех изменённых PHP-файлов | ✅ |
+
+Локально: миграция применена, PermissionSeeder выполнен (`task_cancel_request`, `task_cancel_approve`), все PHP-файлы проходят `php -l`, blade-шаблоны компилируются. Дополнительно: в `admin/common/messages.blade.php` добавлен вывод `session('error')`.
+
+**⚠️ Шаги при деплое на прод (не делаются автоматически):**
+- `RoleWorkerSeeder` защищён `if($role) return;` — новые права роли `worker` не добавятся. После деплоя вручную (админка ролей или новый сидер): снять у worker `task_update`, добавить `task_cancel_request`; менеджеру добавить `task_cancel_approve`. root получает права автоматически через `RoleRootSeeder`.
+- Миграция `ALTER TABLE tasks` использует `->after()` + 2 FK → на MySQL < 8.0.29 / большой таблице возможна блокировка записи. Накатывать в окно низкой нагрузки либо упростить миграцию (без `after()`/FK).
 
 ### Типы отчётов: coefficient / productivity / operations (2026-04-17)
 

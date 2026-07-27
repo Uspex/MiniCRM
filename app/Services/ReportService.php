@@ -75,12 +75,14 @@ class ReportService
             $header[] = Carbon::parse($date)->format('d.m');
         }
         $header[] = __('report.csv.total');
+        $header[] = __('report.csv.total_average');
         fputcsv($handle, $header, ';');
 
         foreach ($users as $user) {
             $row = [$user->name];
             $totalFact = 0;
             $totalPlan = 0;
+            $dayCoefficients = [];
 
             foreach ($dates as $date) {
                 $fact = 0;
@@ -102,7 +104,9 @@ class ReportService
                 $totalPlan += $plan;
 
                 if ($plan && $fact) {
-                    $row[] = str_replace('.', ',', (string) round($fact / $plan, 2));
+                    $coefficient = round($fact / $plan, 2);
+                    $dayCoefficients[] = $coefficient;
+                    $row[] = str_replace('.', ',', (string) $coefficient);
                 } else {
                     $row[] = '';
                 }
@@ -110,6 +114,13 @@ class ReportService
 
             if ($totalPlan && $totalFact) {
                 $row[] = str_replace('.', ',', (string) round($totalFact / $totalPlan, 2));
+            } else {
+                $row[] = '';
+            }
+
+            if ($dayCoefficients) {
+                $average = round(array_sum($dayCoefficients) / count($dayCoefficients), 2);
+                $row[] = str_replace('.', ',', (string) $average);
             } else {
                 $row[] = '';
             }

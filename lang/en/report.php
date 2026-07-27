@@ -46,6 +46,7 @@ return [
     'csv' => [
         'employee'      => 'Employee',
         'total'         => 'Total',
+        'total_average' => 'Total Average',
         'activity'      => 'Activity',
         'created_at'    => 'Created at',
         'work_day'      => 'Work day',
