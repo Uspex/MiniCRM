@@ -8,10 +8,17 @@ use Illuminate\Database\Eloquent\Model;
 
 class Task extends Model
 {
-    // Статусы отмены операции (null/active — обычная операция, учитывается в отчётах)
-    const CANCEL_REQUESTED = 'requested';
-    const CANCEL_CANCELLED = 'cancelled';
-    const CANCEL_REJECTED  = 'rejected';
+    // Тип активного запроса по операции
+    const REQUEST_TYPE_CANCEL = 'cancel';
+    const REQUEST_TYPE_EDIT   = 'edit';
+
+    // Статусы запроса (null — запроса нет, операция обычная и учитывается в отчётах)
+    const REQUEST_REQUESTED = 'requested';
+    const REQUEST_APPROVED  = 'approved';
+    const REQUEST_REJECTED  = 'rejected';
+
+    // Поля, изменения которых фиксируются в истории и в запросах на правку
+    const TRACKED_FIELDS = ['activity_id', 'product_count', 'runtime', 'shift', 'work_day', 'message'];
 
     protected $fillable = [
         'user_id',
@@ -25,18 +32,23 @@ class Task extends Model
         'work_start',
         'work_finish',
         'status',
-        'cancel_status',
-        'cancel_reason',
-        'cancel_requested_by',
-        'cancel_requested_at',
-        'cancel_processed_by',
-        'cancel_processed_at',
-        'cancel_decision_comment',
+        'request_type',
+        'request_status',
+        'request_reason',
+        'request_changes',
+        'request_payload',
+        'request_requested_by',
+        'request_requested_at',
+        'request_processed_by',
+        'request_processed_at',
+        'request_decision_comment',
     ];
 
     protected $casts = [
-        'cancel_requested_at' => 'datetime',
-        'cancel_processed_at' => 'datetime',
+        'request_changes'      => 'array',
+        'request_payload'      => 'array',
+        'request_requested_at' => 'datetime',
+        'request_processed_at' => 'datetime',
     ];
 
     /**
@@ -139,14 +151,119 @@ class Task extends Model
 
     /**
      * Только операции, идущие в основные отчёты: исключаются одобренные отмены.
-     * Статусы requested/rejected по-прежнему учитываются.
+     * Запросы на правку и незакрытые/отклонённые отмены на отчёты не влияют.
      */
     public function scopeReportable($query)
     {
         return $query->where(function ($q) {
-            $q->whereNull('cancel_status')
-                ->orWhere('cancel_status', '!=', self::CANCEL_CANCELLED);
+            $q->whereNull('request_type')
+                ->orWhere('request_type', '!=', self::REQUEST_TYPE_CANCEL)
+                ->orWhere('request_status', '!=', self::REQUEST_APPROVED);
         });
+    }
+
+    /**
+     * Операции с одобренной отменой.
+     */
+    public function scopeCancelled($query)
+    {
+        return $query->where('request_type', self::REQUEST_TYPE_CANCEL)
+            ->where('request_status', self::REQUEST_APPROVED);
+    }
+
+    /**
+     * Есть незакрытый запрос (на отмену или на правку).
+     */
+    public function hasPendingRequest(): bool
+    {
+        return $this->request_status === self::REQUEST_REQUESTED;
+    }
+
+    /**
+     * Операция отменена — одобренный запрос на отмену.
+     */
+    public function isCancelled(): bool
+    {
+        return $this->request_type === self::REQUEST_TYPE_CANCEL
+            && $this->request_status === self::REQUEST_APPROVED;
+    }
+
+    /**
+     * Операцию нельзя изменять: висит запрос на утверждении либо она отменена.
+     */
+    public function isLocked(): bool
+    {
+        return $this->hasPendingRequest() || $this->isCancelled();
+    }
+
+    /**
+     * Можно подать новый запрос: операция не заблокирована.
+     */
+    public function isRequestable(): bool
+    {
+        return ! $this->isLocked();
+    }
+
+    /**
+     * Заполняет операцию данными правки, пересчитывая время смены.
+     */
+    public function applyEditData(array $data): void
+    {
+        if (!empty($data['shift']) && !empty($data['work_day'])) {
+            $times = self::resolveShiftTimes((int) $data['shift'], $data['work_day']);
+            $data['work_start']  = $times['work_start'];
+            $data['work_finish'] = $times['work_finish'];
+        }
+
+        $this->fill($data);
+    }
+
+    /**
+     * Изменения значимых полей относительно текущих данных операции.
+     *
+     * @return array<string, array{old: mixed, new: mixed}>
+     */
+    public function diffEditData(array $data): array
+    {
+        $draft = clone $this;
+        $draft->fill($data);
+
+        $changes = [];
+        foreach (self::TRACKED_FIELDS as $field) {
+            $old = $this->getOriginal($field);
+            $new = $draft->getAttribute($field);
+
+            if (self::valuesAreEqual($field, $old, $new)) {
+                continue;
+            }
+
+            $changes[$field] = ['old' => $old, 'new' => $new];
+        }
+
+        return $changes;
+    }
+
+    /**
+     * Сравнение значений поля: «10.00» и 10 — одно и то же, даты сравниваются по дню.
+     */
+    private static function valuesAreEqual(string $field, $old, $new): bool
+    {
+        $old = ($old === '' ? null : $old);
+        $new = ($new === '' ? null : $new);
+
+        if ($old === null || $new === null) {
+            return $old === $new;
+        }
+
+        if ($field === 'work_day') {
+            return Carbon::parse($old)->format('Y-m-d') === Carbon::parse($new)->format('Y-m-d');
+        }
+
+        if (is_numeric($old) && is_numeric($new)) {
+            return (float) $old === (float) $new;
+        }
+
+        return (string) $old === (string) $new;
     }
 
     public function user()
@@ -159,13 +276,18 @@ class Task extends Model
         return $this->belongsTo(Activity::class, 'activity_id');
     }
 
-    public function cancelRequester()
+    public function requester()
     {
-        return $this->belongsTo(User::class, 'cancel_requested_by');
+        return $this->belongsTo(User::class, 'request_requested_by');
     }
 
-    public function cancelProcessor()
+    public function processor()
     {
-        return $this->belongsTo(User::class, 'cancel_processed_by');
+        return $this->belongsTo(User::class, 'request_processed_by');
+    }
+
+    public function histories()
+    {
+        return $this->hasMany(TaskHistory::class, 'task_id');
     }
 }

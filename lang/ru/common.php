@@ -27,7 +27,7 @@ return [
         'permission' => 'Права',
         'tasks' => 'Операции',
         'task' => 'Операции',
-        'task_cancellation' => 'Операции — отмена',
+        'task_request' => 'Операции — запросы',
         'activity' => 'Типы работ',
         'server' => 'Сервер',
         'setting' => 'Настройки',

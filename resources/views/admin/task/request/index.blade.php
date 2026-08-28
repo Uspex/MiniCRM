@@ -7,18 +7,32 @@
 @section('content')
 
     @php
-        $cancelBadges = [
-            \App\Models\Task::CANCEL_REQUESTED => 'bg-warning',
-            \App\Models\Task::CANCEL_CANCELLED => 'bg-danger',
-            \App\Models\Task::CANCEL_REJECTED  => 'bg-light text-dark',
+
+        $typeBadges = [
+            \App\Models\Task::REQUEST_TYPE_CANCEL => 'bg-danger',
+            \App\Models\Task::REQUEST_TYPE_EDIT   => 'bg-info',
         ];
+
+        $activityNames = $activities->pluck('name', 'id');
+        $shiftNames    = collect($allShifts)->mapWithKeys(fn($s) => [(int) $s['id'] => $s['name']]);
+        $renderValue = function ($field, $value) use ($activityNames, $shiftNames) {
+            if ($value === null || $value === '') {
+                return '—';
+            }
+            return match ($field) {
+                'activity_id' => $activityNames[(int) $value] ?? $value,
+                'shift'       => $shiftNames[(int) $value] ?? $value,
+                'work_day'    => \Carbon\Carbon::parse($value)->format('d.m.Y'),
+                default       => $value,
+            };
+        };
     @endphp
 
     <div class="nk-content-body">
         <div class="nk-block-head nk-block-head-sm">
             <div class="nk-block-between g-3">
                 <div class="nk-block-head-content">
-                    <h3 class="nk-block-title page-title">{{ __('task.cancel.section_title') }}</h3>
+                    <h3 class="nk-block-title page-title">{{ __('task.request.section_title') }}</h3>
                 </div>
             </div>
         </div>
@@ -27,21 +41,29 @@
             <div class="card card-bordered">
                 <div class="card-inner position-relative card-tools-toggle">
                     <div class="d-sm-none text-end">
-                        <a href="#" class="btn btn-sm btn-icon btn-trigger" data-bs-toggle="collapse" data-bs-target="#cancelFilters" id="cancelFiltersToggle">
+                        <a href="#" class="btn btn-sm btn-icon btn-trigger" data-bs-toggle="collapse" data-bs-target="#requestFilters" id="requestFiltersToggle">
                             <em class="icon ni ni-search"></em>
                         </a>
                     </div>
-                    <div class="collapse d-sm-block show" id="cancelFilters">
+                    <div class="collapse d-sm-block show" id="requestFilters">
                         <div class="card-tools w-100 pt-3 pt-sm-0">
-                            <form method="GET" action="{{ route('admin.task.cancellation.index') }}">
+                            <form method="GET" action="{{ route('admin.task.request.index') }}">
                                 <div class="row">
                                     <div class="col-12 col-md-10">
                                         <div class="row gx-6 gy-3">
-                                            <div class="col-12 col-sm-6 col-md-3">
-                                                <select class="form-select" name="cancel_status">
-                                                    <option value="">{{ __('task.cancel.filter_status') }}</option>
+                                            <div class="col-12 col-sm-6 col-md-2">
+                                                <select class="form-select" name="type">
+                                                    <option value="">{{ __('task.request.filter_type') }}</option>
+                                                    @foreach($types as $type)
+                                                        <option value="{{ $type }}" @selected($typeFilter === $type)>{{ __('task.request.type.' . $type) }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="col-12 col-sm-6 col-md-2">
+                                                <select class="form-select" name="status">
+                                                    <option value="">{{ __('task.request.filter_status') }}</option>
                                                     @foreach($statuses as $status)
-                                                        <option value="{{ $status }}" @selected($statusFilter === $status)>{{ __('task.cancel.status.' . $status) }}</option>
+                                                        <option value="{{ $status }}" @selected($statusFilter === $status)>{{ __('task.request.status.' . $status) }}</option>
                                                     @endforeach
                                                 </select>
                                             </div>
@@ -53,7 +75,7 @@
                                                     @endforeach
                                                 </select>
                                             </div>
-                                            <div class="col-12 col-sm-6 col-md-3">
+                                            <div class="col-12 col-sm-6 col-md-2">
                                                 <select class="form-select" name="activity_id" id="filterActivityId">
                                                     <option value=""></option>
                                                     @foreach($activities as $activity)
@@ -74,7 +96,7 @@
                                     </div>
                                     <div class="col-12 col-md-2 mt-2 mt-md-0">
                                         <div class="d-flex justify-content-end">
-                                            <a href="{{ route('admin.task.cancellation.index') }}" class="btn btn-sm btn-warning me-2" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ __('common.btn_search_reset') }}">
+                                            <a href="{{ route('admin.task.request.index') }}" class="btn btn-sm btn-warning me-2" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ __('common.btn_search_reset') }}">
                                                 <em class="icon ni ni-reload-alt"></em>
                                             </a>
                                             <button type="submit" class="btn btn-sm btn-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ __('common.btn_search_apply') }}">
@@ -92,57 +114,71 @@
                         <div class="nk-tb-list nk-tb-ulist">
                             <div class="nk-tb-item nk-tb-head">
                                 <div class="nk-tb-col tb-col-sm"><span>#</span></div>
-                                <div class="nk-tb-col"><span>{{ __('task.list.head.user') }}</span></div>
-                                <div class="nk-tb-col"><span>{{ __('task.list.head.activity') }}</span></div>
-                                <div class="nk-tb-col tb-col-sm"><span>{{ __('task.list.head.product_count') }}</span></div>
-                                <div class="nk-tb-col tb-col-md"><span>{{ __('task.list.head.work_day') }}</span></div>
-                                <div class="nk-tb-col"><span>{{ __('task.cancel.reason') }}</span></div>
-                                <div class="nk-tb-col tb-col-md"><span>{{ __('task.cancel.requested_by') }}</span></div>
-                                <div class="nk-tb-col tb-col-sm"><span>{{ __('report.list.status') }}</span></div>
+                                <div class="nk-tb-col tb-col-sm"><span>{{ __('task.request.type_title') }}</span></div>
+                                <div class="nk-tb-col tb-col-sm"><span>{{ __('task.request.operation') }}</span></div>
+                                <div class="nk-tb-col" style="flex: 2 1 auto;"><span>{{ __('task.request.details') }}</span></div>
+                                <div class="nk-tb-col tb-col-md"><span>{{ __('task.request.requested_by') }}</span></div>
                                 <div class="nk-tb-col text-end"><em class="icon ni ni-setting"></em></div>
                             </div>
 
                             @forelse($paginator as $item)
                                 <div class="nk-tb-item">
                                     <div class="nk-tb-col tb-col-sm"><span>{{ $loop->iteration }}</span></div>
-                                    <div class="nk-tb-col"><span>{{ $item->user->name ?? '—' }}</span></div>
-                                    <div class="nk-tb-col"><span>{{ $item->activity->name ?? '—' }}</span></div>
-                                    <div class="nk-tb-col tb-col-sm"><span>{{ $item->product_count }}</span></div>
-                                    <div class="nk-tb-col tb-col-md">
-                                        <span>{{ $item->work_day ? \Carbon\Carbon::parse($item->work_day)->format('d.m.Y') : '—' }}</span>
-                                    </div>
-                                    <div class="nk-tb-col">
-                                        <span data-bs-toggle="tooltip" title="{{ $item->cancel_reason }}">{{ \Illuminate\Support\Str::limit($item->cancel_reason, 40) ?: '—' }}</span>
-                                    </div>
-                                    <div class="nk-tb-col tb-col-md">
-                                        <span>{{ $item->cancelRequester->name ?? '—' }}</span>
-                                        <span class="text-soft d-block">{{ optional($item->cancel_requested_at)->format('d.m.Y H:i') }}</span>
+                                    <div class="nk-tb-col tb-col-sm">
+                                        <span class="badge {{ $typeBadges[$item->request_type] ?? 'bg-light' }}">{{ __('task.request.type.' . $item->request_type) }}</span>
                                     </div>
                                     <div class="nk-tb-col tb-col-sm">
-                                        <span class="badge {{ $cancelBadges[$item->cancel_status] ?? 'bg-light' }}">{{ __('task.cancel.status.' . $item->cancel_status) }}</span>
+                                        <a href="{{ route('admin.task.edit', $item->id) }}">#{{ $item->id }}</a>
+                                    </div>
+                                    <div class="nk-tb-col" style="flex: 2 1 auto;">
+                                        <div class="small"><strong>{{ __('task.list.head.user') }}:</strong> {{ $item->user->name ?? '—' }}</div>
+                                        @if($item->request_type === \App\Models\Task::REQUEST_TYPE_EDIT)
+                                            @forelse(($item->request_changes ?? []) as $field => $pair)
+                                                <div class="small">
+                                                    <strong>{{ __('task.form.fields.' . $field) }}:</strong>
+                                                    <span class="text-soft">{{ __('task.history.from') }}</span>
+                                                    {{ $renderValue($field, $pair['old'] ?? null) }}
+                                                    <span class="text-soft">→ {{ __('task.history.to') }}</span>
+                                                    <strong>{{ $renderValue($field, $pair['new'] ?? null) }}</strong>
+                                                </div>
+                                            @empty
+                                                <span class="text-soft">—</span>
+                                            @endforelse
+                                            @if($item->request_reason)
+                                                <div class="text-soft small mt-1">{{ __('task.request.reason') }}: {{ $item->request_reason }}</div>
+                                            @endif
+                                        @else
+                                            <span>{{ $item->request_reason ?: '—' }}</span>
+                                        @endif
+                                    </div>
+                                    <div class="nk-tb-col tb-col-md">
+                                        <span>{{ $item->requester->name ?? '—' }}</span>
+                                        <span class="text-soft d-block">{{ optional($item->request_requested_at)->format('d.m.Y H:i') }}</span>
                                     </div>
                                     <div class="nk-tb-col nk-tb-col-tools">
-                                        @if($item->cancel_status === \App\Models\Task::CANCEL_REQUESTED)
+                                        @if($item->hasPendingRequest())
                                             <ul class="nk-tb-actions gx-1">
                                                 <li>
-                                                    <a href="#" class="btn btn-sm btn-success js-process"
-                                                       data-action="{{ route('admin.task.cancellation.approve', $item->id) }}"
-                                                       data-title="{{ __('task.cancel.approve_title') }}">
-                                                        <em class="icon ni ni-check"></em><span>{{ __('task.cancel.approve') }}</span>
+                                                    <a href="#" class="btn btn-sm btn-icon btn-success js-process"
+                                                       data-action="{{ route('admin.task.request.approve', $item->id) }}"
+                                                       data-title="{{ __('task.request.approve_title') }}"
+                                                       data-bs-toggle="tooltip" data-bs-placement="top" title="{{ __('task.request.approve') }}">
+                                                        <em class="icon ni ni-check"></em>
                                                     </a>
                                                 </li>
                                                 <li>
-                                                    <a href="#" class="btn btn-sm btn-outline-danger js-process"
-                                                       data-action="{{ route('admin.task.cancellation.reject', $item->id) }}"
-                                                       data-title="{{ __('task.cancel.reject_title') }}">
-                                                        <em class="icon ni ni-cross"></em><span>{{ __('task.cancel.reject') }}</span>
+                                                    <a href="#" class="btn btn-sm btn-icon btn-outline-danger js-process"
+                                                       data-action="{{ route('admin.task.request.reject', $item->id) }}"
+                                                       data-title="{{ __('task.request.reject_title') }}"
+                                                       data-bs-toggle="tooltip" data-bs-placement="top" title="{{ __('task.request.reject') }}">
+                                                        <em class="icon ni ni-cross"></em>
                                                     </a>
                                                 </li>
                                             </ul>
                                         @else
                                             <span class="text-soft small">
-                                                {{ $item->cancelProcessor->name ?? '—' }},
-                                                {{ optional($item->cancel_processed_at)->format('d.m.Y H:i') }}
+                                                {{ $item->processor->name ?? '—' }},
+                                                {{ optional($item->request_processed_at)->format('d.m.Y H:i') }}
                                             </span>
                                         @endif
                                     </div>
@@ -150,7 +186,7 @@
                             @empty
                                 <div class="nk-tb-item">
                                     <div class="nk-tb-col" style="flex: 1 1 auto;">
-                                        <span class="text-soft">{{ __('task.cancel.empty') }}</span>
+                                        <span class="text-soft">{{ __('task.request.empty') }}</span>
                                     </div>
                                 </div>
                             @endforelse
@@ -180,8 +216,9 @@
                     </div>
                     <div class="modal-body">
                         <div class="form-group">
-                            <label class="form-label" for="cancel_decision_comment">{{ __('task.cancel.comment') }}</label>
-                            <textarea name="cancel_decision_comment" id="cancel_decision_comment" class="form-control" rows="3" placeholder="{{ __('task.cancel.comment_hint') }}"></textarea>
+                            <label class="form-label" for="decisionComment">{{ __('task.request.comment') }}</label>
+                            <textarea name="decision_comment" id="decisionComment" class="form-control" rows="3"
+                                      placeholder="{{ __('task.request.comment_hint') }}"></textarea>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -246,9 +283,13 @@ $(function () {
     // Модалка обработки запроса (одобрить/отклонить)
     $(document).on('click', '.js-process', function (e) {
         e.preventDefault();
+        var tooltip = bootstrap.Tooltip.getInstance(this);
+        if (tooltip) {
+            tooltip.hide();
+        }
         $('#processForm').attr('action', $(this).data('action'));
         $('#processModalTitle').text($(this).data('title'));
-        $('#cancel_decision_comment').val('');
+        $('#decisionComment').val('');
         var el = document.getElementById('processModal');
         if (el) {
             bootstrap.Modal.getOrCreateInstance(el).show();

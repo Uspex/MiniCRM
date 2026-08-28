@@ -287,6 +287,7 @@ class ReportService
 
         $query = TaskHistory::with([
                 'editor:id,name',
+                'decider:id,name',
                 'task:id,user_id,activity_id',
                 'task.user:id,name,department',
                 'task.activity:id,name',
@@ -328,6 +329,7 @@ class ReportService
 
         fputcsv($handle, [
             __('report.csv.changed_at'),
+            __('report.csv.event'),
             __('report.csv.editor'),
             __('report.csv.operation_id'),
             __('report.csv.employee'),
@@ -336,6 +338,10 @@ class ReportService
             __('report.csv.field'),
             __('report.csv.old_value'),
             __('report.csv.new_value'),
+            __('report.csv.comment'),
+            __('report.csv.decided_by'),
+            __('report.csv.decided_at'),
+            __('report.csv.decision_comment'),
         ], ';');
 
         $chunkNumber = 0;
@@ -350,18 +356,37 @@ class ReportService
             foreach ($rows as $history) {
                 $task = $history->task;
 
-                foreach (($history->changes ?? []) as $field => $pair) {
-                    fputcsv($handle, [
-                        optional($history->created_at)->format('d.m.Y H:i'),
-                        $history->editor->name ?? '',
-                        $history->task_id,
-                        $task->user->name ?? '',
-                        $task->user->department ?? '',
-                        $task->activity->name ?? '',
+                $base = [
+                    optional($history->created_at)->format('d.m.Y H:i'),
+                    __('task.history.events.' . $history->event),
+                    $history->editor->name ?? '',
+                    $history->task_id,
+                    $task->user->name ?? '',
+                    $task->user->department ?? '',
+                    $task->activity->name ?? '',
+                ];
+
+                $changes = $history->changes ?? [];
+
+                $decision = [
+                    $history->decider->name ?? '',
+                    optional($history->decided_at)->format('d.m.Y H:i') ?? '',
+                    $history->decision_comment ?? '',
+                ];
+
+                // Событие без изменений (запрос отмены и решение по нему) — одна строка
+                if (empty($changes)) {
+                    fputcsv($handle, array_merge($base, ['', '', '', $history->comment ?? ''], $decision), ';');
+                    continue;
+                }
+
+                foreach ($changes as $field => $pair) {
+                    fputcsv($handle, array_merge($base, [
                         $fieldLabels[$field] ?? $field,
                         self::formatHistoryValue($field, $pair['old'] ?? null, $shiftNames, $activityNames),
                         self::formatHistoryValue($field, $pair['new'] ?? null, $shiftNames, $activityNames),
-                    ], ';');
+                        $history->comment ?? '',
+                    ], $decision), ';');
                 }
             }
         });
@@ -382,13 +407,13 @@ class ReportService
         $query = Task::with([
                 'user:id,name,department',
                 'activity:id,name',
-                'cancelRequester:id,name',
-                'cancelProcessor:id,name',
+                'requester:id,name',
+                'processor:id,name',
             ])
-            ->where('cancel_status', Task::CANCEL_CANCELLED)
+            ->cancelled()
             ->whereBetween('work_day', [$dateFrom->format('Y-m-d'), $dateTo->format('Y-m-d')])
             ->orderBy('work_day')
-            ->orderBy('cancel_processed_at');
+            ->orderBy('request_processed_at');
 
         if (!empty($filterUserIds)) {
             $query->whereIn('user_id', $filterUserIds);
@@ -444,10 +469,10 @@ class ReportService
                     $task->activity->name ?? '',
                     $task->product_count,
                     $task->runtime !== null ? str_replace('.', ',', (string) $task->runtime) : '',
-                    $task->cancel_reason,
-                    $task->cancelRequester->name ?? '',
-                    $task->cancelProcessor->name ?? '',
-                    optional($task->cancel_processed_at)->format('d.m.Y H:i'),
+                    $task->request_reason,
+                    $task->requester->name ?? '',
+                    $task->processor->name ?? '',
+                    optional($task->request_processed_at)->format('d.m.Y H:i'),
                 ], ';');
             }
         });

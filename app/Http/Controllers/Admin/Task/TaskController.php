@@ -15,6 +15,7 @@ use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class TaskController extends Controller
@@ -33,11 +34,13 @@ class TaskController extends Controller
     }
 
     /**
-     * Заблокирована ли операция для редактирования (на отмене или отменена).
+     * Сообщение о том, почему операция закрыта для изменений.
      */
-    private function isLocked(Task $task): bool
+    private function lockedMessage(Task $task): string
     {
-        return in_array($task->cancel_status, [Task::CANCEL_REQUESTED, Task::CANCEL_CANCELLED], true);
+        return $task->isCancelled()
+            ? __('task.request.cancelled_notice')
+            : __('task.request.pending_notice');
     }
 
     /**
@@ -145,15 +148,31 @@ class TaskController extends Controller
             'name' => $s['name'],
         ]);
 
-        $histories = TaskHistory::with('editor:id,name')
+        $histories = TaskHistory::with(['editor:id,name', 'decider:id,name'])
             ->where('task_id', $task->id)
             ->orderByDesc('id')
             ->get();
 
-        $task->loadMissing(['cancelRequester:id,name', 'cancelProcessor:id,name']);
-        $locked = $this->isLocked($task);
+        $task->loadMissing(['requester:id,name', 'processor:id,name']);
 
-        return view('admin.task.edit', compact('task', 'users', 'activities', 'allShifts', 'histories', 'locked'));
+        // Операцию с активным запросом или отменённую изменять нельзя
+        $locked = $task->isLocked();
+
+        // Без права task_update форма доступна только для просмотра
+        $canUpdate = auth()->user()->can(Permission::PERMISSION_TASK_UPDATE);
+
+        // С правом task_update_request изменения уходят на утверждение вместо сохранения
+        $sendsForApproval = auth()->user()->can(Permission::PERMISSION_TASK_UPDATE_REQUEST);
+
+        // Запросить отмену можно для своей операции (или любой — с правом task_all_users)
+        $canCancelRequest = auth()->user()->can(Permission::PERMISSION_TASK_CANCEL_REQUEST)
+            && $task->isRequestable()
+            && (auth()->user()->can(Permission::PERMISSION_TASK_ALL_USERS) || $task->user_id === auth()->id());
+
+        return view('admin.task.edit', compact(
+            'task', 'users', 'activities', 'allShifts', 'histories',
+            'locked', 'canUpdate', 'sendsForApproval', 'canCancelRequest'
+        ));
     }
 
     /**
@@ -163,44 +182,57 @@ class TaskController extends Controller
     {
         $task = Task::findOrFail($id);
 
-        // Операцию на отмене / отменённую редактировать нельзя
-        if ($this->isLocked($task)) {
+        if ($task->isLocked()) {
             return redirect()
                 ->route('admin.task.edit', $task->id)
-                ->with('error', __('task.cancel.locked_notice'));
+                ->with('error', $this->lockedMessage($task));
         }
 
         $data = $request->validated();
 
-        if (!empty($data['shift']) && !empty($data['work_day'])) {
-            $times = Task::resolveShiftTimes((int) $data['shift'], $data['work_day']);
-            $data['work_start']  = $times['work_start'];
-            $data['work_finish'] = $times['work_finish'];
-        }
+        // Изменения значимых полей (влияют на коэффициент/отчёты)
+        $changes = $task->diffEditData($data);
 
-        $task->fill($data);
-
-        // Фиксируем изменения значимых полей (влияют на коэффициент/отчёты)
-        $tracked = ['activity_id', 'product_count', 'runtime', 'shift', 'work_day', 'message'];
-        $changes = [];
-        foreach ($tracked as $field) {
-            if ($task->isDirty($field)) {
-                $changes[$field] = [
-                    'old' => $task->getOriginal($field),
-                    'new' => $task->getAttribute($field),
-                ];
+        // С правом task_update_request правка не сохраняется, а уходит на утверждение
+        if (auth()->user()->can(Permission::PERMISSION_TASK_UPDATE_REQUEST)) {
+            if (empty($changes)) {
+                return redirect()
+                    ->route('admin.task.edit', $task->id)
+                    ->with('error', __('task.request.no_changes'));
             }
+
+            $reason = $request->input('request_reason');
+
+            DB::transaction(function () use ($task, $data, $changes, $reason) {
+                $task->update([
+                    'request_type'             => Task::REQUEST_TYPE_EDIT,
+                    'request_status'           => Task::REQUEST_REQUESTED,
+                    'request_reason'           => $reason,
+                    'request_changes'          => $changes,
+                    'request_payload'          => $data,
+                    'request_requested_by'     => auth()->id(),
+                    'request_requested_at'     => now(),
+                    'request_processed_by'     => null,
+                    'request_processed_at'     => null,
+                    'request_decision_comment' => null,
+                ]);
+
+                TaskHistory::record($task->id, TaskHistory::EVENT_EDIT_REQUESTED, $changes, $reason);
+            });
+
+            return redirect()
+                ->route('admin.task.edit', $task->id)
+                ->with('success', __('task.request.edit_sent'));
         }
 
-        $task->save();
+        DB::transaction(function () use ($task, $data, $changes) {
+            $task->applyEditData($data);
+            $task->save();
 
-        if (!empty($changes)) {
-            TaskHistory::create([
-                'task_id'   => $task->id,
-                'editor_id' => auth()->id(),
-                'changes'   => $changes,
-            ]);
-        }
+            if (!empty($changes)) {
+                TaskHistory::record($task->id, TaskHistory::EVENT_UPDATED, $changes);
+            }
+        });
 
         return redirect()
             ->route('admin.task.edit', $task->id)
@@ -209,7 +241,7 @@ class TaskController extends Controller
 
     /**
      * Запрос на отмену операции (сотрудник указывает причину).
-     * Одобряет/отклоняет запрос другой сотрудник в разделе «Операции — отмена».
+     * Одобряет/отклоняет запрос другой сотрудник в разделе «Операции — запросы».
      */
     public function cancelRequest(Request $request, int $id): RedirectResponse
     {
@@ -221,26 +253,34 @@ class TaskController extends Controller
             abort(403);
         }
 
-        // Запросить отмену можно только для активной или ранее отклонённой операции
-        if (!in_array($task->cancel_status, [null, Task::CANCEL_REJECTED], true)) {
-            return back()->with('error', __('task.cancel.not_requestable'));
+        // Запросить отмену можно, только если операция не заблокирована другим запросом
+        if (!$task->isRequestable()) {
+            return back()->with('error', $this->lockedMessage($task));
         }
 
         $request->validate(
-            ['cancel_reason' => ['required', 'string', 'max:65535']],
-            ['cancel_reason.required' => __('task.cancel.reason_required')]
+            ['request_reason' => ['required', 'string', 'max:65535']],
+            ['request_reason.required' => __('task.cancel.reason_required')]
         );
 
-        $task->update([
-            'cancel_status'           => Task::CANCEL_REQUESTED,
-            'cancel_reason'           => $request->input('cancel_reason'),
-            'cancel_requested_by'     => auth()->id(),
-            'cancel_requested_at'     => now(),
-            // сбрасываем прошлое решение, если операция переотправляется после отклонения
-            'cancel_processed_by'     => null,
-            'cancel_processed_at'     => null,
-            'cancel_decision_comment' => null,
-        ]);
+        $reason = $request->input('request_reason');
+
+        DB::transaction(function () use ($task, $reason) {
+            $task->update([
+                'request_type'             => Task::REQUEST_TYPE_CANCEL,
+                'request_status'           => Task::REQUEST_REQUESTED,
+                'request_reason'           => $reason,
+                'request_changes'          => null,
+                'request_payload'          => null,
+                'request_requested_by'     => auth()->id(),
+                'request_requested_at'     => now(),
+                'request_processed_by'     => null,
+                'request_processed_at'     => null,
+                'request_decision_comment' => null,
+            ]);
+
+            TaskHistory::record($task->id, TaskHistory::EVENT_CANCEL_REQUESTED, null, $reason);
+        });
 
         return redirect()
             ->route('admin.task.index')

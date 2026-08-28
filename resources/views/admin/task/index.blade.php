@@ -8,10 +8,10 @@
 
     @php
         $canCancelRequest = auth()->user()->can(\App\Models\Permission::PERMISSION_TASK_CANCEL_REQUEST);
-        $cancelBadges = [
-            \App\Models\Task::CANCEL_REQUESTED => 'bg-warning',
-            \App\Models\Task::CANCEL_CANCELLED => 'bg-danger',
-            \App\Models\Task::CANCEL_REJECTED  => 'bg-light text-dark',
+        $requestBadges = [
+            \App\Models\Task::REQUEST_REQUESTED => 'bg-outline-warning',
+            \App\Models\Task::REQUEST_APPROVED  => 'bg-outline-primary',
+            \App\Models\Task::REQUEST_REJECTED  => 'bg-outline-danger',
         ];
     @endphp
 
@@ -134,8 +134,8 @@
                                     @endif
                                     <div class="nk-tb-col">
                                         <a href="{{ route('admin.task.edit', $item->id) }}"><span>{{ $item->activity->name ?? '—' }}</span><em class="icon ni ni-edit"></em></a>
-                                        @if($item->cancel_status)
-                                            <span class="badge {{ $cancelBadges[$item->cancel_status] ?? 'bg-light' }} ms-1">{{ __('task.cancel.status.' . $item->cancel_status) }}</span>
+                                        @if($item->request_type)
+                                            <span class="badge {{ $requestBadges[$item->request_status] ?? 'bg-light' }} ms-1">{{ __('task.request.type.' . $item->request_type) }}: {{ __('task.request.status.' . $item->request_status) }}</span>
                                         @endif
                                     </div>
                                     <div class="nk-tb-col">
@@ -161,9 +161,9 @@
                                                     <div class="dropdown-menu dropdown-menu-end">
                                                         <ul class="link-list-opt no-bdr">
                                                             @php
-                                                                $isLocked = in_array($item->cancel_status, [\App\Models\Task::CANCEL_REQUESTED, \App\Models\Task::CANCEL_CANCELLED], true);
+                                                                $isLocked = $item->isLocked();
                                                                 $canRequestThis = $canCancelRequest
-                                                                    && in_array($item->cancel_status, [null, \App\Models\Task::CANCEL_REJECTED], true)
+                                                                    && $item->isRequestable()
                                                                     && ($canViewAll || $item->user_id === auth()->id());
                                                             @endphp
                                                             @unless($isLocked)
@@ -214,8 +214,8 @@
                         </div>
                         <div class="modal-body">
                             <div class="form-group">
-                                <label class="form-label" for="cancel_reason">{{ __('task.cancel.reason') }}</label>
-                                <textarea name="cancel_reason" id="cancel_reason" class="form-control" rows="3" required></textarea>
+                                <label class="form-label" for="request_reason">{{ __('task.cancel.reason') }}</label>
+                                <textarea name="request_reason" id="request_reason" class="form-control" rows="3" required></textarea>
                             </div>
                         </div>
                         <div class="modal-footer">
@@ -304,7 +304,7 @@ $(function () {
     $(document).on('click', '.js-cancel-request', function (e) {
         e.preventDefault();
         $('#cancelRequestForm').attr('action', $(this).data('action'));
-        $('#cancel_reason').val('');
+        $('#request_reason').val('');
         var el = document.getElementById('cancelRequestModal');
         if (el) {
             bootstrap.Modal.getOrCreateInstance(el).show();

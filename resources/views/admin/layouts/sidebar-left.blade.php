@@ -40,7 +40,7 @@
                         </li><!-- .nk-menu-heading -->
 
                         @if(auth()->user()->hasPermissionTo(\App\Models\Permission::PERMISSION_TASK_LIST))
-                            <li class="nk-menu-item {{ request()->routeIs('admin.task.*') && !request()->routeIs('admin.task.cancellation.*') ? 'active' : '' }}">
+                            <li class="nk-menu-item {{ request()->routeIs('admin.task.*') && !request()->routeIs('admin.task.request.*') ? 'active' : '' }}">
                                 <a href="{{ route('admin.task.index') }}" class="nk-menu-link">
                                     <span class="nk-menu-icon"><em class="icon ni ni-todo"></em></span>
                                     <span class="nk-menu-text">{{ __('common.menu.task') }}</span>
@@ -49,10 +49,10 @@
                         @endif
 
                         @if(auth()->user()->hasPermissionTo(\App\Models\Permission::PERMISSION_TASK_CANCEL_APPROVE))
-                            <li class="nk-menu-item {{ request()->routeIs('admin.task.cancellation.*') ? 'active' : '' }}">
-                                <a href="{{ route('admin.task.cancellation.index') }}" class="nk-menu-link">
+                            <li class="nk-menu-item {{ request()->routeIs('admin.task.request.*') ? 'active' : '' }}">
+                                <a href="{{ route('admin.task.request.index') }}" class="nk-menu-link">
                                     <span class="nk-menu-icon"><em class="icon ni ni-na"></em></span>
-                                    <span class="nk-menu-text">{{ __('common.menu.task_cancellation') }}</span>
+                                    <span class="nk-menu-text">{{ __('common.menu.task_request') }}</span>
                                 </a>
                             </li><!-- .nk-menu-item -->
                         @endif
